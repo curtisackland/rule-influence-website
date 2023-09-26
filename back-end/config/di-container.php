@@ -1,1 +1,7 @@
 <?php
+
+$definitions = [
+
+];
+
+return $definitions;
