@@ -10,6 +10,16 @@ services:
     working_dir: /var/www/
     volumes:
       - ../:/var/www
+
+  front-end:
+    build:
+      context: ../front-end/
+    container_name: rule-making-influence-front-end
+    restart: always
+    working_dir: /app
+    ports:
+      - "80:3000"
+
   nginx:
     image: nginx:1.19-alpine
     container_name: rule-making-influence-nginx
