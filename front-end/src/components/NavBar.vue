@@ -11,10 +11,7 @@
 </template>
 
 <style scoped>
-img {
-  height: 100%;
-  object-fit: contain;
-}
+
 nav.topnav {
   display: block;
   position: fixed;
@@ -28,14 +25,29 @@ nav.topnav ul {
 }
 
 nav.topnav ul li {
-  text-align: center;
   align-content: center;
-  margin: auto;
-  padding: 20px;
-  float:left;
 
-  border: 2px black;
+  margin: auto;
+  padding: 10px 20px;
+  float:left;
+  height: 40px;
+  border-right: 1px black solid;
   display: inline-block;
+}
+
+nav.topnav ul li a {
+  text-align: center;
+
+  vertical-align: center;
+}
+
+nav.topnav ul li a img {
+  height: 100%;
+  object-fit: contain;
+}
+
+a {
+  font-size: 20pt;
 }
 </style>
 
