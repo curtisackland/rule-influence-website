@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Test;
+namespace App\GetInfoActions;
 
-use App\Entities\OrgResponses;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class TestRoute {
-
+class GetHomePageInfo
+{
     /** @var Connection $connection */
     private $connection;
 
@@ -23,15 +22,6 @@ class TestRoute {
     public function __invoke(Request $request, Response $response, $params): Response
     {
         try {
-            $queryBuilder = $this->entityManager->createQueryBuilder();
-            $query = $queryBuilder->select('o.orgName')->from(OrgResponses::class, 'o')->setMaxResults(10)->getQuery();
-
-            //$orgResponsesRepo = $this->entityManager->getRepository(OrgResponses::class);
-
-
-            //$results = $orgResponsesRepo->findBy([], null, 100);
-            $results = $query->getResult();
-            /*
             $stmt =  $this->connection->prepare("SELECT DISTINCT
                 org_name,
                 SUM(y_prob>0.5) AS y_count,
@@ -47,6 +37,7 @@ class TestRoute {
 
             $results = $stmt->executeQuery()->fetchAllAssociative();
 
+            /*
             $count = 0;
             foreach($results as $result) {
                 if ($count != 100) {
@@ -57,14 +48,15 @@ class TestRoute {
                 $count++;
             }
             */
-            $body = $response->getBody();
-            $body->write(json_encode($results));
-            return $response->withBody($body);
         } catch (Exception $e) {
             echo '<pre>';
             print_r($e->getMessage());
             echo '</pre>';
             return $response;
         }
+
+        $body = $response->getBody();
+        $body->write(json_encode($results, true));
+        return $response->withBody($body);
     }
 }
