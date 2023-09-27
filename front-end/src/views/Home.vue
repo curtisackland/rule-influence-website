@@ -1,10 +1,11 @@
 <script setup>
-import NavBar from "../App.vue";
+import TopOrgCommentersTable from "../components/TopOrgCommentersTable.vue";
 </script>
 
 
 <template>
-  <NavBar/>
+  <p>wassup dawg</p>
+  <TopOrgCommentersTable/>
 </template>
 
 
