@@ -2,6 +2,8 @@
 
 namespace App\GetInfoActions;
 
+use App\Entities\OrgResponses;
+use App\Entities\Responses;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Exception;
@@ -33,30 +35,20 @@ class GetHomePageInfo
                 AND (responses.response_id==org_responses.response_id)
                                 
                 GROUP BY org_name
-                ORDER BY -y_count");
+                ORDER BY -y_count
+                LIMIT 10");
 
             $results = $stmt->executeQuery()->fetchAllAssociative();
 
-            /*
-            $count = 0;
-            foreach($results as $result) {
-                if ($count != 100) {
-                    echo '<pre>';
-                    print_r($result);
-                    echo '</pre>';
-                }
-                $count++;
-            }
-            */
         } catch (Exception $e) {
-            echo '<pre>';
-            print_r($e->getMessage());
-            echo '</pre>';
-            return $response;
+            $response->withStatus(500);
+            $body = $response->getBody();
+            $body->write(json_encode(['error' => $e->getMessage()]));
+            return $response->withBody($body);
         }
 
         $body = $response->getBody();
-        $body->write(json_encode($results, true));
+        $body->write(json_encode($results));
         return $response->withBody($body);
     }
 }

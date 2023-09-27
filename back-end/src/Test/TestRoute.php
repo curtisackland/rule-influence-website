@@ -3,6 +3,7 @@
 namespace App\Test;
 
 use App\Entities\OrgResponses;
+use App\Entities\Responses;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Exception;
@@ -24,13 +25,17 @@ class TestRoute {
     {
         try {
             $queryBuilder = $this->entityManager->createQueryBuilder();
-            $query = $queryBuilder->select('o.orgName')->from(OrgResponses::class, 'o')->setMaxResults(10)->getQuery();
+            //$query = $queryBuilder->select('o.orgName')->from(OrgResponses::class, 'o')->setMaxResults(10)->getQuery();
 
             //$orgResponsesRepo = $this->entityManager->getRepository(OrgResponses::class);
 
+            /** @var Responses $result */
+            $result = $this->entityManager->find(Responses::class, ['frdocNumber' => '59-1787', 'responseId' => 3]);
+
+            $results = $result->jsonSerialize();
 
             //$results = $orgResponsesRepo->findBy([], null, 100);
-            $results = $query->getResult();
+            //$results = $query->getResult();
             /*
             $stmt =  $this->connection->prepare("SELECT DISTINCT
                 org_name,
