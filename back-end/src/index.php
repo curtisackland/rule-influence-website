@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 use App\GetInfoActions\GetHomePageInfo;
 use Slim\Factory\AppFactory;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteCollectorProxy;
 use App\Test\TestRoute;
 
@@ -21,7 +19,8 @@ $app = AppFactory::create(null, $container);
 $app->get('/', GetHomePageInfo::class);
 // Test route for messing around
 $app->group('/api', function (RouteCollectorProxy $group) {
-    $group->get('/{garbage}', TestRoute::class);
+    $group->get('/test', TestRoute::class);
+    //$group->get('/organization/{name}', GetOrganizationInfo::class);
 });
 
 $app->run();
