@@ -25,7 +25,6 @@
     name: "TopOrgCommentersTable",
     methods: {
       async fetchData() {
-        //this.tableData = (await axios.get("http://localhost:8080", {headers: {"Access-Control-Allow-Origin":"*"}})).response;
         this.tableData = (await axios.get("http://localhost:8080")).data;
         console.log(this.tableData)
         this.tableHead = Object.keys(this.tableData[0]);
