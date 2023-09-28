@@ -11,7 +11,7 @@
     <tbody>
       <tr v-for="row in tableData">
         <td v-for="tableData in row">
-          <a v-if="tableData === row['org_name']" :href="'/orgs/' + orglinks[tableData]">{{tableData}}</a>
+          <a v-if="tableData === row['org_name']" :href="'/organization/' + encodeURIComponent(tableData)">{{tableData}}</a>
           <span v-if="tableData !== row['org_name']">{{tableData}}</span>
         </td>
       </tr>
@@ -25,18 +25,16 @@
     name: "TopOrgCommentersTable",
     methods: {
       async fetchData() {
-        //this.tableData = (await axios.get("https://api.coindesk.com/v1/bpi/currentprice.json")).response;
-        const data = [{"org_name":"Via","y_count":"100","n_frdocs":"200"}];
-        this.tableHead = Object.keys(data[0]);
-        this.tableData = data;
+        //this.tableData = (await axios.get("http://localhost:8080", {headers: {"Access-Control-Allow-Origin":"*"}})).response;
+        this.tableData = (await axios.get("http://localhost:8080")).data;
+        console.log(this.tableData)
+        this.tableHead = Object.keys(this.tableData[0]);
       }
     },
     data() {
       return {
         tableHead: ["org_name"],
-        tableData: null,
-        orglinks: {"Via": "Via"}
-
+        tableData: null
       };
     },
     mounted() {
