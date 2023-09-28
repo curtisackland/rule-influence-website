@@ -9,9 +9,8 @@ services:
     restart: always
     working_dir: /var/www/
     volumes:
-      - ../back-end/src:/var/www
+      - ../back-end:/var/www
       - ../back-end/data:/data
-      - ../back-end/config:/config
 
   nginx:
     image: nginx:1.19-alpine
@@ -20,7 +19,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ../back-end/src:/var/www
+      - ../back-end:/var/www
       - ../back-end/nginx:/etc/nginx/conf.d
 
   front-end:
