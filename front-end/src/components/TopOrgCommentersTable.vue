@@ -1,22 +1,23 @@
 <template>
-  <table>
-    <thead>
-      <tr>
-        <th v-for="tableHeader in tableHead">
-          {{tableHeader}}
-        </th>
-      </tr>
-
-    </thead>
-    <tbody>
-      <tr v-for="row in tableData">
-        <td v-for="tableData in row">
-          <a v-if="tableData === row['org_name']" :href="'/organization/' + encodeURIComponent(tableData)">{{tableData}}</a>
-          <span v-if="tableData !== row['org_name']">{{tableData}}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div v-if="tableHead && tableData">
+    <table>
+      <thead>
+        <tr>
+          <th v-for="tableHeader in tableHead">
+            {{tableHeader}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in tableData">
+          <td v-for="tableData in row">
+            <a v-if="tableData === row['org_name']" :href="'/organization/' + encodeURIComponent(tableData)">{{tableData}}</a>
+            <span v-if="tableData !== row['org_name']">{{tableData}}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
@@ -26,7 +27,6 @@
     methods: {
       async fetchData() {
         this.tableData = (await axios.get("http://localhost:8080")).data;
-        console.log(this.tableData)
         this.tableHead = Object.keys(this.tableData[0]);
       }
     },

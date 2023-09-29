@@ -4,7 +4,6 @@ import TopOrgCommentersTable from "../components/TopOrgCommentersTable.vue";
 
 
 <template>
-  <p>wassup dawg</p>
   <TopOrgCommentersTable/>
 </template>
 
