@@ -11,9 +11,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www
 
-COPY config ./config
-COPY nginx ./ngnix
-COPY src ./src
-COPY composer.* ./
+#COPY composer.* ./
 
-RUN composer install
+#RUN composer install

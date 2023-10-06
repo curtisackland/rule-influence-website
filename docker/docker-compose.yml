@@ -9,7 +9,8 @@ services:
     restart: always
     working_dir: /var/www/
     volumes:
-      - ../back-end/data:/var/www/data
+      - ../back-end:/var/www
+      - ../back-end/data:/data
 
   nginx:
     image: nginx:1.19-alpine
