@@ -6,9 +6,9 @@
     <rect width="1000" height="100" fill="gray"/>
   </svg>
   <h2>Rule Influence Table</h2>
-
+  <OrgResponsesTable :orgName="$route.params.orgName"/>
 </template>
 
 <script setup>
-import TopOrgCommentersTable from "../components/TopOrgCommentersTable.vue";
+import OrgResponsesTable from "../components/OrgResponsesTable.vue";
 </script>

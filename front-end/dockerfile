@@ -7,6 +7,7 @@ RUN npm install -g serve
 COPY package*.json .
 RUN npm install
 
+COPY vercel.json .
 COPY vite.config.js .
 COPY index.html .
 COPY public/ ./public
@@ -14,4 +15,4 @@ COPY src/ ./src
 
 RUN npm run build
 
-CMD serve dist
+CMD serve --config ../vercel.json dist
