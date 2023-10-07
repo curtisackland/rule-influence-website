@@ -6,11 +6,10 @@ services:
       context: ../back-end
       dockerfile: dockerfile
     container_name: rule-making-influence-back-end
-    restart: always
     working_dir: /var/www/
     volumes:
       - ../back-end:/var/www
-      - ../back-end/data:/data
+      - ../back-end/data:/var/www/data
 
   nginx:
     image: nginx:1.19-alpine
