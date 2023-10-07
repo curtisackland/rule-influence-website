@@ -28,7 +28,8 @@ npm -v
 
 ## Running The Site
 Default database location is in `back-end/data/rulemaking_influence.db`
-This file must exist for the application to work properly.
+This file must exist for the application to work properly. 
+You will need to add this file manually, it is not part of the repo.
 
 All the services can be started in Docker by using the commands
 ```bash
