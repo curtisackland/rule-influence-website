@@ -1,5 +1,39 @@
+<script>
+  import {ref} from "vue";
+  import {watch} from "vue";
+  
+  import Table from "./TableView.vue"
+
+  import axios from "axios"
+  export default {
+    name: "TopOrgCommentersTable",
+    methods: {
+      async fetchData() {
+        this.tableData = (await axios.get("http://localhost:8080")).data;
+        this.tableHead = Object.keys(this.tableData[0]);
+      }
+    },
+    components: {
+      Table
+    },
+    data() {
+      return {
+        tableHead: null,
+        tableData: null
+      };
+    },
+    mounted() {
+      this.fetchData();
+    }
+  }
+</script>
+
 <template>
   <div v-if="tableHead && tableData">
+    <Table :tableHead="tableHead" :tableData="tableData"/>
+  </div>
+
+  <!-- <div v-if="tableHead && tableData">
     <table>
       <thead>
         <tr>
@@ -17,43 +51,9 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  </div> -->
 </template>
 
-<script>
-  import axios from "axios"
-  export default {
-    name: "TopOrgCommentersTable",
-    methods: {
-      async fetchData() {
-        this.tableData = (await axios.get("http://localhost:8080")).data;
-        this.tableHead = Object.keys(this.tableData[0]);
-      }
-    },
-    data() {
-      return {
-        tableHead: ["org_name"],
-        tableData: null
-      };
-    },
-    mounted() {
-      this.fetchData();
-    }
-  }
-</script>
-
 <style scoped>
-thead {
 
-}
-
-th {
-  border: 1px solid black;
-  background-color: lightgray;
-}
-
-td {
-  border: 1px solid black;
-  background-color: #E0E0FF;
-}
 </style>

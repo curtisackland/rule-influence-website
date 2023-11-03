@@ -1,0 +1,102 @@
+[
+    {
+        "id": 1,
+        "orgName": "American Petroleum Institute",
+        "orgData": [
+            {
+                "ycout": 2919,
+                "nfrdocs": 581
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "orgName": "Natural Resources Defense Council",
+        "orgData": [
+            {
+                "ycout": 2247,
+                "nfrdocs": 741
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "orgName": "Sierra Club, et al",
+        "orgData": [
+            {
+                "ycout": 2146,
+                "nfrdocs": 747
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "orgName": "EarthJustice",
+        "orgData": [
+            {
+                "ycout": 1942,
+                "nfrdocs": 620
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "orgName": "The Center for Biological Diversity",
+        "orgData": [
+            {
+                "ycout": 1907,
+                "nfrdocs": 671
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "orgName": "AMERICAN HOSPITAL ASSOCIATION",
+        "orgData": [
+            {
+                "ycout": 1599,
+                "nfrdocs": 286
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "orgName": "AMERICAN MEDICAL ASSN",
+        "orgData": [
+            {
+                "ycout": 1542,
+                "nfrdocs": 276
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "orgName": "American Bankers Associations",
+        "orgData": [
+            {
+                "ycout": 1454,
+                "nfrdocs": 260
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "orgName": "U. S. Chamber of Commerce",
+        "orgData": [
+            {
+                "ycout": 1421,
+                "nfrdocs": 523
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "orgName": "Federation Of American Hospitals",
+        "orgData": [
+            {
+                "ycout": 1288,
+                "nfrdocs": 188
+            }
+        ]
+    }
+]
