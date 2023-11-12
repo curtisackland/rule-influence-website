@@ -18,11 +18,11 @@ $container = new DI\Container(include __DIR__ . '/../config/di-container.php');
 $app = AppFactory::create(null, $container);
 
 $app->get('/', GetHomePageInfo::class);
-$app->get('/idk', GetOrgPageInfo::class);
-// Test route for messing around
+
 $app->group('/api', function (RouteCollectorProxy $group) {
-    $group->get('/test', TestRoute::class);
+    $group->get('/home', GetHomePageInfo::class);
     $group->get('/organization/{orgName}', GetOrgPageInfo::class);
+    $group->get('/test', TestRoute::class); // REMOVE LATER
 });
 
 $app->run();
