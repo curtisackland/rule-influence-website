@@ -30,7 +30,7 @@
           params: { filters: {
               orgName: null, // can be a string of the Organization name
               sortBy: "yCount", // sort by a specific column: "orgName" || "yCount" || "frdocs" || NULL
-              sortOrder: "highest" // can be "highest" || "lowest" || NULL
+              sortOrder: "DESC" // can be "DESC" || "ASC" || NULL
             }}
         })).data;
         this.tableHead = Object.keys(this.tableData[0]);

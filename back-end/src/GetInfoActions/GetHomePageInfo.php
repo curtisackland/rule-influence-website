@@ -42,7 +42,7 @@ class GetHomePageInfo
 
             $query .= ' GROUP BY org_name';
 
-            // filtering chosen column from highest to lowest or lowest to highest
+            // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
                 switch($queryParams['filters']['sortBy']) {
                     case "orgName":
@@ -81,25 +81,16 @@ class GetHomePageInfo
     }
 
     /**
-     * Creates an ORDER BY query based on if $sortOrder is highest or lowest and sorts it on the column given by $sortBy
+     * Creates an ORDER BY query based on if $sortOrder is descending or ascending and sorts it on the column given by $sortBy
      * @param string $sortOrder
      * @param string $sortBy
      * @return string|void
      */
     private function sortOrder(string $sortOrder, string $sortBy) {
-
-        if ($sortBy == 'org_name') {
-            if ($sortOrder == "highest") {
-                return ' ORDER BY ' . $sortBy . ' ASC';
-            } elseif ($sortOrder == "lowest") {
-                return ' ORDER BY ' . $sortBy . ' DESC';
-            }
-        }
-
-        if ($sortOrder == "highest") {
-            return ' ORDER BY -' . $sortBy;
-        } elseif ($sortOrder == "lowest") {
-            return ' ORDER BY ' . $sortBy;
+        if ($sortOrder == 'DESC') {
+            return ' ORDER BY ' . $sortBy . ' DESC';
+        } elseif ($sortOrder == 'ASC') {
+            return ' ORDER BY ' . $sortBy . ' ASC';
         }
     }
 }

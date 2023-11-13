@@ -14,7 +14,7 @@ in the ```fetchData()``` method.
     filters: {
         orgName: "String" || NULL,
         sortBy: "orgName" || "yCount" || "frdocs" || NULL,
-        sortOrder: "highest" || "lowest" || NULL,
+        sortOrder: "DESC" || "ASC" || NULL,
     }
 }
 ```
