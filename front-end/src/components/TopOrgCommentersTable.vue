@@ -26,7 +26,13 @@
     name: "TopOrgCommentersTable",
     methods: {
       async fetchData() {
-        this.tableData = (await axios.get("http://localhost:8080")).data;
+        this.tableData = (await axios.get("http://localhost:8080/api/home",{
+          params: { filters: {
+              orgName: null, // can be a string of the Organization name
+              sortBy: "yCount", // sort by a specific column: "orgName" || "yCount" || "frdocs" || NULL
+              sortOrder: "DESC" // can be "DESC" || "ASC" || NULL
+            }}
+        })).data;
         this.tableHead = Object.keys(this.tableData[0]);
       }
     },
