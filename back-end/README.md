@@ -19,3 +19,16 @@ in the ```fetchData()``` method.
 }
 ```
 Note: If ```sortBy``` or ```sortOrder``` are ```NULL``` then no sort will be applied.
+
+**Organization Page &rarr; ```/api/organization/{orgName}```**
+```
+{
+    filters: {
+        commentID: "String" || NULL, // can be a string of the comment id
+        frdocNumber: "String" || NULL, // can be a string of the frdoc number
+        sortBy: "responseID" || "score" || "normScore" || NULL,
+        sortOrder: "DESC" || "ASC" || NULL
+    }
+}
+```
+Note: If ```sortBy``` or ```sortOrder``` are ```NULL``` then no sort will be applied.
