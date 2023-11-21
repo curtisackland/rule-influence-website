@@ -16,13 +16,13 @@
     <div class="collapse navbar-collapse" id="myNav">
       <ul class="navbar-nav mr-auto" id="navigation">
         <li class="nav-item active">
-          <a class="nav-link" active-class="active" href="/">Home</a>
+          <RouterLink to="/" class="nav-link" active-class="active" >Home</RouterLink>
         </li>
         <li class="nav-item">
-          <a class="nav-link" active-class="active" href="/explore">Explore Data</a>
+          <RouterLink to="/explore" class="nav-link" active-class="active">Explore Data</RouterLink>
         </li>
         <li class="nav-item">
-          <a class="nav-link" active-class="active" href="/about">About</a>
+          <RouterLink to="/about" class="nav-link" active-class="active" >About</RouterLink>
         </li>
       </ul>
       <div class="image-container">
@@ -60,7 +60,7 @@
     margin-right: auto;
   }
 
-  a:active {
+  a.active {
     font-weight: 900;
 }
 </style>

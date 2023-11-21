@@ -1,6 +1,4 @@
 <script setup>
-    import { defineProps } from 'vue';
-
     const {tableHead, tableData} = defineProps(["tableHead","tableData"])
   
     console.log("Im here")
