@@ -1,9 +1,3 @@
-<script setup>
-    const {tableHead, tableData} = defineProps(["tableHead","tableData"])
-  
-    console.log("Im here")
-</script>
-
 <template>
     <table id="myTable">
       <th v-for="tableHeader in tableHead">

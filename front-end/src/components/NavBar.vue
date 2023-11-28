@@ -3,15 +3,6 @@
 </script>
 
 <template>
-  <!-- <nav class="navbar navbar-expand-lg" style="background-color: #bdd4f9;">
-    <RouterLink to="/" style="padding: 10px;"><img src="/icon.png" height="64" width="64" style="border-radius: 10px"/></RouterLink>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav">
-        <li><RouterLink to="/">Home</RouterLink></li>
-        <li><RouterLink to="/about">About</RouterLink></li>
-      </ul>
-    </div>
-  </nav> -->
   <nav class="navbar navbar-expand" style="background-color: #283C3C"> 
     <div class="collapse navbar-collapse" id="myNav">
       <ul class="navbar-nav mr-auto" id="navigation">
