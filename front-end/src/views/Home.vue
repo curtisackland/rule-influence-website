@@ -1,5 +1,20 @@
 <script setup>
   import TopOrgCommentersTable from "../components/TopOrgCommentersTable.vue";
+  import SortBar from "../components/SortBar.vue";
+  import {ref} from 'vue';
+
+  const sortBy = ref("orgName")
+  const orderBy = ref("DESC")
+
+  function sortByChanged(valueIn) {
+    sortBy.value = valueIn
+    console.log(valueIn)
+  }
+
+  function orderByChanged(valueIn) {
+    orderBy.value = valueIn
+    console.log(valueIn)
+  }
 </script>
 
 
@@ -7,9 +22,9 @@
   <div>
     <header>  
       <h1 style="color:#DB9B92;" >Welcome to rule-making influence explorer!</h1>
-      <input v-model.trim="search" type="text" placeholder="Search...">
+      <SortBar @sortByChanged="sortByChanged" @orderByChanged="orderByChanged"/>
     </header>
-    <TopOrgCommentersTable/>
+    <TopOrgCommentersTable :sortByProp="sortBy" :sortOrderProp="orderBy" :key="[sortBy, orderBy].toString()"/>
   </div>
 </template>
 

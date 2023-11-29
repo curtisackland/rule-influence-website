@@ -1,3 +1,12 @@
+<script>
+export default {
+ props: {
+  tableHead: [String],
+  tableData: [String]
+ }
+}
+</script>
+
 <template>
     <table id="myTable">
       <th v-for="tableHeader in tableHead">
@@ -8,7 +17,6 @@
           <td>{{row.y_count}}</td>
           <td>{{row.n_frdocs}}</td>
       </tr>
-          
       </table>
 </template>
 
