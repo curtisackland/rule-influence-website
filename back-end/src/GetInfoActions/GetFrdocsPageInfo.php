@@ -27,7 +27,7 @@ class GetFrdocsPageInfo
 
             $queryParams = $request->getQueryParams();
 
-            $query = 'SELECT json_group_array(agency), publication_date, fr_type, frdocs.frdoc_number, title, abstract, action
+            $query = 'SELECT json_group_array(agency) as agencies, publication_date, fr_type, frdocs.frdoc_number, title, abstract, action
                     FROM frdocs, frdoc_agencies WHERE frdocs.frdoc_number=frdoc_agencies.frdoc_number
                     GROUP BY frdocs.frdoc_number LIMIT 20';
 
