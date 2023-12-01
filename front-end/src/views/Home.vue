@@ -3,7 +3,7 @@
   import SortBar from "../components/SortBar.vue";
   import {ref} from 'vue';
 
-  const sortBy = ref("orgName")
+  const sortBy = ref("yCount")
   const orderBy = ref("DESC")
 
   function sortByChanged(valueIn) {

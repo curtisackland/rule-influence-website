@@ -1,6 +1,6 @@
 <script setup>
 import { defineProps, defineEmits } from "vue";
-const sortBy = [ "orgName",  "yCount", "frdocs", "None" ];
+const sortBy = [ "yCount", "orgName", "frdocs", "None" ];
 const sortOrder = [ "DESC", "ASC", "None" ];
 const emit = defineEmits(['sortByChanged', 'orderByChanged'])
 
