@@ -33,7 +33,15 @@ class GetFrdocsPageInfo
 
             $stmt =  $this->connection->prepare($query);
 
-            $results = $stmt->executeQuery()->fetchAllAssociative();
+            $tmp = $stmt->executeQuery()->fetchAllAssociative();
+
+            $results = [];
+
+            foreach ($tmp as $row) {
+                $row["agencies"] = json_decode($row["agencies"]);
+                $results[] = $row; 
+            }
+
 
         } catch (Exception $e) {
             $response->withStatus(500);
