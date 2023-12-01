@@ -3,7 +3,7 @@
     <v-card class="my-3" v-for="row in tableData">
       <v-card-text>
         <v-row class="d-flex">
-          <v-col class="" cols="3">
+          <v-col cols="3">
             <v-card-title>{{row["frdoc_number"]}}</v-card-title>
             <v-card-subtitle>{{row["fr_type"]}}</v-card-subtitle>
             <v-virtual-scroll class="mx-3 mb-2" :items="row['agencies']">
@@ -16,7 +16,7 @@
           <v-col cols="9">
             <v-card-title>{{ row["title"] }}</v-card-title>
             <v-card-subtitle>{{ row["publication_date"] }} &bull; {{ row["action"] }}</v-card-subtitle>
-            <v-card-text class="">{{ row["abstract"] }}</v-card-text>
+            <v-card-text>{{ row["abstract"] }}</v-card-text>
           </v-col>
         </v-row>
       </v-card-text>
@@ -35,7 +35,6 @@ export default {
       this.tableData = (await axios.get("http://localhost:8080/api/frdocs")).data;
     }
   },
-  props: ["orgName"],
   data() {
     return {
       tableData: null
