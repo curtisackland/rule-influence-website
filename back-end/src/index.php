@@ -2,6 +2,7 @@
 
 declare(strict_types = 1);
 
+use App\GetInfoActions\GetFrdocsPageInfo;
 use App\GetInfoActions\GetHomePageInfo;
 use App\GetInfoActions\GetOrgPageInfo;
 use Slim\Factory\AppFactory;
@@ -22,6 +23,7 @@ $app->get('/', GetHomePageInfo::class);
 $app->group('/api', function (RouteCollectorProxy $group) {
     $group->get('/home', GetHomePageInfo::class);
     $group->get('/organization/{orgName}', GetOrgPageInfo::class);
+    $group->get('/frdocs', GetFrdocsPageInfo::class);
     $group->get('/test', TestRoute::class); // REMOVE LATER
 });
 
