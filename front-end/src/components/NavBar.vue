@@ -22,21 +22,9 @@
     </v-app-bar-title>
 
     <!-- Navigation items that link to different pages -->
-    <v-row class="active w-25 display-nav-items">
-      <v-btn>
-        <RouterLink to="/" class="nav-link" active-class="active" >Home</RouterLink>
-      </v-btn>
-      <v-btn>
-        <RouterLink to="/about" class="nav-link" active-class="active" >About</RouterLink>
-      </v-btn>
-      <v-btn>
-        <RouterLink to="/frdocs" class="nav-link" active-class="active" >FR Docs</RouterLink>
-      </v-btn>
-      <v-btn>
-        <RouterLink to="/responses" class="nav-link" active-class="active" >Responses</RouterLink>
-      </v-btn>
-      <v-btn>
-        <RouterLink to="/comments" class="nav-link" active-class="active" >Comments</RouterLink>
+    <v-row class="w-25 display-nav-items">
+      <v-btn v-for="item in menuItems">
+        <RouterLink :to="item.path" class="nav-link" active-class="active" >{{ item.title }}</RouterLink>
       </v-btn>
     </v-row>
 
