@@ -23,6 +23,16 @@ const router = createRouter({
       name: 'frdocs',
       component: () => import('../views/FRDocs.vue')
     },
+    {
+      path: '/responses',
+      name: 'responses',
+      component: () => import('../views/Responses.vue')
+    },
+    {
+      path: '/comments',
+      name: 'comments',
+      component: () => import('../views/Comments.vue')
+    },
   ]
 })
 
