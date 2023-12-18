@@ -1,55 +1,125 @@
-<script setup>
-  import {RouterLink} from "vue-router"
-</script>
-
 <template>
-  <nav class="navbar navbar-expand" style="background-color: #283C3C"> 
-    <div class="collapse navbar-collapse" id="myNav">
-      <ul class="navbar-nav mr-auto" id="navigation">
-        <li class="nav-item active">
-          <RouterLink to="/" class="nav-link" active-class="active" >Home</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/about" class="nav-link" active-class="active" >About</RouterLink>
-        </li>
-      </ul>
-      <div class="image-container">
-        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.wemakescholars.com%2Fadmin%2Fuploads%2Fproviders%2F0CVU1PN3tZla9Z6d1rhIPEO1Mx5roQla.png&f=1&nofb=1&ipt=25f07c18225a27dbf7523bc0a9b8698b2346f64ff1df094429d1966f49d06029&ipo=images" alt="">
-      </div>
+  <v-app-bar
+      color="teal-darken-4"
+      image="/ivey-banner.jpeg"
+      class="min-width"
+  >
+    <!--Gradient effect for the Ivey Banner -->
+    <template v-slot:image>
+        <v-img
+            gradient="to top right, rgba(40,60,60,.9), rgba(40,60,60,.5)"
+            class="custom-gradient"
+        ></v-img>
+    </template>
+
+    <!-- Hamburger menu icon that goes before the title when the screen is too small -->
+    <template v-slot:prepend>
+      <v-app-bar-nav-icon variant="text" @click.stop="sidebar = !sidebar" class="enable-side-menu"></v-app-bar-nav-icon>
+    </template>
+
+    <v-app-bar-title>
+      <RouterLink to="/" class="nav-link title-text">{{ title }}</RouterLink>
+    </v-app-bar-title>
+
+    <!-- Navigation items that link to different pages -->
+    <v-row class="w-25 display-nav-items">
+      <v-btn v-for="item in menuItems">
+        <RouterLink :to="item.path" class="nav-link" active-class="active" >{{ item.title }}</RouterLink>
+      </v-btn>
+    </v-row>
+
+    <!-- Ivey Logo -->
+    <div class="d-flex logo-size align-content-center">
+      <v-img
+          src="/ivey-logo-nav-bar.png"
+      ></v-img>
     </div>
-  </nav>
+  </v-app-bar>
+
+  <!-- Left side menu navigation that pops out when clicking the hamburger menu (sidebar=true) when the screen is too small -->
+  <v-navigation-drawer v-model="sidebar" class="enable-side-menu" temporary="">
+    <v-list>
+      <v-list-item
+          v-for="item in menuItems"
+          :key="item.title"
+          :to="item.path">
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+
 </template>
+
+<script>
+export default {
+  name: "Navbar",
+  data() {
+    return {
+      sidebar: false,
+      title: 'Rule-Making Influence Explorer',
+      menuItems: [
+        { title: 'Home', path: '/' },
+        { title: 'About', path: '/about'},
+        { title: 'FR Docs', path: '/frdocs'},
+        { title: 'Responses', path: '/responses'},
+        { title: 'Comments', path: '/comments'},
+      ],
+    }
+  },
+}
+</script>
 
 <style scoped>
   a {
     color: #EBDCD2!important;
   }
-  
+
+  @media (max-width: 950px) {
+    .display-nav-items {
+      display: none !important;
+    }
+  }
+
+  @media (min-width: 950px) {
+    .enable-side-menu {
+      display: none !important;
+    }
+  }
+
+  .custom-gradient {
+    position: relative;
+  }
+
+  .custom-gradient::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to left, rgba(235, 220, 210,.3), rgba(235, 220, 210,0));
+  }
+
+  .min-width {
+    min-width: 300px!important;
+  }
+
+  .logo-size {
+    height: 100%;
+    width: 12%;
+    max-width: 150px;
+  }
+
   nav {
     background-color: darkslategray;
   }
 
-  .image-container {
-    background-color: #EBDCD2;
-    margin-left: auto;
-    width: 160px;
-    height: 60px;
-    display:flex;
-    justify-content:space-between;
-    align-items: center;
-    border: 1px black solid;
-  }
-
-  .image-container img {
-    width: 100%;
-    height: 100px;
-    margin-top: 25px;
-    margin-left: auto;
-    margin-right: auto;
+  .title-text {
+    font-weight: 500;
   }
 
   a.active {
-    font-weight: 900;
-}
+    font-weight: 800;
+  }
 </style>
 
