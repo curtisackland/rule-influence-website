@@ -37,7 +37,7 @@
   </v-app-bar>
 
   <!-- Left side menu navigation that pops out when clicking the hamburger menu (sidebar=true) when the screen is too small -->
-  <v-navigation-drawer v-model="sidebar" class="enable-side-menu" temporary="">
+  <v-navigation-drawer v-model="sidebar" class="enable-side-menu" temporary="" color="rie-primary-color">
     <v-list>
       <v-list-item
           v-for="item in menuItems"
@@ -108,10 +108,6 @@ export default {
     height: 100%;
     width: 12%;
     max-width: 150px;
-  }
-
-  nav {
-    background-color: darkslategray;
   }
 
   .title-text {
