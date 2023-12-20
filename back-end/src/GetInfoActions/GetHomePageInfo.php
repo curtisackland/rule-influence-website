@@ -2,45 +2,33 @@
 
 namespace App\GetInfoActions;
 
-use App\Entities\OrgResponses;
-use App\Entities\Responses;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
 use Exception;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class GetHomePageInfo
 {
-    /** @var Connection $connection */
-    private $connection;
+    /** @var PDO $pdo */
+    private PDO $pdo;
 
-    /** @var EntityManager $entityManager */
-    private $entityManager;
-    public function __construct(Connection $connection, EntityManager $entityManager) {
-        $this->connection = $connection;
-        $this->entityManager = $entityManager;
+    public function __construct(PDO $pdo) {
+        $this->pdo = $pdo;
     }
     public function __invoke(Request $request, Response $response, $params): Response
     {
         try {
-
             $queryParams = $request->getQueryParams();
 
             $query = 'SELECT DISTINCT
                 org_name,
-                SUM(y_prob>0.5) AS y_count,
-                COUNT(DISTINCT(org_responses.frdoc_number)) as n_frdocs
-                FROM org_responses
-                INNER JOIN responses
-                ON (responses.frdoc_number==org_responses.frdoc_number)
-                AND (responses.response_id==org_responses.response_id)';
+                y_count,
+                n_frdocs
+                FROM cache_home_page';
 
             if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
                 $query .= " WHERE org_name LIKE :orgName";
             }
-
-            $query .= ' GROUP BY org_name';
 
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
@@ -59,14 +47,16 @@ class GetHomePageInfo
 
             $query .= ' LIMIT 10';
 
-            $stmt =  $this->connection->prepare($query);
+            $stmt =  $this->pdo->prepare($query);
 
             // for binding values at runtime to prevent SQL injection
             if (isset($queryParams['filters']['orgName'])) {
                 $stmt->bindValue('orgName', '%' . $queryParams['filters']['orgName'] . '%'); // % signs for LIKE search query
             }
 
-            $results = $stmt->executeQuery()->fetchAllAssociative();
+            $stmt->execute();
+
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (Exception $e) {
             $response->withStatus(500);

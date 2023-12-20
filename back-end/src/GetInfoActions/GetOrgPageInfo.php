@@ -2,23 +2,19 @@
 
 namespace App\GetInfoActions;
 
-use App\Entities\Responses;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
+use Exception;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class GetOrgPageInfo
 {
 
-    /** @var Connection $connection */
-    private Connection $connection;
+    /** @var PDO $pdo */
+    private PDO $pdo;
 
-    /** @var EntityManager $entityManager */
-    private EntityManager $entityManager;
-    public function __construct(Connection $connection, EntityManager $entityManager) {
-        $this->connection = $connection;
-        $this->entityManager = $entityManager;
+    public function __construct(PDO $pdo) {
+        $this->pdo = $pdo;
     }
 
     public function __invoke(Request $request, Response $response, $params): Response
@@ -26,35 +22,41 @@ class GetOrgPageInfo
         try {
             $queryParams = $request->getQueryParams();
 
-            $query = "SELECT comment_responses.comment_id, comment_responses.frdoc_number, comment_responses.response_id, comment_responses.score, comment_responses.norm_score
-                     FROM comment_responses INNER JOIN (SELECT comment_id FROM comment_orgs WHERE org_name='" . $params['orgName'] . "' LIMIT 10) corgs ON corgs.comment_id==comment_responses.comment_id";
+            $query = "SELECT
+                comment_id,
+                frdoc_number,
+                response_id,
+                score,
+                norm_score
+                FROM cache_org_page
+                WHERE org_name='" . $params['orgName'] . "'";
 
             if (isset($queryParams['filters']['commentID']) && $queryParams['filters']['commentID']) {
-                $query .= " WHERE comment_responses.comment_id LIKE :commentID";
+                $query .= " AND comment_id LIKE :commentID";
             }
 
             if (isset($queryParams['filters']['frdocNumber']) && $queryParams['filters']['frdocNumber']) {
-                $query .= " WHERE comment_responses.frdoc_number LIKE :frdocNumber";
+                $query .= " AND frdoc_number LIKE :frdocNumber";
             }
 
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
                 switch($queryParams['filters']['sortBy']) {
                     case "responseID":
-                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'comment_responses.response_id');
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'response_id');
                         break;
                     case "score":
-                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'comment_responses.score');
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'score');
                         break;
                     case "normScore":
-                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'comment_responses.norm_score');
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'norm_score');
                         break;
                 }
             }
 
             $query .= " LIMIT 10";
 
-            $stmt = $this->connection->prepare($query);
+            $stmt = $this->pdo->prepare($query);
 
             // for binding values at runtime to prevent SQL injection
             if (isset($queryParams['filters']['commentID'])) {
@@ -65,9 +67,11 @@ class GetOrgPageInfo
                 $stmt->bindValue('frdocNumber', '%' . $queryParams['filters']['frdocNumber'] . '%'); // % signs for LIKE search query
             }
 
-            $results = $stmt->executeQuery()->fetchAllAssociative();
+            $stmt->execute();
 
-        } catch (\Exception $e) {
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (Exception $e) {
             $response->withStatus(500);
             $body = $response->getBody();
             $body->write(json_encode(['error' => $e->getMessage()]));

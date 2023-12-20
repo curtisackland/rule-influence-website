@@ -30,6 +30,12 @@ npm -v
 Default database location is in `back-end/data/rulemaking_influence.db`
 This file must exist for the application to work properly. 
 You will need to add this file manually, it is not part of the repo.
+You will also need to create our cache tables with the following command:
+
+```bash
+cd ./back-end
+python3 generateCacheTables.py
+```
 
 All the services can be started in Docker by using the commands
 ```bash
