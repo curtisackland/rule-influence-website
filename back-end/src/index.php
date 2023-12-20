@@ -24,7 +24,7 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     $group->get('/home', GetHomePageInfo::class);
     $group->get('/organization/{orgName}', GetOrgPageInfo::class);
     $group->get('/frdocs', GetFrdocsPageInfo::class);
-    $group->get('/test', TestRoute::class); // REMOVE LATER
+    $group->get('/test', TestRoute::class); // TODO REMOVE LATER
 });
 
 $app->run();
