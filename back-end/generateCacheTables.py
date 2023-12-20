@@ -38,6 +38,19 @@ try:
 
     print("Created org page table")
 
+    cursor.execute("""CREATE TABLE cache_comment_page AS
+                      SELECT fc.frdoc_number, fc.comment_id, fc.count,
+                             COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
+                             JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
+                      FROM frdoc_comments fc
+                               LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
+                               LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
+                               LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
+                      GROUP BY fc.comment_id, fc.frdoc_number, fc.count
+                      ORDER BY fc.count DESC;""")
+
+    print("Created comments table")
+
     connection.commit()
     cursor.close()
     connection.close()
