@@ -29,7 +29,7 @@ class GetOrgPageInfo
                 score,
                 norm_score
                 FROM cache_org_page
-                WHERE org_name='" . $params['orgName'] . "'";
+                WHERE org_name=:orgName";
 
             if (isset($queryParams['filters']['commentID']) && $queryParams['filters']['commentID']) {
                 $query .= " AND comment_id LIKE :commentID";
@@ -59,6 +59,8 @@ class GetOrgPageInfo
             $stmt = $this->pdo->prepare($query);
 
             // for binding values at runtime to prevent SQL injection
+            $stmt->bindValue('orgName', $params['orgName']);
+
             if (isset($queryParams['filters']['commentID'])) {
                 $stmt->bindValue('commentID', '%' . $queryParams['filters']['commentID'] . '%'); // % signs for LIKE search query
             }
