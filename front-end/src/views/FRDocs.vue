@@ -1,5 +1,25 @@
 <template>
   <div class="container justify-content-center mt-5">
+    <v-row>
+      <v-select></v-select>
+      <v-select></v-select>
+      <v-select></v-select>
+      <v-text-field v-model="startDateTextRange" label="Start Date" prepend-icon="mdi-calendar" readonly>
+        <v-menu activator="parent" v-model="startDateMenu" :close-on-content-click="false" >
+          <v-date-picker v-model="startDateTextRange" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
+          </v-date-picker>
+          <v-btn @click="startDateMenu = false">Close</v-btn>
+        </v-menu>
+      </v-text-field>
+      <v-text-field v-model="endDateTextRange" label="End Date" prepend-icon="mdi-calendar" readonly>
+        <v-menu activator="parent" v-model="endDateMenu" :close-on-content-click="false">
+          <v-date-picker v-model="endDateTextRange" color="rie-primary-color" show-adjacent-months range border>
+          </v-date-picker>
+          <v-btn @click="endDateMenu = false">Close</v-btn>
+        </v-menu>
+      </v-text-field>
+    </v-row>
+
     <v-card class="my-3" v-for="row in tableData">
       <v-card-text>
         <v-row class="d-flex">
@@ -38,11 +58,15 @@ export default {
   methods: {
     async fetchData() {
       this.tableData = (await axios.get("http://localhost:8080/api/frdocs")).data;
-    }
+    },
   },
   data() {
     return {
-      tableData: null
+      tableData: null,
+      startDateMenu: false,
+      endDateMenu: false,
+      startDateTextRange: new Date("Jan 1 2000 00:00:00"),
+      endDateTextRange: null,
     };
   },
   mounted() {
