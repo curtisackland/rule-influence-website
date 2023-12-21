@@ -1,6 +1,6 @@
 <template>
   <div class="container justify-content-center mt-5">
-    <v-row class="my-4 mx-1">
+    <v-row class="my-b mx-1">
       <v-select v-model="filterFRType" label="fr type" :items="filterOptionsFRType" class="mr-3"></v-select>
       <v-select v-model="filterType" label="type" :items="filterOptionsType" class="mr-3"></v-select>
       <v-combobox label="topic" class="mr-3"></v-combobox>
@@ -19,12 +19,12 @@
         </v-menu>
       </v-text-field>
     </v-row>
-    <v-row class="my-4 mx-1">
+    <v-row class="mx-1">
       <v-select v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
       <v-switch v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
       <v-btn color="rie-primary-color" @click="startSearch()">Search</v-btn>
     </v-row>
-    <v-row class="my-4 mx-1">
+    <v-row class="mb-4 mx-1">
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
 
