@@ -4,20 +4,28 @@
       <v-select v-model="filterFRType" label="fr type" :items="filterOptionsFRType"></v-select>
       <v-select v-model="filterType" label="type" :items="filterOptionsType"></v-select>
       <v-combobox label="topic"></v-combobox>
-      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" prepend-icon="mdi-calendar" readonly>
+      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly>
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
           </v-date-picker>
           <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
-      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" prepend-icon="mdi-calendar" readonly>
+      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" readonly>
         <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
           <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
           </v-date-picker>
           <v-btn @click="filterEndDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
+    </v-row>
+    <v-row>
+      <v-select v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options"/>
+      <v-switch v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
+      <v-btn @click="startSearch()">Search</v-btn>
+    </v-row>
+    <v-row>
+      <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
 
     <v-card class="my-3" v-for="row in tableData">
@@ -42,17 +50,24 @@
             <v-card-subtitle v-else>No publication date or action</v-card-subtitle>
             <v-card-text v-if="row['abstract']">{{ row["abstract"] }}</v-card-text>
             <v-card-text v-else>No abstract</v-card-text>
-            <v-row>
-              <v-col>
-                {{row["prevFRDoc"]}}
-              </v-col>
-              <v-col>
-                {{row["nextFRDoc"]}}
-              </v-col>
-            </v-row>
-            <div>
 
-            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            {{row["prevFRDoc"]}}
+          </v-col>
+          <v-col>
+            {{row["nextFRDoc"]}}
+          </v-col>
+          <v-col>
+            Response Count: {{row["response_count"]}}
+          </v-col>
+          <v-col>
+            Comment Count: {{row["comment_count"]}}
+          </v-col>
+          <v-col>
+            Change Count: {{row["change_count"]}}
           </v-col>
         </v-row>
       </v-card-text>
@@ -67,25 +82,31 @@ import axios from "axios"
 export default {
   name: "FRDocs",
   methods: {
-    async fetchData() {
-
+    async startSearch() {
+      this.searchIsLoading = true;
       const queryParams = {
         filters: {
           start_date: this.filterStartDateText?.toISOString().split('T')[0],
           end_date: this.filterEndDateText?.toISOString().split('T')[0],
+          fr_type: this.filterFRType,
+          type: this.filterType,
+          sortBy: this.sortBy,
+          sortOrder: this.sortOrder,
         }
       }
       this.tableData = (await axios.get("http://localhost:8080/api/frdocs", {params:queryParams, timeout:6000000})).data;
+      this.searchIsLoading = false;
     },
   },
   data() {
     return {
       tableData: null,
+      searchIsLoading: false,
       
       // Search filters
-      filterOptionsFRType: ["Correction", "Notice", "Presidential Document", "Proposed Rule", "Rule", "Sunshine Act Document", "Uncategorized Document",],
+      filterOptionsFRType: [null, "Correction", "Notice", "Presidential Document", "Proposed Rule", "Rule", "Sunshine Act Document", "Uncategorized Document",],
       filterFRType: null,
-      filterOptionsType: ["Advance Notice of Proposed Rule" ,"Affirmation of Rule" ,"Comment Extension" ,"Correction" ,"Direct Rule" ,"Filing Extension" ,"Interim Rule" ,"Notice" ,"Presidential Document" ,"Proposed Rule" ,"Regulatory Agenda" ,"Rule" ,"Sunshine Act Document" ,"Supplemental Proposed Rule" ,"Uncategorized Document"],
+      filterOptionsType: [null, "Advance Notice of Proposed Rule" ,"Affirmation of Rule" ,"Comment Extension" ,"Correction" ,"Direct Rule" ,"Filing Extension" ,"Interim Rule" ,"Notice" ,"Presidential Document" ,"Proposed Rule" ,"Regulatory Agenda" ,"Rule" ,"Sunshine Act Document" ,"Supplemental Proposed Rule" ,"Uncategorized Document"],
       filterType: null,
       filterNumChanges: null,
       filterStartDateMenuActive: false,
@@ -94,10 +115,18 @@ export default {
       filterEndDateText: null,
       
       // Search ranking
+      sortBy: null,
+      sortOrder: "DESC",
+      sortByOptions: [
+        {title:"None", value:null},
+        {title:"Date", value:"date"},
+        {title:"Comments", value:"num_comments"},
+        {title:"Responses", value:"num_responses"},
+      ]
     };
   },
   mounted() {
-    this.fetchData();
+    this.startSearch();
   }
 }
 </script>
