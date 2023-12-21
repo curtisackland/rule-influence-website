@@ -1,21 +1,21 @@
 <template>
   <div class="container justify-content-center mt-5">
     <v-row>
-      <v-select></v-select>
-      <v-select></v-select>
-      <v-select></v-select>
-      <v-text-field v-model="startDateTextRange" label="Start Date" prepend-icon="mdi-calendar" readonly>
-        <v-menu activator="parent" v-model="startDateMenu" :close-on-content-click="false" >
-          <v-date-picker v-model="startDateTextRange" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
+      <v-select v-model="filterFRType" label="fr type" :items="filterOptionsFRType"></v-select>
+      <v-select v-model="filterType" label="type" :items="filterOptionsType"></v-select>
+      <v-combobox label="topic"></v-combobox>
+      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" prepend-icon="mdi-calendar" readonly>
+        <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
+          <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
           </v-date-picker>
-          <v-btn @click="startDateMenu = false">Close</v-btn>
+          <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
-      <v-text-field v-model="endDateTextRange" label="End Date" prepend-icon="mdi-calendar" readonly>
-        <v-menu activator="parent" v-model="endDateMenu" :close-on-content-click="false">
-          <v-date-picker v-model="endDateTextRange" color="rie-primary-color" show-adjacent-months range border>
+      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" prepend-icon="mdi-calendar" readonly>
+        <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
+          <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
           </v-date-picker>
-          <v-btn @click="endDateMenu = false">Close</v-btn>
+          <v-btn @click="filterEndDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
     </v-row>
@@ -42,6 +42,17 @@
             <v-card-subtitle v-else>No publication date or action</v-card-subtitle>
             <v-card-text v-if="row['abstract']">{{ row["abstract"] }}</v-card-text>
             <v-card-text v-else>No abstract</v-card-text>
+            <v-row>
+              <v-col>
+                {{row["prevFRDoc"]}}
+              </v-col>
+              <v-col>
+                {{row["nextFRDoc"]}}
+              </v-col>
+            </v-row>
+            <div>
+
+            </div>
           </v-col>
         </v-row>
       </v-card-text>
@@ -57,16 +68,32 @@ export default {
   name: "FRDocs",
   methods: {
     async fetchData() {
-      this.tableData = (await axios.get("http://localhost:8080/api/frdocs")).data;
+
+      const queryParams = {
+        filters: {
+          start_date: this.filterStartDateText?.toISOString().split('T')[0],
+          end_date: this.filterEndDateText?.toISOString().split('T')[0],
+        }
+      }
+      this.tableData = (await axios.get("http://localhost:8080/api/frdocs", {params:queryParams, timeout:6000000})).data;
     },
   },
   data() {
     return {
       tableData: null,
-      startDateMenu: false,
-      endDateMenu: false,
-      startDateTextRange: new Date("Jan 1 2000 00:00:00"),
-      endDateTextRange: null,
+      
+      // Search filters
+      filterOptionsFRType: ["Correction", "Notice", "Presidential Document", "Proposed Rule", "Rule", "Sunshine Act Document", "Uncategorized Document",],
+      filterFRType: null,
+      filterOptionsType: ["Advance Notice of Proposed Rule" ,"Affirmation of Rule" ,"Comment Extension" ,"Correction" ,"Direct Rule" ,"Filing Extension" ,"Interim Rule" ,"Notice" ,"Presidential Document" ,"Proposed Rule" ,"Regulatory Agenda" ,"Rule" ,"Sunshine Act Document" ,"Supplemental Proposed Rule" ,"Uncategorized Document"],
+      filterType: null,
+      filterNumChanges: null,
+      filterStartDateMenuActive: false,
+      filterEndDateMenuActive: false,
+      filterStartDateText: new Date("2000-01-01"),
+      filterEndDateText: null,
+      
+      // Search ranking
     };
   },
   mounted() {
