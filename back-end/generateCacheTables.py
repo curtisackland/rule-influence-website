@@ -11,6 +11,8 @@ try:
 
     cursor.execute("DROP TABLE IF EXISTS cache_org_page")
 
+    cursor.execute("DROP TABLE IF EXISTS cache_comment_page")
+
     cursor.execute("""CREATE TABLE cache_home_page AS
                       SELECT DISTINCT
                       org_name,
@@ -39,15 +41,19 @@ try:
     print("Created org page table")
 
     cursor.execute("""CREATE TABLE cache_comment_page AS
-                      SELECT fc.frdoc_number, fc.comment_id, fc.count,
+                      SELECT fc.frdoc_number, fc.comment_id, fc.count, fr.title,
                              COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
                              JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
                       FROM frdoc_comments fc
                                LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
                                LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
                                LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
+                               LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
                       GROUP BY fc.comment_id, fc.frdoc_number, fc.count
                       ORDER BY fc.count DESC;""")
+
+    cursor.execute("""CREATE INDEX linked_responses ON cache_comment_page (linked_responses)""")
+    cursor.execute("""CREATE INDEX count ON cache_comment_page (count)""")
 
     print("Created comments table")
 

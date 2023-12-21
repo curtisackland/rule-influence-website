@@ -21,8 +21,24 @@ class GetCommentsInfo
 
             $queryParams = $request->getQueryParams();
 
-            $query = 'SELECT frdoc_number, comment_id, count, linked_responses, orgs, agencies
+            $query = 'SELECT frdoc_number, comment_id, count, linked_responses, orgs, agencies, title
                 FROM cache_comment_page';
+
+            $where = false;
+            if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
+                $query .= " WHERE orgs LIKE :orgName";
+                $where = true;
+            }
+
+            if (isset($queryParams['filters']['agency']) && $queryParams['filters']['agency']) {
+                if ($where) {
+                    $query .= ' AND';
+                } else {
+                    $query .= ' WHERE';
+                    $where = true;
+                }
+                $query .= " agencies LIKE :agency";
+            }
 
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
@@ -38,16 +54,19 @@ class GetCommentsInfo
 
             $query .= ' LIMIT 20';
 
-            echo $query . '<br>';
-
             $stmt =  $this->pdo->prepare($query);
 
-            echo 'Before' . date("h:i:sa") . '<br>';
+            if (isset($queryParams['filters']['orgName'])) {
+                $stmt->bindValue('orgName', '%' . $queryParams['filters']['orgName'] . '%'); // % signs for LIKE search query
+            }
+
+            if (isset($queryParams['filters']['agency'])) {
+                $stmt->bindValue('agency', '%' . $queryParams['filters']['agency'] . '%'); // % signs for LIKE search query
+            }
+
             $stmt->execute();
 
-            echo 'Before fetch' . date("h:i:sa") . '<br>';
             $tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo 'After fetch' . date("h:i:sa") . '<br>';
 
             $results = [];
 
@@ -56,8 +75,6 @@ class GetCommentsInfo
                 $row["orgs"] = json_decode($row["orgs"]);
                 $results[] = $row;
             }
-            echo 'Done' . date("h:i:sa") . '<br>';
-
 
         } catch (Exception $e) {
             $response->withStatus(500);
