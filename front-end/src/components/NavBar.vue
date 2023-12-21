@@ -61,8 +61,8 @@ export default {
         { title: 'Home', path: '/' },
         { title: 'About', path: '/about'},
         { title: 'FR Docs', path: '/frdocs'},
-        { title: 'Responses', path: '/responses'},
         { title: 'Comments', path: '/comments'},
+        { title: 'Responses', path: '/responses'},
       ],
     }
   },

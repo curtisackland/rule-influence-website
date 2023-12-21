@@ -5,10 +5,11 @@ tableNames = [
 "cache_home_page",
 "cache_org_page",
 "cache_frdocs_page",
+"cache_comment_page",
 ]
 
 tablesToDrop = tableNames
-tablesToDrop = ["cache_frdocs_page"]
+#tablesToDrop = ["cache_frdocs_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -18,6 +19,7 @@ try:
         print(f"Dropped cached table {tableName}")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_home_page AS
+
                       SELECT DISTINCT
                       org_name,
                       SUM(y_prob>0.5) AS y_count,
@@ -67,6 +69,24 @@ try:
                   GROUP BY frdocs.frdoc_number;""")
 
     print("Created cache_frdocs_page")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
+                      SELECT fc.frdoc_number, fc.comment_id, fc.count, fr.title,
+                             COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
+                             JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
+                      FROM frdoc_comments fc
+                               LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
+                               LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
+                               LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
+                               LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
+                      GROUP BY fc.comment_id, fc.frdoc_number, fc.count
+                      ORDER BY fc.count DESC;""")
+
+    cursor.execute("""CREATE INDEX linked_responses ON cache_comment_page (linked_responses)""")
+    cursor.execute("""CREATE INDEX count ON cache_comment_page (count)""")
+
+    print("Created comments table")
+
 
     connection.commit()
     cursor.close()
