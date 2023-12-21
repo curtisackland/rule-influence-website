@@ -94,7 +94,7 @@ export default {
           sortOrder: this.sortOrder,
         }
       }
-      this.tableData = (await axios.get("http://localhost:8080/api/frdocs", {params:queryParams, timeout:6000000})).data;
+      this.tableData = (await axios.get("http://localhost:8080/api/frdocs", {params:queryParams})).data;
       this.searchIsLoading = false;
     },
   },
