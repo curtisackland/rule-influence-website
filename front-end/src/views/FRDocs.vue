@@ -4,14 +4,14 @@
       <v-select v-model="filterFRType" label="fr type" :items="filterOptionsFRType"></v-select>
       <v-select v-model="filterType" label="type" :items="filterOptionsType"></v-select>
       <v-combobox label="topic"></v-combobox>
-      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly>
+      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly="true">
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
           </v-date-picker>
           <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
-      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" readonly>
+      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" readonly="true">
         <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
           <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
           </v-date-picker>
@@ -55,10 +55,10 @@
         </v-row>
         <v-row>
           <v-col>
-            {{row["prevFRDoc"]}}
+            Previous Document {{row["prevFRDoc"]}}
           </v-col>
           <v-col>
-            {{row["nextFRDoc"]}}
+            Next Document {{row["nextFRDoc"]}}
           </v-col>
           <v-col>
             Response Count: {{row["response_count"]}}
@@ -120,8 +120,9 @@ export default {
       sortByOptions: [
         {title:"None", value:null},
         {title:"Date", value:"date"},
-        {title:"Comments", value:"num_comments"},
-        {title:"Responses", value:"num_responses"},
+        {title:"Number of Comments", value:"num_comments"},
+        {title:"Number of Responses", value:"num_responses"},
+        {title:"Number of Changes", value:"num_changes"},
       ]
     };
   },

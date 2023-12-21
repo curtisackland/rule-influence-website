@@ -76,7 +76,7 @@ class GetFrdocsPageInfo
                         $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'response_count');
                         break;
                     case "num_changes":
-                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'NYI');
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'change_count');
                         break;
                 }
             }
@@ -88,7 +88,6 @@ class GetFrdocsPageInfo
                 $stmt->bindValue($value[0], $value[1]);
             }
 
-            //var_dump($stmt->queryString);
             $stmt->execute();
 
             $tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
