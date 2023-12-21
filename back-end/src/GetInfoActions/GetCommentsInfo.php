@@ -21,27 +21,42 @@ class GetCommentsInfo
 
             $queryParams = $request->getQueryParams();
 
-            // count, linked responses, author, agencies,
+            $query = 'SELECT frdoc_number, comment_id, count, linked_responses, orgs, agencies
+                FROM cache_comment_page';
 
-            $query = 'SELECT frdoc_comments.frdoc_number, frdoc_comments.comment_id, frdoc_comments.count, count(comment_responses.response_id) FROM frdoc_comments, comment_responses';
+            // filtering chosen column in descending or ascending order
+            if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
+                switch($queryParams['filters']['sortBy']) {
+                    case "numberOfChanges":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'count');
+                        break;
+                    case "linkedResponses":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'linked_responses');
+                        break;
+                }
+            }
 
+            $query .= ' LIMIT 20';
 
-            $query = 'SELECT json_group_array(agency) as agencies, publication_date, fr_type, frdocs.frdoc_number, title, abstract, action
-                    FROM frdocs, frdoc_agencies WHERE frdocs.frdoc_number=frdoc_agencies.frdoc_number
-                    GROUP BY frdocs.frdoc_number LIMIT 20';
+            echo $query . '<br>';
 
             $stmt =  $this->pdo->prepare($query);
 
+            echo 'Before' . date("h:i:sa") . '<br>';
             $stmt->execute();
 
+            echo 'Before fetch' . date("h:i:sa") . '<br>';
             $tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo 'After fetch' . date("h:i:sa") . '<br>';
 
             $results = [];
 
             foreach ($tmp as $row) {
                 $row["agencies"] = json_decode($row["agencies"]);
+                $row["orgs"] = json_decode($row["orgs"]);
                 $results[] = $row;
             }
+            echo 'Done' . date("h:i:sa") . '<br>';
 
 
         } catch (Exception $e) {
@@ -54,5 +69,19 @@ class GetCommentsInfo
         $body = $response->getBody();
         $body->write(json_encode($results));
         return $response->withBody($body);
+    }
+
+    /**
+     * Creates an ORDER BY query based on if $sortOrder is descending or ascending and sorts it on the column given by $sortBy
+     * @param string $sortOrder
+     * @param string $sortBy
+     * @return string|void
+     */
+    private function sortOrder(string $sortOrder, string $sortBy) {
+        if ($sortOrder == 'DESC') {
+            return ' ORDER BY ' . $sortBy . ' DESC';
+        } elseif ($sortOrder == 'ASC') {
+            return ' ORDER BY ' . $sortBy . ' ASC';
+        }
     }
 }
