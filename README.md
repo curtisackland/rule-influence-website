@@ -37,6 +37,12 @@ cd ./back-end
 python3 generateCacheTables.py
 ```
 
+You will also need to make a .env file for the front-end like so:
+```bash
+cd ./front-end
+cp .env.example .env
+```
+
 All the services can be started in Docker by using the commands
 ```bash
 cd ./docker
