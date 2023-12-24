@@ -11,7 +11,7 @@
     },
     methods: {
       async fetchData() {
-        this.tableData = (await axios.get("http://localhost:8080/api/home",{
+        this.tableData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/home",{
           params: { 
             filters: {
               orgName: this.orgNameProp, // can be a string of the Organization name

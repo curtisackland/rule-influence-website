@@ -81,7 +81,7 @@ export default {
   methods: {
     async fetchData() {
       this.searchIsLoading = true;
-      this.commentData = (await axios.get("http://localhost:8080/api/comments", {
+      this.commentData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
         params: { filters: {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
             agency: this.agency  ? this.agency : null, // can be a string of an agency

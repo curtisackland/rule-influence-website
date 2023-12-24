@@ -26,7 +26,7 @@
     name: "OrgResponsesTable",
     methods: {
       async fetchData() {
-        this.tableData = (await axios.get("http://localhost:8080/api/organization/" + this.orgName, {
+        this.tableData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization/" + this.orgName, {
           params: { filters: {
               commentID: null, // can be a string of the comment id
               frdocNumber: null, // can be a string of the frdoc number
