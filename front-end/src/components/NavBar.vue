@@ -31,7 +31,7 @@
     <!-- Ivey Logo -->
     <div class="d-flex logo-size align-content-center">
       <v-img
-          src="/ivey-logo-nav-bar.png"
+          src="/icon.png"
       ></v-img>
     </div>
   </v-app-bar>
@@ -105,7 +105,7 @@ export default {
   }
 
   .logo-size {
-    height: 100%;
+    height: 80%;
     width: 12%;
     max-width: 150px;
   }
