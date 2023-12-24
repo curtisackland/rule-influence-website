@@ -94,14 +94,11 @@
         class="d-flex flex-column pa-10 bg-rie-primary-color align-center elevation-15"
         rounded="xl"
         >
-          <div class="text-h5">
+          <div class="text-h5 mb-3">
             <v-icon icon="mdi-chart-pie"></v-icon> Avg. Predicted Prob. of Influential Comment
           </div>
-          <v-icon 
-            icon="mdi-circle"
-            size="300"
-          ></v-icon>
-          <div class="text-h3">
+            <svg :width="300" :height="300" ref="chart"></svg>
+          <div class="text-h3 mt-4">
             #%
           </div>
         </v-sheet>
@@ -119,6 +116,53 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import OrgResponsesTable from "../components/OrgResponsesTable.vue";
+import * as d3 from 'd3';
+
+export default {
+  data() {
+    return {
+      width: 300,
+      height: 300,
+      data: [25, 75],
+    };
+  },
+  mounted() {
+    this.animateChart();
+  },
+  methods: {
+    animateChart() {
+      const svg = d3.select(this.$refs.chart);
+      const radius = Math.min(this.width, this.height) / 2;
+
+      const colorScale = d3.scaleOrdinal().range(['white', '#3d6565']);
+      const pie = d3.pie();
+      const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+      const pieData = pie(this.data);
+
+      // Draw initial pie chart with zero size for the red part
+      svg
+        .selectAll('path')
+        .data(pieData)
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .attr('fill', (d, i) => colorScale(i))
+        .attr('transform', `translate(${this.width / 2},${this.height / 2})`)
+        .transition()
+        .duration(1500) // Adjust the duration as needed
+        .attrTween('d', function (d, i) {
+          const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+          return function (t) {
+            return arc(interpolate(t));
+          };
+        });
+    },
+  },
+  components:{
+    OrgResponsesTable
+  }
+};
 </script>
