@@ -1,38 +1,66 @@
 
 <template>
-  <v-card
-  color="grey-lighten-3"
-  class="my-11 elevation-10 d-inline-block"
-  >
-    <div class="text-h2 ma-11">
+  <div class="d-flex flex-column justify-center">
+    <div class="d-flex container justify-center text-h2 mt-16">
       {{$route.params.orgName}}
     </div>
-  </v-card>
 
-  <div class="d-flex flex-row ma-10">
-    <div class="d-flex flex-column">
-      <div class="mb-10 grey-lighten-3">
-        <div class="d-flex flex-row grey-lighten-3">
-          <div class="text-h1">
-            #
+    <div class="d-flex flex-row my-10 justify-space-evenly">
+      <div class="d-flex flex-column">
+
+        <v-sheet 
+        class="d-flex flex-column my-3 pa-10 justify-space-between bg-rie-primary-color"
+        rounded="xl"
+        >
+
+          <h2><v-icon icon="mdi-file-chart"></v-icon> Statistics</h2>
+
+          <div class="d-flex flex-row justify-space-between">
+            <div class="d-flex flex-column justify-space-evenly">
+              <h4>Comments Made:</h4>
+              <h4>Responses Received:</h4>
+            </div>
+            <v-sheet 
+            class="d-flex flex-row bg-rie-secondary-color pa-4"
+            rounded="xl"
+            >
+              <div class="text-h1">
+                #
+              </div>
+              <div class="text-h3 ml-5">
+                <div>Rules</div>
+                <div>Influenced</div>
+              </div>
+            </v-sheet>
           </div>
-          <div class="text-h3 ml-5">
-            <div>Rules</div>
-            <div>Influenced</div>
+        </v-sheet>
+
+        <v-divider class="d-flex container justify-center" :style="{width: '50%', opacity: '0.5'}"></v-divider>
+
+        <v-sheet 
+        class="d-flex flex-row my-3 pa-10 bg-rie-primary-color"
+        rounded="xl"
+        >
+          <div class="d-flex flex-column mb-10">
+            <h2><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</h2>
+            <OrgResponsesTable :orgName="$route.params.orgName"/>
           </div>
-        </div>
-      </div>
-      <div class="d-flex flex-row">
-        <div class="d-flex flex-column mb-10 grey-lighten-3">
-          <h2>Agencies Most Impacted by {{$route.params.orgName}}</h2>
-          <OrgResponsesTable :orgName="$route.params.orgName"/>
-        </div>
-      </div>
-      <div class="d-flex flex-row">
-        <div class="d-flex flex-column mb-10 grey-lighten-3">
-          <h2>Rules Most Impacted by {{$route.params.orgName}}</h2>
-          <div class="d-flex flex-column my-5 grey-lighten-3">
-            <v-card class="elevation-10">
+        </v-sheet>
+
+        <v-divider class="d-flex container justify-center" :style="{width: '50%', opacity: '0.5'}"></v-divider>
+
+        <v-sheet 
+        class="d-flex flex-column my-3 pa-10 bg-rie-primary-color"
+        rounded="xl"
+        >
+
+          <h2><v-icon icon="mdi-book-open-variant"></v-icon> Rules Most Impacted by {{$route.params.orgName}}</h2>
+
+          <div class="d-flex flex-column mt-5">
+            <v-sheet 
+            class="pa-4 bg-rie-secondary-color"
+            rounded="xl"
+            >
               <div class="d-flex flex-row justify-space-between">
                 <div class="d-flex flex-column">
                   <div>
@@ -54,26 +82,38 @@
                   </div>
                 </div>
               </div>
-            </v-card>
+            </v-sheet>
           </div>
-        </div>
+        </v-sheet> 
       </div>
-    </div>
-    <div class="d-flex flex-column align-center justify-space-between">
-      <div class="d-flex flex-column ml-16 align-center elevation-15">
-        <div class="text-h5">
-          Avg. Predicted Prob. of Influential Comment
-        </div>
-        <v-icon 
-          icon="mdi-circle"
-          size="300"
-        ></v-icon>
-        <div class="text-h3">
-          #%
-        </div>
-      </div>
-      <div>
-        Area For Extra Info
+
+      <v-divider vertical :style="{width: '50%', opacity: '0.5'}"></v-divider>
+
+      <div class="d-flex flex-column align-center justify-space-evenly">
+        <v-sheet 
+        class="d-flex flex-column pa-10 bg-rie-primary-color align-center elevation-15"
+        rounded="xl"
+        >
+          <div class="text-h5">
+            <v-icon icon="mdi-chart-pie"></v-icon> Avg. Predicted Prob. of Influential Comment
+          </div>
+          <v-icon 
+            icon="mdi-circle"
+            size="300"
+          ></v-icon>
+          <div class="text-h3">
+            #%
+          </div>
+        </v-sheet>
+
+        <v-divider class="d-flex container justify-center" :style="{width: '50%', opacity: '0.5'}"></v-divider>
+
+        <v-sheet
+        class="pa-10 bg-rie-primary-color align-center elevation-15"
+        rounded="xl"
+        >
+          Area For Extra Info
+        </v-sheet>
       </div>
     </div>
   </div>
