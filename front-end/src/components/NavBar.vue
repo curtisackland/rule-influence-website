@@ -106,8 +106,8 @@ export default {
 
   .logo-size {
     height: 80%;
-    width: 12%;
-    max-width: 150px;
+    width: 5%;
+    min-width: 60px;
   }
 
   .title-text {
