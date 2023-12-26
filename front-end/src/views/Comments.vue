@@ -36,40 +36,87 @@
       </div>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
-
-    <v-card class="my-3" v-for="row in commentData">
-      <v-card-text>
-        <v-row class="d-flex">
-          <v-col cols="3">
-            <v-card-title v-if="row['frdoc_number']">FR Doc: {{row["frdoc_number"]}}</v-card-title>
-            <v-card-title v-else>No frdoc number</v-card-title>
-            <v-card-text class="pb-0">Comment ID:</v-card-text>
-            <v-card-text class="py-0">{{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-text>
-            <v-card-subtitle class="mt-2">Agencies:</v-card-subtitle>
-            <v-virtual-scroll class="mx-3 mb-2 text-grey" :items="row['agencies']">
-              <template v-slot:default="{ item }">
-                {{ item }}
-              </template>
-            </v-virtual-scroll>
-          </v-col>
-          <v-col cols="6">
-            <v-card-title>{{ row["title"] ? row["title"] : 'No Title' }}</v-card-title>
-            <v-row class="overflow-x-auto mx-3 mt-1" style="overflow:auto">
-              <v-card-subtitle class="px-0 overflow-x-auto" style="white-space: nowrap">
-                {{ orgString(row['orgs']) }}
-              </v-card-subtitle>
-            </v-row>
-            <v-card-text class="mt-1">{{ row["abstract"] ? row["abstract"] : 'No comment summary' }}</v-card-text>
-          </v-col>
-          <v-col cols="3">
-            <v-card-title>Statistics</v-card-title>
-            <v-card-text>Date Published: {{ row["publication_date"] ? row["publication_date"] : 'No date' }}</v-card-text>
-            <v-card-text>Number of Changes: {{row["count"]}}</v-card-text>
-            <v-card-text>Number of linked responses: {{row["linked_responses"]}}</v-card-text>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
+    <div v-if="commentData">
+      <v-card class="my-3" v-for="row in commentData">
+        <v-card-text class="p-4 test">
+          <v-row>
+            <v-col cols="9">
+              <v-row class="m-0 p-0">
+                <v-col class="p-0 m-0">
+                  <v-card-title class="p-0 mx-0">Comment ID: {{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-title>
+                </v-col>
+              </v-row>
+              <v-row class="m-0 p-0">
+                <v-col class="p-0">
+                  <v-card-title class="p-0 mx-0">FR Document: {{ row["title"] ? row["title"] : 'No Title' }}</v-card-title>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col>
+              <v-row class="m-0 p-0">
+                <v-col class="m-0 p-0">
+                  <v-card-title class="p-0 mx-0">FR Document Number:</v-card-title>
+                </v-col>
+              </v-row>
+              <v-row class="m-0 p-0">
+                <v-col class="m-0 p-0">
+                  <v-card-title class="p-0 mx-0">{{row["frdoc_number"] ? row["frdoc_number"] : 'No frdoc number'}}</v-card-title>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+          <v-row class="mt-1">
+            <v-col cols="3">
+              <v-card-text class="ml-0 pl-0">Agencies:</v-card-text>
+              <div style="display: flex; height: 150px;">
+                <v-virtual-scroll class="ml-0 pl-0 mb-2 text-grey" :items="row['agencies']">
+                  <template v-slot:default="{ item }">
+                    {{ item }}
+                  </template>
+                </v-virtual-scroll>
+              </div>
+            </v-col>
+            <v-col cols="3">
+              <v-card-text class="ml-0 pl-0">Organizations:</v-card-text>
+              <div v-if="row['orgs']['0'] != null" style="display: flex; height: 150px;">
+                <v-virtual-scroll v-if="row['orgs']" class="ml-0 pl-0 mb-2 text-grey" :items="row['orgs']">
+                  <template v-slot:default="{ item }">
+                    {{ item }}
+                  </template>
+                </v-virtual-scroll>
+              </div>
+              <div v-else>
+                <v-card-subtitle>No organizations</v-card-subtitle>
+              </div>
+            </v-col>
+            <v-col cols="3">
+              <v-card-text>Statistics</v-card-text>
+              <div class="stats-space pb-3">
+                <v-card-subtitle class="wrap-text">Date Published: {{ row["publication_date"] ? row["publication_date"] : 'No date' }}</v-card-subtitle>
+                <v-card-subtitle class="wrap-text">Changes: {{row["number_of_changes"] ? row["number_of_changes"] : 'Unknown'}}</v-card-subtitle>
+                <v-card-subtitle class="wrap-text">Linked responses: {{row["linked_responses"] ? row["linked_responses"] : 'Unknown'}}</v-card-subtitle>
+              </div>
+            </v-col>
+            <v-col cols="3">
+              <div class="link-space">
+                <RouterLink to="/" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
+                </RouterLink>
+                <RouterLink to="/" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="compact" class="w-100"></v-btn>
+                </RouterLink>
+                <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="compact" class="w-100"></v-btn>
+                </a>
+              </div>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </div>
+    <div v-if="errorMessage">
+      <a>An error has has occurred. Please try again. Error: {{ this.errorMessage }}</a>
+    </div>
   </div>
 </template>
 
@@ -80,20 +127,26 @@ export default {
   name: "Comments",
   methods: {
     async fetchData() {
+      this.errorMessage = null;
       this.searchIsLoading = true;
-      this.commentData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
         params: { filters: {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
             agency: this.agency  ? this.agency : null, // can be a string of an agency
             sortBy: this.sortBy, // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
             sortOrder: this.sortOrder // can be "DESC" || "ASC" || NULL
           }}
-      })).data;
+      }).then(response => {
+        this.commentData = response.data;
+      }).catch(error => {
+        if (error.response.data.error){
+          this.errorMessage = error.response.data.error;
+        } else {
+          this.errorMessage = "Unable to load page."
+        }
+      });
+
       this.searchIsLoading = false;
-    },
-    orgString(orgs) {
-      // orgs[0] because when there are no orgs an array with a null in it is returned like: [null]
-      return orgs[0] ? 'Organizations: ' + orgs.join(', ') : 'No organizations';
     },
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
@@ -109,7 +162,7 @@ export default {
       commentData: null,
       orgName: null,
       agency: null,
-      sortBy: null,
+      sortBy: 'numberOfChanges',
       sortByItems: [
         { text: 'None', value: null },
         { text: 'Number of Changes', value: 'numberOfChanges' },
@@ -120,7 +173,8 @@ export default {
         { text: 'None', value: null},
         { text: 'Asc', value: 'ASC'},
         { text: 'Desc', value: 'DESC'}
-      ]
+      ],
+      errorMessage: null
     };
   },
   mounted() {
@@ -139,5 +193,41 @@ export default {
 <style scoped>
 .button-height {
   height: 56px;
+}
+
+.v-card-title {
+  white-space: normal;
+}
+
+.stats-space {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 150px;
+}
+
+.link-space {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 225px;
+}
+
+.wrap-text {
+  white-space: normal !important;
+}
+
+/* Custom scrollbar styles */
+.v-virtual-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.v-virtual-scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+}
+
+.v-virtual-scroll::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
 }
 </style>

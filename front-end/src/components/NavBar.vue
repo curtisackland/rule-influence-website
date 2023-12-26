@@ -23,9 +23,9 @@
 
     <!-- Navigation items that link to different pages -->
     <v-row class="w-25 display-nav-items">
-      <v-btn v-for="item in menuItems">
-        <RouterLink :to="item.path" class="nav-link" active-class="active" >{{ item.title }}</RouterLink>
-      </v-btn>
+      <RouterLink :to="item.path" class="nav-link p-2" active-class="active" v-for="item in menuItems">
+        <v-btn class="nav-link" active-class="active">{{ item.title }}</v-btn>
+      </RouterLink>
     </v-row>
 
     <!-- Ivey Logo -->
@@ -70,10 +70,6 @@ export default {
 </script>
 
 <style scoped>
-  a {
-    color: #EBDCD2!important;
-  }
-
   @media (max-width: 950px) {
     .display-nav-items {
       display: none !important;
@@ -115,7 +111,7 @@ export default {
   }
 
   a.active {
-    font-weight: 800;
+    font-weight: 700;
   }
 </style>
 
