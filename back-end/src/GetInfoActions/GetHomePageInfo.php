@@ -59,10 +59,9 @@ class GetHomePageInfo
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (Exception $e) {
-            $response->withStatus(500);
-            $body = $response->getBody();
-            $body->write(json_encode(['error' => $e->getMessage()]));
-            return $response->withBody($body);
+            $response = $response->withStatus(500);
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response;
         }
 
         $body = $response->getBody();

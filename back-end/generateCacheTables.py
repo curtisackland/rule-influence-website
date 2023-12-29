@@ -71,19 +71,19 @@ try:
     print("Created cache_frdocs_page")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-                      SELECT fc.frdoc_number, fc.comment_id, fc.count, fr.title,
+                      SELECT fc.frdoc_number, fc.comment_id, fr.title,
                              COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
+                             SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
                              JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
                       FROM frdoc_comments fc
                                LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
                                LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
                                LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
                                LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
-                      GROUP BY fc.comment_id, fc.frdoc_number, fc.count
-                      ORDER BY fc.count DESC;""")
+                      GROUP BY fc.frdoc_number, fc.comment_id""")
 
     cursor.execute("""CREATE INDEX linked_responses ON cache_comment_page (linked_responses)""")
-    cursor.execute("""CREATE INDEX count ON cache_comment_page (count)""")
+    cursor.execute("""CREATE INDEX number_of_changes ON cache_comment_page (number_of_changes)""")
 
     print("Created comments table")
 

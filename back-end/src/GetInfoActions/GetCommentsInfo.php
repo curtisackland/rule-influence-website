@@ -21,7 +21,8 @@ class GetCommentsInfo
 
             $queryParams = $request->getQueryParams();
 
-            $query = 'SELECT frdoc_number, comment_id, count, linked_responses, orgs, agencies, title
+            // TODO add date field when received_date is no longer null in frdoc_comments
+            $query = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title
                 FROM cache_comment_page';
 
             $where = false;
@@ -44,7 +45,7 @@ class GetCommentsInfo
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
                 switch($queryParams['filters']['sortBy']) {
                     case "numberOfChanges":
-                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'count');
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'number_of_changes');
                         break;
                     case "linkedResponses":
                         $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'linked_responses');
@@ -77,10 +78,9 @@ class GetCommentsInfo
             }
 
         } catch (Exception $e) {
-            $response->withStatus(500);
-            $body = $response->getBody();
-            $body->write(json_encode(['error' => $e->getMessage()]));
-            return $response->withBody($body);
+            $response = $response->withStatus(500);
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response;
         }
 
         $body = $response->getBody();
