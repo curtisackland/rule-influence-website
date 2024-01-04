@@ -22,8 +22,12 @@ class GetCommentsInfo
             $queryParams = $request->getQueryParams();
 
             // TODO add date field when received_date is no longer null in frdoc_comments
-            $query = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title
+            $selectQuery = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title
                 FROM cache_comment_page';
+
+            $countQuery = 'SELECT count(*) AS count FROM cache_comment_page';
+
+            $query = '';
 
             $where = false;
             if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
@@ -41,6 +45,24 @@ class GetCommentsInfo
                 $query .= " agencies LIKE :agency";
             }
 
+            // pagination
+            $page = 500;
+            $limit = 10;
+            if (isset($queryParams['filters']['page']) && $queryParams['filters']['page']) {
+                $page = (int) $queryParams['filters']['page'] > 0 ? (int) $queryParams['filters']['page'] : 1;
+            }
+
+            if (isset($queryParams['filters']['itemsPerPage']) && $queryParams['filters']['itemsPerPage']) {
+                $limit = (int) $queryParams['filters']['itemsPerPage'] > 0 ? (int) $queryParams['filters']['itemsPerPage'] : 10;
+            }
+
+            $countQuery .= $query;
+            $countStmt = $this->getNumberOfResults($countQuery, $queryParams);
+            $countStmt->execute();
+            $totalResults = $countStmt->fetch(PDO::FETCH_ASSOC)['count'];
+            $totalPages = ceil($totalResults/$limit);
+            $starting_limit = ($page-1) * $limit;
+
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
                 switch($queryParams['filters']['sortBy']) {
@@ -53,22 +75,18 @@ class GetCommentsInfo
                 }
             }
 
-            $query .= ' LIMIT 20';
+            $query .= ' LIMIT :startingLimit, :limit';
 
-            $stmt =  $this->pdo->prepare($query);
+            $selectQuery .= $query;
 
-            if (isset($queryParams['filters']['orgName'])) {
-                $stmt->bindValue('orgName', '%' . $queryParams['filters']['orgName'] . '%'); // % signs for LIKE search query
-            }
+            $selectStmt = $this->getNumberOfResults($selectQuery, $queryParams);
 
-            if (isset($queryParams['filters']['agency'])) {
-                $stmt->bindValue('agency', '%' . $queryParams['filters']['agency'] . '%'); // % signs for LIKE search query
-            }
+            $selectStmt->bindValue('startingLimit', $starting_limit);
+            $selectStmt->bindValue('limit', $limit);
 
-            $stmt->execute();
+            $selectStmt->execute();
 
-            $tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+            $tmp = $selectStmt->fetchAll(PDO::FETCH_ASSOC);
             $results = [];
 
             foreach ($tmp as $row) {
@@ -84,7 +102,10 @@ class GetCommentsInfo
         }
 
         $body = $response->getBody();
-        $body->write(json_encode($results));
+        $body->write(json_encode([
+            'data' => $results,
+            'totalPages' => $totalPages
+        ]));
         return $response->withBody($body);
     }
 
@@ -100,5 +121,20 @@ class GetCommentsInfo
         } elseif ($sortOrder == 'ASC') {
             return ' ORDER BY ' . $sortBy . ' ASC';
         }
+    }
+
+    private function getNumberOfResults(string $countQuery, array $queryParams): \PDOStatement
+    {
+        $countStmt = $this->pdo->prepare($countQuery);
+
+        if (isset($queryParams['filters']['orgName'])) {
+            $countStmt->bindValue('orgName', '%' . $queryParams['filters']['orgName'] . '%'); // % signs for LIKE search query
+        }
+
+        if (isset($queryParams['filters']['agency'])) {
+            $countStmt->bindValue('agency', '%' . $queryParams['filters']['agency'] . '%'); // % signs for LIKE search query
+        }
+
+        return $countStmt;
     }
 }

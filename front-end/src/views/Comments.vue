@@ -113,6 +113,15 @@
           </v-row>
         </v-card-text>
       </v-card>
+      <PaginationBar
+          :current-page.sync="currentPage"
+          :total-pages="totalPages"
+          :fetch-data="fetchData"
+          :pages-to-show="pagesToShow"
+          :items-per-page="itemsPerPage"
+          @update:current-page="updateCurrentPage"
+          @update:items-per-page="updateItemsPerPage"
+      />
     </div>
     <div v-if="errorMessage">
       <a>An error has has occurred. Please try again. Error: {{ this.errorMessage }}</a>
@@ -122,9 +131,13 @@
 
 <script>
 import axios from "axios";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 export default {
   name: "Comments",
+  components: {
+    PaginationBar
+  },
   methods: {
     async fetchData() {
       this.errorMessage = null;
@@ -134,10 +147,13 @@ export default {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
             agency: this.agency  ? this.agency : null, // can be a string of an agency
             sortBy: this.sortBy, // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
-            sortOrder: this.sortOrder // can be "DESC" || "ASC" || NULL
+            sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
+            page: this.currentPage, // has to be an integer || NULL
+            itemsPerPage: this.itemsPerPage // has to be an integer || NULL
           }}
       }).then(response => {
-        this.commentData = response.data;
+        this.commentData = response.data.data;
+        this.totalPages = response.data.totalPages;
       }).catch(error => {
         if (error.response.data.error){
           this.errorMessage = error.response.data.error;
@@ -148,12 +164,44 @@ export default {
 
       this.searchIsLoading = false;
     },
+    setCurrentPage(page) {
+      this.currentPage = parseInt(page.replace(/,/g, ""));
+    },
+    checkPage(page) {
+      return this.displayedPages.includes(this.convertPageToNumber(page));
+    },
+    convertPageToNumber(page) {
+      return parseInt(page.replace(/,/g, ""))
+    },
+    updateCurrentPage(newPage) {
+      this.currentPage = newPage;
+      this.fetchData();
+    },
+    updateItemsPerPage(newItemsPerPage) {
+      this.itemsPerPage = newItemsPerPage;
+      this.fetchData();
+    },
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
       if (event.key === 'Enter') {
         // Trigger the click event of the button
         this.fetchData();
       }
+    },
+  },
+  computed: {
+    displayedPages() {
+      const startPage = Math.max(this.currentPage - Math.floor(this.pagesToShow / 2), 1);
+      const endPage = Math.min(startPage + this.pagesToShow - 1, this.totalPages);
+
+      const firstPage = 1;
+      const lastPage = this.totalPages;
+
+      return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+      // Combine the pages and remove duplicates
+      //const pages = Array.from(new Set([...Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i), firstPage, lastPage]));
+
+      //return pages.sort((a, b) => a - b);
     },
   },
   data() {
@@ -174,7 +222,11 @@ export default {
         { text: 'Asc', value: 'ASC'},
         { text: 'Desc', value: 'DESC'}
       ],
-      errorMessage: null
+      errorMessage: null,
+      currentPage: 1,
+      totalPages: null,
+      itemsPerPage: 2,
+      pagesToShow: 9,
     };
   },
   mounted() {
@@ -229,5 +281,22 @@ export default {
 
 .v-virtual-scroll::-webkit-scrollbar-track {
   background-color: #f1f1f1;
+}
+
+.pagination-items :deep(.v-pagination__item) {
+  margin: 0 5px 0 5px;
+  padding: 0;
+}
+
+.pagination-items :deep(.v-btn) {
+  white-space: normal;
+  width: 90px;
+}
+
+::v-deep .v-pagination {
+  color: red;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
 }
 </style>
