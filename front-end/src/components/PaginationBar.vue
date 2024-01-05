@@ -13,12 +13,13 @@
       </v-row>
       <v-row justify="center" align="center">
         <v-text-field
+            v-model="pageInput"
             type="number"
-            :rules="rules"
-            hide-details
             label="Enter Page Number"
             variant="outlined"
+            hide-details
             @input="updatePageNumberInput"
+            class="mx-1 my-2 pagination-input"
         ></v-text-field>
         <v-select
             v-model="numberOfItemsPerPage"
@@ -28,6 +29,7 @@
             variant="outlined"
             hide-details
             @update:modelValue="emitItemsPerPageChange"
+            class="mx-1 my-2 pagination-input"
         ></v-select>
       </v-row>
     </v-col>
@@ -59,8 +61,10 @@ export default {
       if (page > 0 && page <= this.totalPages) {
         this.emitPageChange(page);
       } else if (page < 1) {
+        this.pageInput = 1;
         this.emitPageChange(1);
       } else if (page > this.totalPages) {
+        this.pageInput = this.totalPages;
         this.emitPageChange(this.totalPages);
       }
     },
@@ -80,6 +84,7 @@ export default {
       pageNumber: 1,
       test: null,
       numberOfItemsPerPage: this.itemsPerPage,
+      pageInput: this.currentPage,
       perPageOptions: [2, 5, 10, 25, 100]
     }
   },
@@ -117,5 +122,10 @@ export default {
 .pagination-items :deep(.v-pagination__item) {
   margin: 0;
   padding: 0;
+}
+
+.pagination-input {
+  min-width: 150px;
+  max-width: 150px;
 }
 </style>
