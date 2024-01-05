@@ -32,7 +32,7 @@
           class="mr-3"
       ></v-text-field>
       <div class="d-flex justify-center">
-        <v-btn color="rie-primary-color" class="button-height" @click="fetchData">Submit</v-btn>
+        <v-btn color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
       </div>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
@@ -116,9 +116,9 @@
       <PaginationBar
           :current-page.sync="currentPage"
           :total-pages="totalPages"
-          :fetch-data="fetchData"
           :pages-to-show="pagesToShow"
           :items-per-page="itemsPerPage"
+          :is-loading="searchIsLoading"
           @update:current-page="updateCurrentPage"
           @update:items-per-page="updateItemsPerPage"
       />
@@ -142,6 +142,7 @@ export default {
     async fetchData() {
       this.errorMessage = null;
       this.searchIsLoading = true;
+      this.scrollToTop();
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
         params: { filters: {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
@@ -164,14 +165,9 @@ export default {
 
       this.searchIsLoading = false;
     },
-    setCurrentPage(page) {
-      this.currentPage = parseInt(page.replace(/,/g, ""));
-    },
-    checkPage(page) {
-      return this.displayedPages.includes(this.convertPageToNumber(page));
-    },
-    convertPageToNumber(page) {
-      return parseInt(page.replace(/,/g, ""))
+    async searchData() {
+      this.currentPage = 1;
+      await this.fetchData();
     },
     updateCurrentPage(newPage) {
       this.currentPage = newPage;
@@ -179,29 +175,19 @@ export default {
     },
     updateItemsPerPage(newItemsPerPage) {
       this.itemsPerPage = newItemsPerPage;
-      this.fetchData();
+      this.searchData();
     },
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
       if (event.key === 'Enter') {
-        // Trigger the click event of the button
         this.fetchData();
       }
     },
-  },
-  computed: {
-    displayedPages() {
-      const startPage = Math.max(this.currentPage - Math.floor(this.pagesToShow / 2), 1);
-      const endPage = Math.min(startPage + this.pagesToShow - 1, this.totalPages);
-
-      const firstPage = 1;
-      const lastPage = this.totalPages;
-
-      return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
-      // Combine the pages and remove duplicates
-      //const pages = Array.from(new Set([...Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i), firstPage, lastPage]));
-
-      //return pages.sort((a, b) => a - b);
+    scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     },
   },
   data() {
@@ -225,7 +211,7 @@ export default {
       errorMessage: null,
       currentPage: 1,
       totalPages: null,
-      itemsPerPage: 2,
+      itemsPerPage: 5,
       pagesToShow: 9,
     };
   },
@@ -283,20 +269,4 @@ export default {
   background-color: #f1f1f1;
 }
 
-.pagination-items :deep(.v-pagination__item) {
-  margin: 0 5px 0 5px;
-  padding: 0;
-}
-
-.pagination-items :deep(.v-btn) {
-  white-space: normal;
-  width: 90px;
-}
-
-::v-deep .v-pagination {
-  color: red;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
 </style>

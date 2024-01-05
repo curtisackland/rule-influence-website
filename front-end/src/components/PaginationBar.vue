@@ -8,6 +8,7 @@
             :color="page === currentPage ? 'rie-primary-color' : ''"
             :prepend-icon="page === 1 && displayedPages.size > 1 ? 'mdi-page-first' : ''"
             :append-icon="page === totalPages && displayedPages.size > 1 ? 'mdi-page-last' : ''"
+            :disabled="isLoading"
             class="m-2"
             @click="emitPageChange(page)"/>
       </v-row>
@@ -18,7 +19,8 @@
             label="Enter Page Number"
             variant="outlined"
             hide-details
-            @input="updatePageNumberInput"
+            :disabled="isLoading"
+            @input="debouncedPageNumberUpdate"
             class="mx-1 my-2 pagination-input"
         ></v-text-field>
         <v-select
@@ -27,6 +29,7 @@
             :items="perPageOptions"
             label="Items per page"
             variant="outlined"
+            :disabled="isLoading"
             hide-details
             @update:modelValue="emitItemsPerPageChange"
             class="mx-1 my-2 pagination-input"
@@ -42,19 +45,13 @@ export default {
   props: {
     currentPage: Number,
     totalPages: Number,
-    fetchData: Function,
     pagesToShow: Number,
     itemsPerPage: Number,
+    isLoading: Boolean,
   },
   methods: {
-    convertPageToNumber(page) {
-      return parseInt(page.replace(/,/g, ""))
-    },
     formatPageNumber(page) {
-      return page.toString();
-    },
-    checkPage(page) {
-      return this.displayedPages.includes(this.convertPageToNumber(page));
+      return page.toLocaleString();
     },
     updatePageNumberInput(event) {
       const page = event.target.value;
@@ -68,6 +65,15 @@ export default {
         this.emitPageChange(this.totalPages);
       }
     },
+    debouncedPageNumberUpdate(event) {
+      clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.performUpdate(event);
+      }, 1000);
+    },
+    performUpdate(event) {
+      this.updatePageNumberInput(event);
+    },
     emitPageChange(page) {
       this.$emit('update:currentPage', parseInt(page));
     },
@@ -77,15 +83,12 @@ export default {
   },
   data() {
     return {
-      rules: [
-          value => !!value || 'Enter a number',
-          value => value <= this.totalPages && value > 0 || 'Number must be 1-100'
-      ],
       pageNumber: 1,
       test: null,
       numberOfItemsPerPage: this.itemsPerPage,
       pageInput: this.currentPage,
-      perPageOptions: [2, 5, 10, 25, 100]
+      perPageOptions: [5, 10, 25, 100],
+      debounceTimeout: null
     }
   },
   computed: {
