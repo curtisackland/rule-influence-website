@@ -46,7 +46,7 @@ class GetCommentsInfo
             }
 
             // pagination
-            $page = 500;
+            $page = 1;
             $limit = 10;
             if (isset($queryParams['filters']['page']) && $queryParams['filters']['page']) {
                 $page = (int) $queryParams['filters']['page'] > 0 ? (int) $queryParams['filters']['page'] : 1;

@@ -180,7 +180,7 @@ export default {
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
       if (event.key === 'Enter') {
-        this.fetchData();
+        this.searchData();
       }
     },
     scrollToTop() {
