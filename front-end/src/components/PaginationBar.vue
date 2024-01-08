@@ -113,7 +113,9 @@ export default {
         pages.add(i);
       }
 
-      pages.add(this.totalPages);
+      if (this.totalPages > 1) {
+        pages.add(this.totalPages);
+      }
 
       return pages;
     },

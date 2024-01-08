@@ -140,6 +140,14 @@ export default {
   },
   methods: {
     async fetchData() {
+      // Cancel the previous request if it exists
+      if (this.axiosCancelSource) {
+        this.axiosCancelSource.cancel('Request canceled by the user');
+      }
+
+      // Create a new CancelToken source for the current request
+      this.axiosCancelSource = axios.CancelToken.source();
+
       this.errorMessage = null;
       this.searchIsLoading = true;
       this.scrollToTop();
@@ -151,15 +159,18 @@ export default {
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
             page: this.currentPage, // has to be an integer || NULL
             itemsPerPage: this.itemsPerPage // has to be an integer || NULL
-          }}
+          }},
+        cancelToken: this.axiosCancelSource.token,
       }).then(response => {
         this.commentData = response.data.data;
         this.totalPages = response.data.totalPages;
       }).catch(error => {
-        if (error.response.data.error){
-          this.errorMessage = error.response.data.error;
-        } else {
-          this.errorMessage = "Unable to load page."
+        if (!axios.isCancel(error)) {
+          if (error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = "Unable to load page."
+          }
         }
       });
 
@@ -213,6 +224,7 @@ export default {
       totalPages: null,
       itemsPerPage: 10,
       pagesToShow: 9,
+      axiosCancelSource: null,
     };
   },
   mounted() {
