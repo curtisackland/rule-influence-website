@@ -7,21 +7,16 @@ use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class GetFrdocsPageInfo
+class GetFrdocsPageInfo extends AbstractInfoEndpoint
 {
-    /** @var PDO $pdo */
-    private PDO $pdo;
 
-    public function __construct(PDO $pdo) {
-        $this->pdo = $pdo;
-    }
     public function __invoke(Request $request, Response $response, $params): Response
     {
         try {
 
             $queryParams = $request->getQueryParams();
 
-            $query = 'SELECT agencies, 
+            $selectQuery = 'SELECT agencies, 
                     publication_date, 
                     fr_type,
                     type,
@@ -36,32 +31,39 @@ class GetFrdocsPageInfo
                     change_count
                     FROM cache_frdocs_page';
 
+            $countQuery = 'SELECT count(*) AS count FROM cache_frdocs_page';
+
+            $query = '';
+
             $whereClause = [];
-            $whereClauseValues = [];
+            $boundValues = [];
             if (isset($queryParams['filters']['start_date'])) {
                 $whereClause[] = "publication_date > :filterStartDate";
-                $whereClauseValues[] = ["filterStartDate", $queryParams['filters']['start_date']];
+                $boundValues['filterStartDate'] = $queryParams['filters']['start_date'];
             }
 
             if (isset($queryParams['filters']['end_date'])) {
                 $whereClause[] = "publication_date < :filterEndDate";
-                $whereClauseValues[] = ["filterEndDate", $queryParams['filters']['end_date']];
+                $boundValues['filterEndDate'] = $queryParams['filters']['end_date'];
             }
 
             if (isset($queryParams['filters']['fr_type'])) {
                 $whereClause[] = "fr_type = :filterFRType";
-                $whereClauseValues[] = ["filterFRType", $queryParams['filters']['fr_type']];
+                $boundValues['filterFRType'] = $queryParams['filters']['fr_type'];
             }
 
             if (isset($queryParams['filters']['type'])) {
                 $whereClause[] = "type = :filterType";
-                $whereClauseValues[] = ["filterType", $queryParams['filters']['type']];
+                $boundValues['filterType'] = $queryParams['filters']['type'];
             }
 
             // Add where clause
             if (count($whereClause) > 0) {
                 $query .= ' WHERE ' . join(" AND ", $whereClause);
             }
+
+            $countQuery .= $query;
+            $this->paginate($countQuery, $queryParams, $boundValues);
 
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
@@ -80,26 +82,19 @@ class GetFrdocsPageInfo
                         break;
                 }
             }
-            $query .= ' LIMIT 20';
 
-            $stmt =  $this->pdo->prepare($query);
-            // Bind all values
-            foreach($whereClauseValues as $value)  {
-                $stmt->bindValue($value[0], $value[1]);
-            }
+            $query .= ' LIMIT :startingLimit, :limit';
+            $boundValues['startingLimit'] = $this->startingLimit;
+            $boundValues['limit'] = $this->limit;
 
-            $stmt->execute();
-
-            $tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $selectQuery .= $query;
+            $records = $this->executeQuery($selectQuery, $boundValues);
 
             $results = [];
-
-            foreach ($tmp as $row) {
+            foreach ($records as $row) {
                 $row["agencies"] = json_decode($row["agencies"]);
                 $results[] = $row; 
             }
-
-
 
         } catch (Exception $e) {
             $response = $response->withStatus(500);
@@ -108,20 +103,10 @@ class GetFrdocsPageInfo
         }
 
         $body = $response->getBody();
-        $body->write(json_encode($results));
+        $body->write(json_encode([
+            'data' => $results,
+            'totalPages' => $this->totalPages
+        ]));
         return $response->withBody($body);
-    }
-    /**
-     * Creates an ORDER BY query based on if $sortOrder is descending or ascending and sorts it on the column given by $sortBy
-     * @param string $sortOrder
-     * @param string $sortBy
-     * @return string|void
-     */
-    private function sortOrder(string $sortOrder, string $sortBy) {
-        if ($sortOrder == 'DESC') {
-            return ' ORDER BY ' . $sortBy . ' DESC';
-        } elseif ($sortOrder == 'ASC') {
-            return ' ORDER BY ' . $sortBy . ' ASC';
-        }
     }
 }

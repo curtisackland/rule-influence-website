@@ -32,7 +32,7 @@
           class="mr-3"
       ></v-text-field>
       <div class="d-flex justify-center">
-        <v-btn color="rie-primary-color" class="button-height" @click="fetchData">Submit</v-btn>
+        <v-btn color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
       </div>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
@@ -113,6 +113,15 @@
           </v-row>
         </v-card-text>
       </v-card>
+      <PaginationBar
+          :current-page.sync="currentPage"
+          :total-pages="totalPages"
+          :pages-to-show="pagesToShow"
+          :items-per-page="itemsPerPage"
+          :is-loading="searchIsLoading"
+          @update:current-page="updateCurrentPage"
+          @update:items-per-page="updateItemsPerPage"
+      />
     </div>
     <div v-if="errorMessage">
       <a>An error has has occurred. Please try again. Error: {{ this.errorMessage }}</a>
@@ -122,38 +131,74 @@
 
 <script>
 import axios from "axios";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 export default {
   name: "Comments",
+  components: {
+    PaginationBar
+  },
   methods: {
     async fetchData() {
+      // Cancel the previous request if it exists
+      if (this.axiosCancelSource) {
+        this.axiosCancelSource.cancel('Request canceled by the user');
+      }
+
+      // Create a new CancelToken source for the current request
+      this.axiosCancelSource = axios.CancelToken.source();
+
       this.errorMessage = null;
       this.searchIsLoading = true;
+      this.scrollToTop();
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
         params: { filters: {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
             agency: this.agency  ? this.agency : null, // can be a string of an agency
             sortBy: this.sortBy, // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
-            sortOrder: this.sortOrder // can be "DESC" || "ASC" || NULL
-          }}
+            sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
+            page: this.currentPage, // has to be an integer || NULL
+            itemsPerPage: this.itemsPerPage // has to be an integer || NULL
+          }},
+        cancelToken: this.axiosCancelSource.token,
       }).then(response => {
-        this.commentData = response.data;
+        this.commentData = response.data.data;
+        this.totalPages = response.data.totalPages;
       }).catch(error => {
-        if (error.response.data.error){
-          this.errorMessage = error.response.data.error;
-        } else {
-          this.errorMessage = "Unable to load page."
+        if (!axios.isCancel(error)) {
+          if (error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = "Unable to load page."
+          }
         }
       });
 
       this.searchIsLoading = false;
     },
+    async searchData() {
+      this.currentPage = 1;
+      await this.fetchData();
+    },
+    updateCurrentPage(newPage) {
+      this.currentPage = newPage;
+      this.fetchData();
+    },
+    updateItemsPerPage(newItemsPerPage) {
+      this.itemsPerPage = newItemsPerPage;
+      this.searchData();
+    },
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
       if (event.key === 'Enter') {
-        // Trigger the click event of the button
-        this.fetchData();
+        this.searchData();
       }
+    },
+    scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     },
   },
   data() {
@@ -174,7 +219,12 @@ export default {
         { text: 'Asc', value: 'ASC'},
         { text: 'Desc', value: 'DESC'}
       ],
-      errorMessage: null
+      errorMessage: null,
+      currentPage: 1,
+      totalPages: null,
+      itemsPerPage: 10,
+      pagesToShow: 9,
+      axiosCancelSource: null,
     };
   },
   mounted() {
@@ -230,4 +280,5 @@ export default {
 .v-virtual-scroll::-webkit-scrollbar-track {
   background-color: #f1f1f1;
 }
+
 </style>
