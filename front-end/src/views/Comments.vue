@@ -211,7 +211,7 @@ export default {
       errorMessage: null,
       currentPage: 1,
       totalPages: null,
-      itemsPerPage: 5,
+      itemsPerPage: 10,
       pagesToShow: 9,
     };
   },

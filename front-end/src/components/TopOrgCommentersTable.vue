@@ -18,7 +18,7 @@
               sortBy: this.sortByProp, // sort by a specific column: "orgName" || "yCount" || "frdocs" || NULL
               sortOrder: this.sortOrderProp // can be "DESC" || "ASC" || NULL
             }}
-        })).data;
+        })).data.data;
 
         this.tableHead = Object.keys(this.tableData[0]);
       }
