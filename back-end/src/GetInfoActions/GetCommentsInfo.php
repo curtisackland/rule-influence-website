@@ -40,7 +40,7 @@ class GetCommentsInfo extends AbstractInfoEndpoint
                     $where = true;
                 }
                 $query .= " agencies LIKE :agency";
-                $boundValues['agencies'] = '%' . $queryParams['filters']['agency'] . '%';
+                $boundValues['agency'] = '%' . $queryParams['filters']['agency'] . '%';
             }
 
             // pagination
