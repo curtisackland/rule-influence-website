@@ -7,28 +7,32 @@ use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class GetHomePageInfo
+class GetHomePageInfo extends AbstractInfoEndpoint
 {
-    /** @var PDO $pdo */
-    private PDO $pdo;
 
-    public function __construct(PDO $pdo) {
-        $this->pdo = $pdo;
-    }
     public function __invoke(Request $request, Response $response, $params): Response
     {
         try {
             $queryParams = $request->getQueryParams();
 
-            $query = 'SELECT DISTINCT
+            $selectQuery = 'SELECT
                 org_name,
                 y_count,
                 n_frdocs
                 FROM cache_home_page';
 
+            $countQuery = 'SELECT count(*) as count FROM cache_home_page';
+
+            $query = '';
+            $boundValues = [];
+
             if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
                 $query .= " WHERE org_name LIKE :orgName";
+                $boundValues['orgName'] = '%' . $queryParams['filters']['orgName'] . '%'; // % signs for LIKE search query
             }
+
+            $countQuery .= $query;
+            $this->paginate($countQuery, $queryParams, $boundValues);
 
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
@@ -45,18 +49,13 @@ class GetHomePageInfo
                 }
             }
 
-            $query .= ' LIMIT 10';
+            $query .= ' LIMIT :startingLimit, :limit';
+            $boundValues['startingLimit'] = $this->startingLimit;
+            $boundValues['limit'] = $this->limit;
 
-            $stmt =  $this->pdo->prepare($query);
+            $selectQuery .= $query;
 
-            // for binding values at runtime to prevent SQL injection
-            if (isset($queryParams['filters']['orgName'])) {
-                $stmt->bindValue('orgName', '%' . $queryParams['filters']['orgName'] . '%'); // % signs for LIKE search query
-            }
-
-            $stmt->execute();
-
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $this->executeQuery($selectQuery, $boundValues);
 
         } catch (Exception $e) {
             $response = $response->withStatus(500);
@@ -65,21 +64,10 @@ class GetHomePageInfo
         }
 
         $body = $response->getBody();
-        $body->write(json_encode($results));
+        $body->write(json_encode([
+            'data' => $results,
+            'totalPages' => $this->totalPages
+        ]));
         return $response->withBody($body);
-    }
-
-    /**
-     * Creates an ORDER BY query based on if $sortOrder is descending or ascending and sorts it on the column given by $sortBy
-     * @param string $sortOrder
-     * @param string $sortBy
-     * @return string|void
-     */
-    private function sortOrder(string $sortOrder, string $sortBy) {
-        if ($sortOrder == 'DESC') {
-            return ' ORDER BY ' . $sortBy . ' DESC';
-        } elseif ($sortOrder == 'ASC') {
-            return ' ORDER BY ' . $sortBy . ' ASC';
-        }
     }
 }

@@ -94,7 +94,7 @@ export default {
           sortOrder: this.sortOrder,
         }
       }
-      this.tableData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/frdocs", {params:queryParams})).data;
+      this.tableData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/frdocs", {params:queryParams})).data.data;
       this.searchIsLoading = false;
     },
   },

@@ -7,14 +7,9 @@ use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class GetCommentsInfo
+class GetCommentsInfo extends AbstractInfoEndpoint
 {
-    /** @var PDO $pdo */
-    private PDO $pdo;
 
-    public function __construct(PDO $pdo) {
-        $this->pdo = $pdo;
-    }
     public function __invoke(Request $request, Response $response, $params): Response
     {
         try {
@@ -22,12 +17,18 @@ class GetCommentsInfo
             $queryParams = $request->getQueryParams();
 
             // TODO add date field when received_date is no longer null in frdoc_comments
-            $query = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title
+            $selectQuery = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title
                 FROM cache_comment_page';
+
+            $countQuery = 'SELECT count(*) AS count FROM cache_comment_page';
+
+            $query = '';
+            $boundValues = [];
 
             $where = false;
             if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
                 $query .= " WHERE orgs LIKE :orgName";
+                $boundValues['orgName'] = '%' . $queryParams['filters']['orgName'] . '%';
                 $where = true;
             }
 
@@ -39,7 +40,12 @@ class GetCommentsInfo
                     $where = true;
                 }
                 $query .= " agencies LIKE :agency";
+                $boundValues['agency'] = '%' . $queryParams['filters']['agency'] . '%';
             }
+
+            // pagination
+            $countQuery .= $query;
+            $this->paginate($countQuery, $queryParams, $boundValues);
 
             // filtering chosen column in descending or ascending order
             if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
@@ -53,25 +59,16 @@ class GetCommentsInfo
                 }
             }
 
-            $query .= ' LIMIT 20';
+            $query .= ' LIMIT :startingLimit, :limit';
+            $boundValues['startingLimit'] = $this->startingLimit;
+            $boundValues['limit'] = $this->limit;
 
-            $stmt =  $this->pdo->prepare($query);
+            $selectQuery .= $query;
 
-            if (isset($queryParams['filters']['orgName'])) {
-                $stmt->bindValue('orgName', '%' . $queryParams['filters']['orgName'] . '%'); // % signs for LIKE search query
-            }
-
-            if (isset($queryParams['filters']['agency'])) {
-                $stmt->bindValue('agency', '%' . $queryParams['filters']['agency'] . '%'); // % signs for LIKE search query
-            }
-
-            $stmt->execute();
-
-            $tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $records = $this->executeQuery($selectQuery, $boundValues);
 
             $results = [];
-
-            foreach ($tmp as $row) {
+            foreach ($records as $row) {
                 $row["agencies"] = json_decode($row["agencies"]);
                 $row["orgs"] = json_decode($row["orgs"]);
                 $results[] = $row;
@@ -84,21 +81,10 @@ class GetCommentsInfo
         }
 
         $body = $response->getBody();
-        $body->write(json_encode($results));
+        $body->write(json_encode([
+            'data' => $results,
+            'totalPages' => $this->totalPages
+        ]));
         return $response->withBody($body);
-    }
-
-    /**
-     * Creates an ORDER BY query based on if $sortOrder is descending or ascending and sorts it on the column given by $sortBy
-     * @param string $sortOrder
-     * @param string $sortBy
-     * @return string|void
-     */
-    private function sortOrder(string $sortOrder, string $sortBy) {
-        if ($sortOrder == 'DESC') {
-            return ' ORDER BY ' . $sortBy . ' DESC';
-        } elseif ($sortOrder == 'ASC') {
-            return ' ORDER BY ' . $sortBy . ' ASC';
-        }
     }
 }
