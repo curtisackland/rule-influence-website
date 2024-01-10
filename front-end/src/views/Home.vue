@@ -49,8 +49,7 @@
 
       tableData.value = response.data.data;
       totalPages.value = response.data.totalPages;
-      delete tableData.value.totalPages;
-
+      
     } catch (error) {
       console.error('Error fetching data:', error);
     }
