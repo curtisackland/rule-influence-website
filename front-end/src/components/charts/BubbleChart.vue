@@ -11,7 +11,7 @@
         type: Array,
         required: true,
       },
-      selectedCriteria: String,
+      selectedCriteria: String
     },
     mounted() {
       this.createChart();
@@ -32,8 +32,8 @@
         d3.select(chartContainer).selectAll("svg").remove();
       },
       createChart() {
-        const width = 460;
-        const height = 460;
+        const width = this.data.length > 11 ? 560 : 460;
+        const height = this.data.length > 11 ? 560 : 460;
         const chartContainer = this.$refs.chartContainer;
 
         // Clear existing chart

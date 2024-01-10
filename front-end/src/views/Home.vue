@@ -1,10 +1,16 @@
 <script setup>
-  import {ref, onMounted, computed } from 'vue';
+  import {ref, onMounted, computed, watchEffect } from 'vue';
   import axios from "axios";
   import router from '../router/index.js';
   import bubbleChart from "../components/charts/BubbleChart.vue";
+  import PaginationBar from "@/components/PaginationBar.vue";
 
   const tableData = ref(null);
+  const totalPages = ref(null);
+  const currentPage = ref(1);
+  const errorMessage = ref(null);
+  const itemsPerPage = ref(10);
+  const pagesToShow = ref(9);
   const searchIsLoading = ref(false);
   const orgName = ref(null);
   const sortBy = ref('yCount');
@@ -25,7 +31,7 @@
     { title: 'None', value: null }
   ]);
 
-  const startSearch = async () => {
+  const fetchData = async () => {
     searchIsLoading.value = true;
 
     try {
@@ -34,12 +40,17 @@
           filters: {
             orgName: orgName.value, // can be a string of the Organization name
             sortBy: sortBy.value, // sort by a specific column: "orgName" || "yCount" || "frdocs" || NULL
-            sortOrder: sortOrder.value // can be "DESC" || "ASC" || NULL
+            sortOrder: sortOrder.value, // can be "DESC" || "ASC" || NULL
+            page: currentPage.value, // has to be an integer || NULL
+            itemsPerPage: itemsPerPage.value // has to be an integer || NULL
           }
         }
        });
 
-      tableData.value = response.data;
+      tableData.value = response.data.data;
+      totalPages.value = response.data.totalPages;
+      delete tableData.value.totalPages;
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -47,16 +58,25 @@
     searchIsLoading.value = false;
   };
 
-  onMounted(startSearch);
+  onMounted(fetchData);
 
   const handleCellClick = (value) => { 
       if (router) {
-        console.error('router exisys');
         const encodedOrganizationName = encodeURIComponent(value);  
         const apiUrl = `organization/${encodedOrganizationName}`;
         
         router.push(apiUrl);
       }
+  }
+
+  const updateCurrentPage = (newPage) => {
+      currentPage.value = newPage;
+      fetchData();
+  }
+
+  const updateItemsPerPage = (newItemsPerPage) => {
+      itemsPerPage.value = newItemsPerPage;
+      fetchData();
   }
 </script>
 
@@ -67,28 +87,38 @@
       <v-select bg-color="rie-primary-color" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
       <v-text-field label="Organization Search" v-model="orgName" bg-color="rie-primary-color" class="mr-3"></v-text-field>
       <v-switch v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
-      <v-btn color="rie-primary-color" @click="startSearch()">Search</v-btn>
+      <v-btn color="rie-primary-color" @click="fetchData()">Search</v-btn>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
   </v-container>
   
   <v-container v-container class="d-flex justify-center mt-5"> 
     <v-container class="table-container mr-2" style="width: 70%;">
-      <v-data-table v-if="tableData" 
+      <v-toolbar flat>
+          <v-toolbar-title>Top Influential Organizations</v-toolbar-title>
+          <v-divider class="mx-4" inset vertical></v-divider>
+      </v-toolbar>
+      <v-data-table v-if="tableData"
+        v-model:items-per-page="itemsPerPage"
         :items="tableData" 
         :headers="tableHeaders"
-        :items-per-page="-1"
+        :page.sync="currentPage"
         class="elevation-1">
-        <template v-slot:top>
-          <v-toolbar flat>
-            <v-toolbar-title>Top Influential Organizations</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-          </v-toolbar>
+        <template v-slot:bottom>
         </template>
         <template v-slot:item.org_name="{ item }">
           <td class="clickable-cell" @click="handleCellClick(item.org_name)">{{ item.org_name }}</td>
         </template>
       </v-data-table>
+      <PaginationBar class="pagination"
+          :current-page.sync="currentPage"
+          :total-pages="totalPages"
+          :pages-to-show="pagesToShow"
+          :items-per-page="itemsPerPage"
+          :is-loading="searchIsLoading"
+          @update:current-page="updateCurrentPage"
+          @update:items-per-page="updateItemsPerPage"
+      />
     </v-container>
 
     <v-divider vertical></v-divider>
@@ -102,7 +132,7 @@
 
       <v-row>
           <v-col>
-            <bubbleChart :data="tableData" :selectedCriteria = "selectedCriteria" />
+            <bubbleChart :data="tableData" :selectedCriteria = "selectedCriteria"/>
           </v-col>
       </v-row>
     </v-container>
@@ -124,5 +154,9 @@
   .welcome-banner {
     color: "rie-primary-color";
     text-align: center;
+  }
+
+  .pagination {
+    margin-top: 20px;
   }
 </style>
