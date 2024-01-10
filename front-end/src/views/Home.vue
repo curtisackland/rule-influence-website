@@ -8,10 +8,10 @@
   const tableData = ref(null);
   const totalPages = ref(null);
   const currentPage = ref(1);
-  const errorMessage = ref(null);
   const itemsPerPage = ref(10);
   const pagesToShow = ref(9);
   const searchIsLoading = ref(false);
+
   const orgName = ref(null);
   const sortBy = ref('yCount');
   const sortOrder = ref('DESC');
@@ -49,15 +49,13 @@
 
       tableData.value = response.data.data;
       totalPages.value = response.data.totalPages;
-      
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
 
     searchIsLoading.value = false;
   };
-
-  onMounted(fetchData);
 
   const handleCellClick = (value) => { 
       if (router) {
@@ -77,10 +75,12 @@
       itemsPerPage.value = newItemsPerPage;
       fetchData();
   }
+  
+  onMounted(fetchData);
 </script>
 
 <template>
-  <h1 class="welcome-banner">Welcome to Rule-Explorer!</h1>
+  <h1 class="welcome-banner">Welcome to the Rule-Making Influence Explorer!</h1>
   <v-container class="d-flex justify-center mt-5">
     <v-row class="my-b mx-1">
       <v-select bg-color="rie-primary-color" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
@@ -122,20 +122,11 @@
 
     <v-divider vertical></v-divider>
  
-    <v-container v-if="tableData" style="width: 30%;">
-      <v-row>
-        <v-col>
-        <v-select v-model="selectedCriteria" :items="criteriaOptions" label="Select Criteria" outlined></v-select>
-        </v-col>
-      </v-row>
-
-      <v-row>
-          <v-col>
-            <bubbleChart :data="tableData" :selectedCriteria = "selectedCriteria"/>
-          </v-col>
-      </v-row>
+    <v-container class="rightside" v-if="tableData" style="width: 30%;">
+      <v-row> <v-select v-model="selectedCriteria" :items="criteriaOptions" label="Select Criteria" outlined></v-select> </v-row>
+      <v-row> <bubbleChart :data="tableData" :selectedCriteria = "selectedCriteria"/> </v-row>
     </v-container>
-</v-container>
+  </v-container>
 </template>
 
 <style scoped>
@@ -157,5 +148,9 @@
 
   .pagination {
     margin-top: 20px;
+  }
+
+  .rightside {
+    margin-top: 12px;
   }
 </style>
