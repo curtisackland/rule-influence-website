@@ -6,6 +6,7 @@ tableNames = [
 "cache_org_page",
 "cache_frdocs_page",
 "cache_comment_page",
+"cache_responses_page",
 ]
 
 tablesToDrop = tableNames
@@ -82,11 +83,31 @@ try:
                                LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
                       GROUP BY fc.frdoc_number, fc.comment_id""")
 
-    cursor.execute("""CREATE INDEX linked_responses ON cache_comment_page (linked_responses)""")
-    cursor.execute("""CREATE INDEX number_of_changes ON cache_comment_page (number_of_changes)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
 
     print("Created comments table")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS temp_table AS
+                      SELECT cr.frdoc_number, cr.response_id, cr.comment_id, cr.score > 0.5 AS outcome, tr.number_of_comments
+                      FROM (SELECT cr.frdoc_number, cr.response_id, COUNT(cr.comment_id) AS number_of_comments
+                            FROM comment_responses AS cr
+                            WHERE (cr.frdoc_number, cr.response_id) IN (
+                                SELECT frdoc_number, response_id FROM comment_responses GROUP BY frdoc_number, response_id
+                            )
+                            GROUP BY cr.frdoc_number, cr.response_id) tr
+                               JOIN comment_responses cr ON tr.frdoc_number=cr.frdoc_number AND tr.response_id=cr.response_id""")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_responses_page AS
+                        SELECT tr.*, fr.title
+                        FROM test_responses2 tr
+                        JOIN frdocs fr ON fr.frdoc_number=tr.frdoc_number""")
+
+    cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_and_response_index ON cache_responses_page (frdoc_number, response_id)""")
+
+    cursor.execute("""DROP TABLE temp_table""")
+
+    print("Created responses table")
 
     connection.commit()
     cursor.close()
