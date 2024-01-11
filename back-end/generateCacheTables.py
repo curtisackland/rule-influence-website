@@ -100,7 +100,7 @@ try:
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_responses_page AS
                         SELECT tr.*, fr.title
-                        FROM test_responses2 tr
+                        FROM temp_table tr
                         JOIN frdocs fr ON fr.frdoc_number=tr.frdoc_number""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_and_response_index ON cache_responses_page (frdoc_number, response_id)""")
