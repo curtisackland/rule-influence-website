@@ -12,7 +12,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-#tablesToDrop = ["cache_comment_page"]
+# tablesToDrop = ["cache_org_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -37,13 +37,16 @@ try:
     print("Created home page table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_page AS
-                    SELECT comment_orgs.org_name, comment_id, y_prob_avg, coalesce(response_count, 0) AS total_response_count, coalesce(rules_changed, 0) AS total_rules_changed
+                    SELECT comment_orgs.org_name, COUNT(DISTINCT(comment_orgs.comment_id)) AS number_of_comments, AVG(y_prob) AS y_prob_avg, coalesce(COUNT(CR.response_id), 0) AS total_response_count, coalesce(SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END), 0) AS total_rules_changed
                     FROM comment_orgs LEFT JOIN (
-                        SELECT comment_id AS inner_comment_id, AVG(y_prob) AS y_prob_avg, COUNT(responses.response_id) AS response_count, SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END) AS rules_changed FROM comment_responses
-                        LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
-                        GROUP BY comment_id) ON comment_orgs.comment_id=inner_comment_id
-                        LEFT JOIN (SELECT org_name AS count_org_name, COUNT(DISTINCT(comment_id)) FROM comment_orgs GROUP BY org_name) ON comment_orgs.org_name=count_org_name
-                    ORDER BY org_name;""")
+                        SELECT comment_id, y_prob, comment_responses.response_id
+                        FROM comment_responses
+                        LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id) CR ON comment_orgs.comment_id=CR.comment_id
+                    LEFT JOIN (
+                        SELECT org_name AS count_org_name, COUNT(DISTINCT(comment_id))
+                        FROM comment_orgs
+                        GROUP BY org_name) ON comment_orgs.org_name=count_org_name
+                    GROUP BY org_name""")
 
     print("Created org page table")
 
@@ -68,6 +71,8 @@ try:
                            LEFT JOIN (SELECT frdoc_number, COUNT(*) as responseCount, SUM(CASE WHEN y_prob>0.5 THEN 1 ELSE 0 END) as change_count FROM responses GROUP BY frdoc_number) responses ON frdocs.frdoc_number = responses.frdoc_number
                            LEFT JOIN (SELECT frdoc_number, COUNT(*) as commentCount FROM responses GROUP BY frdoc_number) comments ON frdocs.frdoc_number = comments.frdoc_number
                   GROUP BY frdocs.frdoc_number;""")
+
+    cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")
 
     print("Created cache_frdocs_page")
 
@@ -111,13 +116,13 @@ try:
     print("Created responses table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_agency AS
-                    SELECT org_name, agency, SUM(changedDoc) AS docs_changed, number_of_docs FROM
-                          (SELECT org_name, agency, SUM(score>0.5) > 0 AS changedDoc
-                          FROM comment_orgs
-                          INNER JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
-                          INNER JOIN frdoc_agencies ON comment_responses.frdoc_number=frdoc_agencies.frdoc_number
-                          GROUP BY agency, frdoc_agencies.frdoc_number, org_name)
-                          LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
+                    SELECT org_name, agency, SUM(changedDoc) AS docs_changed, number_of_docs, (CAST(SUM(changedDoc) AS REAL)/number_of_docs) as influence_percentage FROM
+                    (SELECT org_name, agency, SUM(score>0.5) > 0 AS changedDoc
+                    FROM comment_orgs
+                    INNER JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
+                    INNER JOIN frdoc_agencies ON comment_responses.frdoc_number=frdoc_agencies.frdoc_number
+                    GROUP BY agency, frdoc_agencies.frdoc_number, org_name)
+                    LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
                     GROUP BY agency, org_name;""")
 
     print("Created cache_org_agency")

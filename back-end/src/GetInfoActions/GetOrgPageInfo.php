@@ -22,7 +22,7 @@ class GetOrgPageInfo
         try {
 
             $query = "SELECT
-                comment_id,
+                number_of_comments,
                 y_prob_avg,
                 total_response_count,
                 total_rules_changed
@@ -37,7 +37,7 @@ class GetOrgPageInfo
 
             $stmt->execute();
 
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
 
         } catch (Exception $e) {
             $response = $response->withStatus(500);

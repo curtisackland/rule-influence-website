@@ -25,7 +25,8 @@ class GetOrgDocChanges
                 sumScore
                 FROM cache_org_doc_changes
                 WHERE org_name=:orgName
-                LIMIT 10";
+                ORDER BY sumScore DESC
+                LIMIT 3";
 
             $stmt = $this->pdo->prepare($query);
 
@@ -35,6 +36,17 @@ class GetOrgDocChanges
             $stmt->execute();
 
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($results as $key => $value) {
+                $frdocQuery = "SELECT title, agencies FROM cache_frdocs_page WHERE frdoc_number='" . $value["frdoc_number"] . "'";
+
+                $stmt = $this->pdo->prepare($frdocQuery);
+                $stmt->execute();
+                $frdocData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $results[$key]["title"] = $frdocData[0]["title"];
+                $results[$key]["agencies"] = json_decode($frdocData[0]["agencies"]);
+            }
 
         } catch (Exception $e) {
             $response = $response->withStatus(500);
