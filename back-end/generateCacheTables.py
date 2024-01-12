@@ -5,13 +5,10 @@ tableNames = [
 "cache_home_page",
 "cache_frdocs_page",
 "cache_comment_page",
-<<<<<<< Updated upstream
 "cache_responses_page",
-=======
 "cache_org_page",
 "cache_org_agency",
 "cache_org_doc_changes",
->>>>>>> Stashed changes
 ]
 
 tablesToDrop = tableNames
