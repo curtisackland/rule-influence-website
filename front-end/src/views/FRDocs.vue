@@ -1,5 +1,8 @@
 <template>
-  <div class="container justify-content-center mt-5">
+  <div class="container justify-content-center mt-4">
+    <v-row justify="center" align="center" class="my-1">
+      <h1>FR Documents</h1>
+    </v-row>
     <v-row class="my-b mx-1">
       <v-select v-model="filterFRType" label="fr type" :items="filterOptionsFRType" class="mr-3"></v-select>
       <v-select v-model="filterType" label="type" :items="filterOptionsType" class="mr-3"></v-select>
@@ -18,6 +21,11 @@
           <v-btn @click="filterEndDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
+      <v-text-field
+          label="FR Doc Number"
+          v-model="frdocNumber"
+          class="ml-3"
+      ></v-text-field>
     </v-row>
     <v-row class="mx-1">
       <v-select v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
@@ -41,7 +49,9 @@
                 {{ item }}
               </template>
             </v-virtual-scroll>
-            <v-btn>federalregister.gov</v-btn>
+            <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="px-3 w-100">
+              <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="compact" class="w-75"></v-btn>
+            </a>
           </v-col>
           <v-col cols="9">
             <v-card-title v-if="row['title']">{{ row["title"] }}</v-card-title>
@@ -50,7 +60,6 @@
             <v-card-subtitle v-else>No publication date or action</v-card-subtitle>
             <v-card-text v-if="row['abstract']">{{ row["abstract"] }}</v-card-text>
             <v-card-text v-else>No abstract</v-card-text>
-
           </v-col>
         </v-row>
         <v-row>
@@ -72,6 +81,15 @@
         </v-row>
       </v-card-text>
     </v-card>
+    <PaginationBar
+        :current-page.sync="currentPage"
+        :total-pages="totalPages"
+        :pages-to-show="pagesToShow"
+        :items-per-page="itemsPerPage"
+        :is-loading="searchIsLoading"
+        @update:current-page="updateCurrentPage"
+        @update:items-per-page="updateItemsPerPage"
+    />
   </div>
 </template>
 
@@ -79,11 +97,25 @@
 
 <script>
 import axios from "axios"
+import PaginationBar from "@/components/PaginationBar.vue";
 export default {
   name: "FRDocs",
+  components: {
+    PaginationBar
+  },
   methods: {
     async startSearch() {
+      // Cancel the previous request if it exists
+      if (this.axiosCancelSource) {
+        this.axiosCancelSource.cancel('Request canceled by the user');
+      }
+
+      // Create a new CancelToken source for the current request
+      this.axiosCancelSource = axios.CancelToken.source();
+
+      this.errorMessage = null;
       this.searchIsLoading = true;
+      this.scrollToTop();
       const queryParams = {
         filters: {
           start_date: this.filterStartDateText?.toISOString().split('T')[0],
@@ -92,16 +124,57 @@ export default {
           type: this.filterType,
           sortBy: this.sortBy,
           sortOrder: this.sortOrder,
+          frdocNumber: this.frdocNumber,
+          page: this.currentPage, // has to be an integer || NULL
+          itemsPerPage: this.itemsPerPage, // has to be an integer || NULL
         }
       }
-      this.tableData = (await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/frdocs", {params:queryParams})).data.data;
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/frdocs", {params:queryParams, cancelToken: this.axiosCancelSource.token})
+          .then(response => {
+            this.tableData = response.data.data;
+            this.totalPages = response.data.totalPages;
+          }).catch(error => {
+            if (!axios.isCancel(error)) {
+              if (error.response.data.error) {
+                this.errorMessage = error.response.data.error;
+              } else {
+                this.errorMessage = "Unable to load page."
+              }
+            }
+          });
       this.searchIsLoading = false;
+    },
+    async searchData() {
+      this.currentPage = 1;
+      await this.startSearch();
+    },
+    updateCurrentPage(newPage) {
+      this.currentPage = newPage;
+      this.startSearch();
+    },
+    updateItemsPerPage(newItemsPerPage) {
+      this.itemsPerPage = newItemsPerPage;
+      this.searchData();
+    },
+    handleEnterKey(event) {
+      // Check if the pressed key is Enter (key code 13)
+      if (event.key === 'Enter') {
+        this.searchData();
+      }
+    },
+    scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     },
   },
   data() {
     return {
       tableData: null,
       searchIsLoading: false,
+      axiosCancelSource: null,
+      errorMessage: null,
       
       // Search filters
       filterOptionsFRType: [null, "Correction", "Notice", "Presidential Document", "Proposed Rule", "Rule", "Sunshine Act Document", "Uncategorized Document",],
@@ -113,6 +186,12 @@ export default {
       filterEndDateMenuActive: false,
       filterStartDateText: new Date("2000-01-01"),
       filterEndDateText: null,
+      frdocNumber: null,
+      currentPage: 1,
+      totalPages: null,
+      itemsPerPage: 10,
+      pagesToShow: 9,
+
       
       // Search ranking
       sortBy: null,
@@ -127,7 +206,15 @@ export default {
     };
   },
   mounted() {
+    this.frdocNumber = this.$route.params.frdocNumber ? this.$route.params.frdocNumber : null;
     this.startSearch();
-  }
+
+    // Listen for the Enter key press on the document
+    document.addEventListener('keyup', this.handleEnterKey);
+  },
+  beforeDestroy() {
+    // Remove the event listener when the component is destroyed
+    document.removeEventListener('keyup', this.handleEnterKey);
+  },
 }
 </script>

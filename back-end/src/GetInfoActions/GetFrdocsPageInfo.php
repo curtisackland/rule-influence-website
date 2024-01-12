@@ -57,6 +57,11 @@ class GetFrdocsPageInfo extends AbstractInfoEndpoint
                 $boundValues['filterType'] = $queryParams['filters']['type'];
             }
 
+            if (isset($queryParams['filters']['frdocNumber'])) {
+                $whereClause[] = "frdoc_number = :frdocNumber";
+                $boundValues['frdocNumber'] = $queryParams['filters']['frdocNumber'];
+            }
+
             // Add where clause
             if (count($whereClause) > 0) {
                 $query .= ' WHERE ' . join(" AND ", $whereClause);

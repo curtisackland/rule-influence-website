@@ -80,7 +80,7 @@
 </script>
 
 <template>
-  <h1 class="welcome-banner">Welcome to the Rule-Making Influence Explorer!</h1>
+  <h1 class="welcome-banner mt-4">Welcome to the Rule-Making Influence Explorer!</h1>
   <v-container class="d-flex justify-center mt-5">
     <v-row class="my-b mx-1">
       <v-select bg-color="rie-primary-color" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>

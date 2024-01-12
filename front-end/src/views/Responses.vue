@@ -1,5 +1,8 @@
 <template>
-  <div class="container justify-content-center mt-5">
+  <div class="container justify-content-center mt-4">
+    <v-row justify="center" align="center" class="my-1">
+      <h1>Responses</h1>
+    </v-row>
     <v-row class="my-4 mx-1">
       <v-select
           label="Sort by"
@@ -87,7 +90,9 @@
               <div style="display: flex; height: 150px;">
                 <v-virtual-scroll class="ml-0 pl-0 mb-2 text-grey" :items="row['comment_data']">
                   <template v-slot:default="{ item }">
-                    {{ item.comment_id + ' : ' + (parseInt(item.outcome) ? 'Change' : 'No Change') }}
+                    <RouterLink :to="{ name: 'comments', params: { commentId: item.comment_id } }" class="pb-2 w-100">
+                      {{ item.comment_id + ' : ' + (parseInt(item.outcome) ? 'Change' : 'No Change') }}
+                    </RouterLink>
                   </template>
                 </v-virtual-scroll>
               </div>
@@ -105,14 +110,11 @@
             </v-col>
             <v-col cols="3">
               <div class="link-space">
-                <RouterLink to="/" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Comments" density="compact" class="w-100"></v-btn>
-                </RouterLink>
-                <RouterLink to="/" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="compact" class="w-100"></v-btn>
+                <RouterLink :to="{ name: 'frdocs', params: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="default" class="w-100"></v-btn>
                 </RouterLink>
                 <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="compact" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="default" class="w-100"></v-btn>
                 </a>
               </div>
             </v-col>

@@ -1,5 +1,8 @@
 <template>
-  <div class="container justify-content-center mt-5">
+  <div class="container justify-content-center mt-4">
+    <v-row justify="center" align="center" class="my-1">
+      <h1>Comments</h1>
+    </v-row>
     <v-row class="my-4 mx-1">
       <v-select
           label="Sort by"
@@ -28,6 +31,12 @@
       <v-text-field
           label="Agency Search"
           v-model="agency"
+          bg-color="rie-primary-color"
+          class="mr-3"
+      ></v-text-field>
+      <v-text-field
+          label="Comment Id Search"
+          v-model="commentId"
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-text-field>
@@ -99,10 +108,10 @@
             </v-col>
             <v-col cols="3">
               <div class="link-space">
-                <RouterLink :to="{ name: 'responses', params: { frdocNumber: row['frdoc_number'], commentId: row['comment_id'] } }" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'responses', params: { commentId: row['comment_id'], frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
                 </RouterLink>
-                <RouterLink to="/" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'frdocs', params: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="compact" class="w-100"></v-btn>
                 </RouterLink>
                 <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="pb-2 w-100">
@@ -158,7 +167,8 @@ export default {
             sortBy: this.sortBy, // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
             page: this.currentPage, // has to be an integer || NULL
-            itemsPerPage: this.itemsPerPage // has to be an integer || NULL
+            itemsPerPage: this.itemsPerPage, // has to be an integer || NULL
+            commentId: this.commentId,
           }},
         cancelToken: this.axiosCancelSource.token,
       }).then(response => {
@@ -225,9 +235,12 @@ export default {
       itemsPerPage: 10,
       pagesToShow: 9,
       axiosCancelSource: null,
+      commentId: null,
     };
   },
   mounted() {
+    this.commentId = this.$route.params.commentId ? this.$route.params.commentId : null;
+
     this.fetchData();
 
     // Listen for the Enter key press on the document

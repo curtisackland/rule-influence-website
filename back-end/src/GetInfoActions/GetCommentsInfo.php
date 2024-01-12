@@ -24,23 +24,25 @@ class GetCommentsInfo extends AbstractInfoEndpoint
 
             $query = '';
             $boundValues = [];
+            $whereClauses = [];
 
-            $where = false;
+            if (isset($queryParams['filters']['commentId']) && $queryParams['filters']['commentId']) {
+                $whereClauses[] .= "comment_id=:commentId";
+                $boundValues['commentId'] = $queryParams['filters']['commentId'];
+            }
+
             if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
-                $query .= " WHERE orgs LIKE :orgName";
+                $whereClauses[] .= "orgs LIKE :orgName";
                 $boundValues['orgName'] = '%' . $queryParams['filters']['orgName'] . '%';
-                $where = true;
             }
 
             if (isset($queryParams['filters']['agency']) && $queryParams['filters']['agency']) {
-                if ($where) {
-                    $query .= ' AND';
-                } else {
-                    $query .= ' WHERE';
-                    $where = true;
-                }
-                $query .= " agencies LIKE :agency";
+                $whereClauses[] .= "agencies LIKE :agency";
                 $boundValues['agency'] = '%' . $queryParams['filters']['agency'] . '%';
+            }
+
+            if (count($whereClauses) > 0) {
+                $query .= ' WHERE ' . join(" AND ", $whereClauses);
             }
 
             // pagination

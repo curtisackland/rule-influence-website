@@ -19,17 +19,17 @@ const router = createRouter({
       component: () => import('../views/About.vue')
     },
     {
-      path: '/frdocs',
+      path: '/frdocs/:frdocNumber?',
       name: 'frdocs',
       component: () => import('../views/FRDocs.vue')
     },
     {
-      path: '/responses/:frdocNumber?/:responseId?/:commentId?',
+      path: '/responses/:commentId?/:frdocNumber?',
       name: 'responses',
       component: () => import('../views/Responses.vue')
     },
     {
-      path: '/comments',
+      path: '/comments/:commentId?',
       name: 'comments',
       component: () => import('../views/Comments.vue')
     },
