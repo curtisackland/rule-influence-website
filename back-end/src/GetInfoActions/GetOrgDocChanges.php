@@ -20,8 +20,6 @@ class GetOrgDocChanges
     public function __invoke(Request $request, Response $response, $params): Response
     {
         try {
-            $queryParams = $request->getQueryParams();
-
             $query = "SELECT
                 frdoc_number,
                 sumScore

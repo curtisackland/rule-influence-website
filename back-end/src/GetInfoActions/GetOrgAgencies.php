@@ -22,6 +22,7 @@ class GetOrgAgencies extends AbstractInfoEndpoint
 
             $countQuery = 'SELECT count(*) AS count FROM cache_org_agency';
 
+            $whereClause = [];
             $boundValues = [];
 
             if (isset($params['orgName'])) {
