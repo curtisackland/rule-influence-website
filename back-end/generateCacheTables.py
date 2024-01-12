@@ -10,7 +10,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-tablesToDrop = ["cache_comment_page"]
+#tablesToDrop = ["cache_comment_page"]
 try:
     connection = sqlite3.connect(db_file)
 
