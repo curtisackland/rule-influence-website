@@ -12,7 +12,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-tablesToDrop = ["cache_org_page"]
+# tablesToDrop = ["cache_org_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -76,23 +76,23 @@ try:
 
     print("Created cache_frdocs_page")
 
-    # # TODO look into the disparity between frdoc_comments and comment_responses frdoc_numbers
-    # cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-    #                   SELECT cr.frdoc_number, fc.comment_id, fr.title,
-    #                          COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
-    #                          SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
-    #                          JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
-    #                   FROM frdoc_comments fc
-    #                            LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
-    #                            LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
-    #                            LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
-    #                            LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
-    #                   GROUP BY fc.frdoc_number, fc.comment_id""")
+    # TODO look into the disparity between frdoc_comments and comment_responses frdoc_numbers
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
+                      SELECT cr.frdoc_number, fc.comment_id, fr.title,
+                             COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
+                             SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
+                             JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
+                      FROM frdoc_comments fc
+                               LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
+                               LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
+                               LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
+                               LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
+                      GROUP BY fc.frdoc_number, fc.comment_id""")
 
-    # cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
-    # cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
 
-    # print("Created comments table")
+    print("Created comments table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS temp_table AS
                       SELECT cr.frdoc_number, cr.response_id, cr.comment_id, cr.score > 0.5 AS outcome, tr.number_of_comments
