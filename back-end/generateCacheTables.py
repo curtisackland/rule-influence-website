@@ -37,13 +37,16 @@ try:
     print("Created home page table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_page AS
-                    SELECT comment_orgs.org_name, comment_id, y_prob_avg, coalesce(response_count, 0) AS total_response_count, coalesce(rules_changed, 0) AS total_rules_changed
+                    SELECT comment_orgs.org_name, COUNT(DISTINCT(comment_orgs.comment_id)) AS number_of_comments, AVG(y_prob) AS y_prob_avg, coalesce(COUNT(CR.response_id), 0) AS total_response_count, coalesce(SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END), 0) AS total_rules_changed
                     FROM comment_orgs LEFT JOIN (
-                        SELECT comment_id AS inner_comment_id, AVG(y_prob) AS y_prob_avg, COUNT(responses.response_id) AS response_count, SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END) AS rules_changed FROM comment_responses
-                        LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
-                        GROUP BY comment_id) ON comment_orgs.comment_id=inner_comment_id
-                        LEFT JOIN (SELECT org_name AS count_org_name, COUNT(DISTINCT(comment_id)) FROM comment_orgs GROUP BY org_name) ON comment_orgs.org_name=count_org_name
-                    ORDER BY org_name;""")
+                        SELECT comment_id, y_prob, comment_responses.response_id
+                        FROM comment_responses
+                        LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id) CR ON comment_orgs.comment_id=CR.comment_id
+                    LEFT JOIN (
+                        SELECT org_name AS count_org_name, COUNT(DISTINCT(comment_id))
+                        FROM comment_orgs
+                        GROUP BY org_name) ON comment_orgs.org_name=count_org_name
+                    GROUP BY org_name""")
 
     print("Created org page table")
 
