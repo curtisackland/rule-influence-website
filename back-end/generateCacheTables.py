@@ -12,7 +12,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-#tablesToDrop = ["cache_comment_page"]
+tablesToDrop = ["cache_org_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -72,25 +72,27 @@ try:
                            LEFT JOIN (SELECT frdoc_number, COUNT(*) as commentCount FROM responses GROUP BY frdoc_number) comments ON frdocs.frdoc_number = comments.frdoc_number
                   GROUP BY frdocs.frdoc_number;""")
 
+    cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")
+
     print("Created cache_frdocs_page")
 
-    # TODO look into the disparity between frdoc_comments and comment_responses frdoc_numbers
-    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-                      SELECT cr.frdoc_number, fc.comment_id, fr.title,
-                             COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
-                             SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
-                             JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
-                      FROM frdoc_comments fc
-                               LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
-                               LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
-                               LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
-                               LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
-                      GROUP BY fc.frdoc_number, fc.comment_id""")
+    # # TODO look into the disparity between frdoc_comments and comment_responses frdoc_numbers
+    # cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
+    #                   SELECT cr.frdoc_number, fc.comment_id, fr.title,
+    #                          COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
+    #                          SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
+    #                          JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
+    #                   FROM frdoc_comments fc
+    #                            LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
+    #                            LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
+    #                            LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
+    #                            LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
+    #                   GROUP BY fc.frdoc_number, fc.comment_id""")
 
-    cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
-    cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
+    # cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
+    # cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
 
-    print("Created comments table")
+    # print("Created comments table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS temp_table AS
                       SELECT cr.frdoc_number, cr.response_id, cr.comment_id, cr.score > 0.5 AS outcome, tr.number_of_comments
@@ -114,13 +116,13 @@ try:
     print("Created responses table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_agency AS
-                    SELECT org_name, agency, SUM(changedDoc) AS docs_changed, number_of_docs FROM
-                          (SELECT org_name, agency, SUM(score>0.5) > 0 AS changedDoc
-                          FROM comment_orgs
-                          INNER JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
-                          INNER JOIN frdoc_agencies ON comment_responses.frdoc_number=frdoc_agencies.frdoc_number
-                          GROUP BY agency, frdoc_agencies.frdoc_number, org_name)
-                          LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
+                    SELECT org_name, agency, SUM(changedDoc) AS docs_changed, number_of_docs, (CAST(SUM(changedDoc) AS REAL)/number_of_docs) as influence_percentage FROM
+                    (SELECT org_name, agency, SUM(score>0.5) > 0 AS changedDoc
+                    FROM comment_orgs
+                    INNER JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
+                    INNER JOIN frdoc_agencies ON comment_responses.frdoc_number=frdoc_agencies.frdoc_number
+                    GROUP BY agency, frdoc_agencies.frdoc_number, org_name)
+                    LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
                     GROUP BY agency, org_name;""")
 
     print("Created cache_org_agency")
