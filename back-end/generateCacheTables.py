@@ -3,10 +3,15 @@ import sqlite3
 db_file = 'data/rulemaking_influence.db'
 tableNames = [
 "cache_home_page",
-"cache_org_page",
 "cache_frdocs_page",
 "cache_comment_page",
+<<<<<<< Updated upstream
 "cache_responses_page",
+=======
+"cache_org_page",
+"cache_org_agency",
+"cache_org_doc_changes",
+>>>>>>> Stashed changes
 ]
 
 tablesToDrop = tableNames
@@ -35,15 +40,13 @@ try:
     print("Created home page table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_page AS
-                    SELECT
-                    comment_responses.comment_id,
-                    comment_orgs.org_name,
-                    comment_responses.frdoc_number,
-                    comment_responses.response_id,
-                    comment_responses.score,
-                    comment_responses.norm_score
-                    FROM comment_responses, comment_orgs
-                    WHERE comment_orgs.comment_id==comment_responses.comment_id;""")
+                    SELECT comment_orgs.org_name, comment_id, y_prob_avg, coalesce(response_count, 0) AS total_response_count, coalesce(rules_changed, 0) AS total_rules_changed
+                    FROM comment_orgs LEFT JOIN (
+                        SELECT comment_id AS inner_comment_id, AVG(y_prob) AS y_prob_avg, COUNT(responses.response_id) AS response_count, SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END) AS rules_changed FROM comment_responses
+                        LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
+                        GROUP BY comment_id) ON comment_orgs.comment_id=inner_comment_id
+                        LEFT JOIN (SELECT org_name AS count_org_name, COUNT(DISTINCT(comment_id)) FROM comment_orgs GROUP BY org_name) ON comment_orgs.org_name=count_org_name
+                    ORDER BY org_name;""")
 
     print("Created org page table")
 
@@ -109,6 +112,26 @@ try:
     cursor.execute("""DROP TABLE temp_table""")
 
     print("Created responses table")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_agency AS
+                    SELECT org_name, agency, SUM(changedDoc) AS docs_changed, number_of_docs FROM
+                          (SELECT org_name, agency, SUM(score>0.5) > 0 AS changedDoc
+                          FROM comment_orgs
+                          INNER JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
+                          INNER JOIN frdoc_agencies ON comment_responses.frdoc_number=frdoc_agencies.frdoc_number
+                          GROUP BY agency, frdoc_agencies.frdoc_number, org_name)
+                          LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
+                    GROUP BY agency, org_name;""")
+
+    print("Created cache_org_agency")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_doc_changes AS
+                    SELECT org_name, frdoc_number, SUM(CASE WHEN score>0.5 THEN 1 ELSE 0 END) AS sumScore
+                    FROM org_responses
+                    GROUP BY org_name, frdoc_number;""")
+
+    print("Created cache_org_doc_changes")
+
 
     connection.commit()
     cursor.close()
