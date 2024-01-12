@@ -71,6 +71,7 @@ try:
 
     print("Created cache_frdocs_page")
 
+    # TODO look into the disparity between frdoc_comments and comment_responses frdoc_numbers
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
                       SELECT cr.frdoc_number, fc.comment_id, fr.title,
                              COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
