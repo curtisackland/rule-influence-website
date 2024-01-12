@@ -99,7 +99,7 @@
             </v-col>
             <v-col cols="3">
               <div class="link-space">
-                <RouterLink to="/" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'responses', params: { frdocNumber: row['frdoc_number'], commentId: row['comment_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink to="/" class="pb-2 w-100">

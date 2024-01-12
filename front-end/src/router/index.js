@@ -24,7 +24,7 @@ const router = createRouter({
       component: () => import('../views/FRDocs.vue')
     },
     {
-      path: '/responses',
+      path: '/responses/:frdocNumber?/:responseId?/:commentId?',
       name: 'responses',
       component: () => import('../views/Responses.vue')
     },

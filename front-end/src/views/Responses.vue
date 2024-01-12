@@ -19,15 +19,30 @@
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-select>
+      <v-select
+          label="Resulted in a change"
+          v-model="resultedInChange"
+          :items="resultedInChangeItems"
+          item-title="text"
+          item-value="value"
+          bg-color="rie-primary-color"
+          class="mr-3"
+      ></v-select>
       <v-text-field
-          label="Organization Search"
-          v-model="orgName"
+          label="FR Doc Search"
+          v-model="frdocNumber"
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-text-field>
       <v-text-field
-          label="Agency Search"
-          v-model="agency"
+          label="Response Id Search"
+          v-model="responseId"
+          bg-color="rie-primary-color"
+          class="mr-3"
+      ></v-text-field>
+      <v-text-field
+          label="Comment Id Search"
+          v-model="commentId"
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-text-field>
@@ -36,14 +51,14 @@
       </div>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
-    <div v-if="commentData">
-      <v-card class="my-3" v-for="row in commentData">
+    <div v-if="responsesData">
+      <v-card class="my-3" v-for="row in responsesData">
         <v-card-text class="p-4 test">
           <v-row>
             <v-col cols="9">
               <v-row class="m-0 p-0">
                 <v-col class="p-0 m-0">
-                  <v-card-title class="p-0 mx-0">Comment ID: {{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-title>
+                  <v-card-title class="p-0 mx-0">Response ID: {{row["response_id"] ? row["response_id"] : 'No response id'}}</v-card-title>
                 </v-col>
               </v-row>
               <v-row class="m-0 p-0">
@@ -67,40 +82,31 @@
           </v-row>
           <v-row class="mt-1">
             <v-col cols="3">
-              <v-card-text class="ml-0 pl-0">Agencies:</v-card-text>
+              <v-card-text class="wrap-text p-0">Number of Linked Comments: {{row["number_of_comments"] ? row["number_of_comments"] : 'Unknown'}}</v-card-text>
+              <v-card-text class="ml-0 pl-0">Comments Responded to:</v-card-text>
               <div style="display: flex; height: 150px;">
-                <v-virtual-scroll class="ml-0 pl-0 mb-2 text-grey" :items="row['agencies']">
+                <v-virtual-scroll class="ml-0 pl-0 mb-2 text-grey" :items="row['comment_data']">
+                  <template v-slot:default="{ item }">
+                    {{ item.comment_id + ' : ' + (parseInt(item.outcome) ? 'Change' : 'No Change') }}
+                  </template>
+                </v-virtual-scroll>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <v-card-text class="p-0">Response Text:</v-card-text>
+              <div v-if="row['text']" style="display: flex; height: 200px;">
+                <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1 text-grey" :items="[row['text']]">
                   <template v-slot:default="{ item }">
                     {{ item }}
                   </template>
                 </v-virtual-scroll>
               </div>
-            </v-col>
-            <v-col cols="3">
-              <v-card-text class="ml-0 pl-0">Organizations:</v-card-text>
-              <div v-if="row['orgs']['0'] != null" style="display: flex; height: 150px;">
-                <v-virtual-scroll v-if="row['orgs']" class="ml-0 pl-0 mb-2 text-grey" :items="row['orgs']">
-                  <template v-slot:default="{ item }">
-                    {{ item }}
-                  </template>
-                </v-virtual-scroll>
-              </div>
-              <div v-else>
-                <v-card-subtitle>No organizations</v-card-subtitle>
-              </div>
-            </v-col>
-            <v-col cols="3">
-              <v-card-text>Statistics</v-card-text>
-              <div class="stats-space pb-3">
-                <v-card-subtitle class="wrap-text">Date Published: {{ row["publication_date"] ? row["publication_date"] : 'No date' }}</v-card-subtitle>
-                <v-card-subtitle class="wrap-text">Changes: {{row["number_of_changes"] ? row["number_of_changes"] : 'Unknown'}}</v-card-subtitle>
-                <v-card-subtitle class="wrap-text">Linked responses: {{row["linked_responses"] ? row["linked_responses"] : 'Unknown'}}</v-card-subtitle>
-              </div>
+              <v-card-subtitle v-else class="p-0 mt-2">No response text</v-card-subtitle>
             </v-col>
             <v-col cols="3">
               <div class="link-space">
                 <RouterLink to="/" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" text="Comments" density="compact" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink to="/" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="compact" class="w-100"></v-btn>
@@ -151,10 +157,12 @@ export default {
       this.errorMessage = null;
       this.searchIsLoading = true;
       this.scrollToTop();
-      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/responses", {
         params: { filters: {
-            orgName: this.orgName ? this.orgName : null, // can be a string of an org name
             frdocNumber: this.frdocNumber ? this.frdocNumber : null, // can be a string of a frdoc number
+            responseId: this.responseId ? this.responseId : null,
+            commentId: this.commentId ? this.commentId : null,
+            outcome: this.resultedInChange,
             sortBy: this.sortBy, // sort by a specific column: "numberOfComments" || "date" || NULL
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
             page: this.currentPage, // has to be an integer || NULL
@@ -162,7 +170,7 @@ export default {
           }},
         cancelToken: this.axiosCancelSource.token,
       }).then(response => {
-        this.commentData = response.data.data;
+        this.responsesData = response.data.data;
         this.totalPages = response.data.totalPages;
       }).catch(error => {
         if (!axios.isCancel(error)) {
@@ -204,12 +212,12 @@ export default {
   data() {
     return {
       searchIsLoading: false,
-      commentData: null,
+      responsesData: null,
       orgName: null,
       frdocNumber: null,
       commentId: null,
       responseId: null,
-      sortBy: 'numberOfComments',
+      sortBy: null,
       sortByItems: [
         { text: 'None', value: null },
         { text: 'Number of Changes', value: 'numberOfComments' },
@@ -217,9 +225,15 @@ export default {
       ],
       sortOrder: 'DESC',
       sortOrderItems: [
-        { text: 'None', value: null},
-        { text: 'Asc', value: 'ASC'},
-        { text: 'Desc', value: 'DESC'}
+        { text: 'None', value: null },
+        { text: 'Asc', value: 'ASC' },
+        { text: 'Desc', value: 'DESC' }
+      ],
+      resultedInChange: null,
+      resultedInChangeItems: [
+        { text: 'None', value: null },
+        { text: 'Response resulted in a change', value: 1 },
+        { text: 'Response resulted in no change', value: 0 }
       ],
       errorMessage: null,
       currentPage: 1,
@@ -230,6 +244,10 @@ export default {
     };
   },
   mounted() {
+    this.frdocNumber = this.$route.params.frdocNumber ? this.$route.params.frdocNumber : null;
+    this.responseId = this.$route.params.responseId ? this.$route.params.responseId : null;
+    this.commentId = this.$route.params.commentId ? this.$route.params.commentId : null;
+
     this.fetchData();
 
     // Listen for the Enter key press on the document

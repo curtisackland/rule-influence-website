@@ -18,13 +18,31 @@ class GetResponsesInfo extends AbstractInfoEndpoint
             // TODO add date field and orgs and agencies?
             $selectQuery =  'SELECT DISTINCT frdoc_number, response_id, number_of_comments, title FROM cache_responses_page';
 
-            $countQuery = 'SELECT COUNT(*) AS count FROM (SELECT  DISTINCT frdoc_number, response_id FROM cache_responses_page)';
-
             $query = '';
             $boundValues = [];
+            $whereClauses = [];
+
+            if (isset($queryParams['filters']['frdocNumber'])) {
+                $whereClauses[] = "frdoc_number=:frdocNumber";
+                $boundValues['frdocNumber'] = $queryParams['filters']['frdocNumber'];
+            }
+
+            if (isset($queryParams['filters']['commentId'])) {
+                $whereClauses[] = "comment_id=:commentId";
+                $boundValues['commentId'] = $queryParams['filters']['commentId'];
+            }
+
+            if (isset($queryParams['filters']['responseId'])) {
+                $whereClauses[] = "response_id=:responseId";
+                $boundValues['responseId'] = $queryParams['filters']['responseId'];
+            }
+
+            if (count($whereClauses) > 0) {
+                $query .= ' WHERE ' . join(" AND ", $whereClauses);
+            }
 
             // pagination
-            $countQuery .= $query;
+            $countQuery = 'SELECT COUNT(*) AS count FROM (SELECT  DISTINCT frdoc_number, response_id FROM cache_responses_page ' . $query . ')';
             $this->paginate($countQuery, $queryParams, $boundValues);
 
             // filtering chosen column in descending or ascending order
@@ -49,7 +67,12 @@ class GetResponsesInfo extends AbstractInfoEndpoint
                                     WHERE frdoc_number='" . $value['frdoc_number'] . "' AND response_id=" . $value['response_id'];
 
                 if (isset($queryParams['filters']['outcome']) && $queryParams['filters']['outcome']) {
-                    $commentsQuery .= " AND outcome=1";
+                    if ((int) $queryParams['filters']['outcome'] == 1) {
+                        $commentsQuery .= " AND outcome=1";
+                    } else {
+                        $commentsQuery .= " AND outcome=0";
+                    }
+
                 }
 
                 $commentsQuery .= ' LIMIT 10'; // Limiting the amount of linked comments on a response to 10

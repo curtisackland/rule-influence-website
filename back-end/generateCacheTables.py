@@ -10,7 +10,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-#tablesToDrop = ["cache_frdocs_page"]
+tablesToDrop = ["cache_comment_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -72,7 +72,7 @@ try:
     print("Created cache_frdocs_page")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-                      SELECT fc.frdoc_number, fc.comment_id, fr.title,
+                      SELECT cr.frdoc_number, fc.comment_id, fr.title,
                              COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
                              SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
                              JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
