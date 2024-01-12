@@ -6,6 +6,7 @@ use App\GetInfoActions\GetCommentsInfo;
 use App\GetInfoActions\GetFrdocsPageInfo;
 use App\GetInfoActions\GetHomePageInfo;
 use App\GetInfoActions\GetOrgPageInfo;
+use App\GetInfoActions\GetResponsesInfo;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
 use App\Test\TestRoute;
@@ -26,6 +27,7 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     $group->get('/organization/{orgName}', GetOrgPageInfo::class);
     $group->get('/frdocs', GetFrdocsPageInfo::class);
     $group->get('/comments', GetCommentsInfo::class);
+    $group->get('/responses', GetResponsesInfo::class);
     $group->get('/test', TestRoute::class); // TODO REMOVE LATER
 });
 
