@@ -4,9 +4,9 @@
       <h1>FR Documents</h1>
     </v-row>
     <v-row class="my-b mx-1">
-      <v-select v-model="filterFRType" label="fr type" :items="filterOptionsFRType" class="mr-3"></v-select>
-      <v-select v-model="filterType" label="type" :items="filterOptionsType" class="mr-3"></v-select>
-      <v-combobox label="topic" class="mr-3"></v-combobox>
+      <v-select v-model="filterFRType" label="FR Type" :items="filterOptionsFRType" item-title="title" item-value="value" class="mr-3"></v-select>
+      <v-select v-model="filterType" label="Type" :items="filterOptionsType" item-title="title" item-value="value" class="mr-3"></v-select>
+      <v-combobox label="Topic" class="mr-3"></v-combobox>
       <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly="true" class="mr-3">
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
@@ -177,9 +177,11 @@ export default {
       errorMessage: null,
       
       // Search filters
-      filterOptionsFRType: [null, "Correction", "Notice", "Presidential Document", "Proposed Rule", "Rule", "Sunshine Act Document", "Uncategorized Document",],
+      filterOptionsFRType:
+          [{title:"None",value:null}, {title:"Correction",value:"Correction"}, {title:"Notice",value:"Notice"}, {title:"Presidential Document",value:"Presidential Document"}, {title:"Proposed Rule",value:"Proposed Rule"}, {title:"Rule",value:"Rule"}, {title:"Sunshine Act Document",value:"Sunshine Act Document"}, {title:"Uncategorized Document",value:"Uncategorized Document"},],
       filterFRType: null,
-      filterOptionsType: [null, "Advance Notice of Proposed Rule" ,"Affirmation of Rule" ,"Comment Extension" ,"Correction" ,"Direct Rule" ,"Filing Extension" ,"Interim Rule" ,"Notice" ,"Presidential Document" ,"Proposed Rule" ,"Regulatory Agenda" ,"Rule" ,"Sunshine Act Document" ,"Supplemental Proposed Rule" ,"Uncategorized Document"],
+      filterOptionsType:
+          [{title:"None",value:null}, {title:"Advance Notice of Propoqyhsed Rule" ,value:"Advance Notice of Propoqyhsed Rule" },{title:"Affirmation of Rule" ,value:"Affirmation of Rule" },{title:"Comment Extension" ,value:"Comment Extension" },{title:"Correction" ,value:"Correction" },{title:"Direct Rule" ,value:"Direct Rule" },{title:"Filing Extension" ,value:"Filing Extension" },{title:"Interim Rule" ,value:"Interim Rule" },{title:"Notice" ,value:"Notice" },{title:"Presidential Document" ,value:"Presidential Document" },{title:"Proposed Rule" ,value:"Proposed Rule" },{title:"Regulatory Agenda" ,value:"Regulatory Agenda" },{title:"Rule" ,value:"Rule" },{title:"Sunshine Act Document" ,value:"Sunshine Act Document" },{title:"Supplemental Proposed Rule" ,value:"Supplemental Proposed Rule" },{title:"Uncategorized Document",value:"Uncategorized Document"},],
       filterType: null,
       filterNumChanges: null,
       filterStartDateMenuActive: false,
