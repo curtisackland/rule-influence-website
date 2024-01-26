@@ -52,6 +52,12 @@
             <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="px-3 w-100">
               <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="compact" class="w-75"></v-btn>
             </a>
+            <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'] } }" class="px-3 w-100">
+              <v-btn color="rie-primary-color" stacked="" text="Comments Page" density="compact" class="my-2 w-75"></v-btn>
+            </RouterLink>
+            <RouterLink :to="{ name: 'responses', query: { frdocNumber: row['frdoc_number'] } }" class="px-3 w-100">
+              <v-btn color="rie-primary-color" stacked="" text="Responses Page" density="compact" class="w-75"></v-btn>
+            </RouterLink>
           </v-col>
           <v-col cols="9">
             <v-card-title v-if="row['title']">{{ row["title"] }}</v-card-title>
@@ -125,6 +131,7 @@ export default {
           sortBy: this.sortBy,
           sortOrder: this.sortOrder,
           frdocNumber: this.frdocNumber,
+          commentId: this.filterCommentId,
           page: this.currentPage, // has to be an integer || NULL
           itemsPerPage: this.itemsPerPage, // has to be an integer || NULL
         }
@@ -188,7 +195,8 @@ export default {
       filterEndDateMenuActive: false,
       filterStartDateText: new Date("2000-01-01"),
       filterEndDateText: null,
-      frdocNumber: null,
+      filterCommentId: this.$route.query.commentId ? this.$route.query.commentId : null,
+      frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
       currentPage: 1,
       totalPages: null,
       itemsPerPage: 10,
@@ -208,7 +216,6 @@ export default {
     };
   },
   mounted() {
-    this.frdocNumber = this.$route.params.frdocNumber ? this.$route.params.frdocNumber : null;
     this.startSearch();
 
     // Listen for the Enter key press on the document
