@@ -45,12 +45,22 @@
         >
           <div class="d-flex flex-column mb-10">
             <h2><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</h2>
+            <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
             <v-data-table
               v-if='Org_Agency_data'
                 :items='Org_Agency_data'
                 :headers='headers'
             >
             </v-data-table>
+            <PaginationBar
+              :current-page.sync="Org_Agency_currentPage"
+              :total-pages="Org_Agency_totalPages"
+              :pages-to-show="Org_Agency_pagesToShow"
+              :items-per-page="Org_Agency_itemsPerPage"
+              :is-loading="searchIsLoading"
+              @update:current-page="updateCurrentPage"
+              @update:items-per-page="updateItemsPerPage"
+            />
           </div>
         </v-sheet>
 
@@ -146,6 +156,7 @@
 
 <script>
 import OrgResponsesTable from "../components/OrgResponsesTable.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 import * as d3 from 'd3';
 import axios from "axios";
 
@@ -158,6 +169,11 @@ export default {
       rounded_y_prob: 0,
       Org_Info_data: null,
       Org_Agency_data: null,
+      searchIsLoading: false,
+      Org_Agency_currentPage: 1,
+      Org_Agency_totalPages: null,
+      Org_Agency_itemsPerPage: 3,
+      Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
       Data1: [
         {Title: "title 1", Comment: "Great job on this function! Really helpful and easy to understand.", date: "date 1"},
@@ -178,8 +194,13 @@ export default {
     await this.fetchData(); 
     this.animateChart();
   },
+  components: {
+    PaginationBar
+  },
   methods: {
     async fetchData(){
+
+      this.searchIsLoading = true;
 
       //Fetch Statistics and Y Probability
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization/" + encodeURIComponent(this.$route.params.orgName))
@@ -196,9 +217,17 @@ export default {
           });
 
       //Fetch Agencies Most Impacted Data
-      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_agency/" + encodeURIComponent(this.$route.params.orgName))
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_agency/" + encodeURIComponent(this.$route.params.orgName, {
+        params: {
+          filters: {
+            page: this.Org_Agency_currentPage, // has to be an integer || NULL
+            itemsPerPage: this.Org_Agency_itemsPerPage // has to be an integer || NULL
+          }
+        }
+      }))
           .then(response => {
             this.Org_Agency_data = response.data.data;
+            this.Org_Agency_totalPages = response.data.totalPages;
           }).catch(error => {
             if (!axios.isCancel(error)) {
               if (error.response.data.error) {
@@ -223,6 +252,16 @@ export default {
             }
           });
           
+      this.searchIsLoading = false;
+
+    },
+    updateCurrentPage(newPage) {
+      this.Org_Agency_currentPage = newPage;
+      this.fetchData();
+    },
+    updateItemsPerPage(newItemsPerPage) {
+      this.Org_Agency_itemsPerPage = newItemsPerPage;
+      this.searchData();
     },
     animateChart() {
 
