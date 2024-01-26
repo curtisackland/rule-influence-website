@@ -80,6 +80,7 @@ try:
                   GROUP BY frdocs.frdoc_number;""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS date_index ON cache_frdocs_page (publication_date)""")
 
     connection.commit()
 
