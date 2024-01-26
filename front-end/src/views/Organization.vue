@@ -43,14 +43,18 @@
         rounded="xl"
         max-width="1200"
         >
-          <div class="d-flex flex-column mb-10">
+          <div class="d-flex flex-column">
             <h2><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</h2>
             <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
             <v-data-table
+              class="mb-5"
               v-if='Org_Agency_data'
                 :items='Org_Agency_data'
                 :headers='headers'
+                :page.sync="Org_Agency_currentPage"
             >
+              <template v-slot:bottom>
+              </template>
             </v-data-table>
             <PaginationBar
               :current-page.sync="Org_Agency_currentPage"
@@ -172,7 +176,7 @@ export default {
       searchIsLoading: false,
       Org_Agency_currentPage: 1,
       Org_Agency_totalPages: null,
-      Org_Agency_itemsPerPage: 3,
+      Org_Agency_itemsPerPage: 10,
       Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
       Data1: [
@@ -193,9 +197,6 @@ export default {
   async mounted() {
     await this.fetchData(); 
     this.animateChart();
-  },
-  components: {
-    PaginationBar
   },
   methods: {
     async fetchData(){
@@ -238,7 +239,7 @@ export default {
             }
           });
 
-      //Fetch Rules Most Impaced Data
+      //Fetch Rules Most Impacted Data
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_doc_changes/" + encodeURIComponent(this.$route.params.orgName))
           .then(response => {
             this.Org_Rule_data = response.data;
@@ -261,7 +262,7 @@ export default {
     },
     updateItemsPerPage(newItemsPerPage) {
       this.Org_Agency_itemsPerPage = newItemsPerPage;
-      this.searchData();
+      this.fetchData();
     },
     animateChart() {
 
@@ -305,7 +306,8 @@ export default {
     },
   },
   components:{
-    OrgResponsesTable
+    OrgResponsesTable,
+    PaginationBar
   }
 };
 </script>
