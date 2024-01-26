@@ -17,7 +17,7 @@ class GetCommentsInfo extends AbstractInfoEndpoint
             $queryParams = $request->getQueryParams();
 
             // TODO add date field when received_date is no longer null in frdoc_comments
-            $selectQuery = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title
+            $selectQuery = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title, receive_date
                 FROM cache_comment_page';
 
             $countQuery = 'SELECT count(*) AS count FROM cache_comment_page';
@@ -31,6 +31,17 @@ class GetCommentsInfo extends AbstractInfoEndpoint
                 $boundValues['commentId'] = $queryParams['filters']['commentId'];
             }
 
+            if (isset($queryParams['filters']['frdocNumber']) && $queryParams['filters']['frdocNumber']
+                && isset($queryParams['filters']['responseId']) && $queryParams['filters']['responseId']
+            ) {
+                $whereClauses[] .= "(comment_id) IN (SELECT DISTINCT comment_id FROM comment_responses WHERE frdoc_number=:frdocNumber AND response_id=:responseId)";
+                $boundValues['frdocNumber'] = $queryParams['filters']['frdocNumber'];
+                $boundValues['responseId'] = $queryParams['filters']['responseId'];
+            } elseif (isset($queryParams['filters']['frdocNumber']) && $queryParams['filters']['frdocNumber']) {
+                $whereClauses[] .= "(comment_id) IN (SELECT DISTINCT comment_id FROM comment_responses WHERE frdoc_number=:frdocNumber)";
+                $boundValues['frdocNumber'] = $queryParams['filters']['frdocNumber'];
+            }
+
             if (isset($queryParams['filters']['orgName']) && $queryParams['filters']['orgName']) {
                 $whereClauses[] .= "orgs LIKE :orgName";
                 $boundValues['orgName'] = '%' . $queryParams['filters']['orgName'] . '%';
@@ -39,6 +50,16 @@ class GetCommentsInfo extends AbstractInfoEndpoint
             if (isset($queryParams['filters']['agency']) && $queryParams['filters']['agency']) {
                 $whereClauses[] .= "agencies LIKE :agency";
                 $boundValues['agency'] = '%' . $queryParams['filters']['agency'] . '%';
+            }
+
+            if (isset($queryParams['filters']['startDate']) && $queryParams['filters']['startDate']) {
+                $whereClauses[] .= "receive_date >= :startDate";
+                $boundValues['startDate'] = $queryParams['filters']['startDate'];
+            }
+
+            if (isset($queryParams['filters']['endDate']) && $queryParams['filters']['endDate']) {
+                $whereClauses[] .= "receive_date <= :endDate";
+                $boundValues['endDate'] = $queryParams['filters']['endDate'];
             }
 
             if (count($whereClauses) > 0) {
@@ -57,6 +78,9 @@ class GetCommentsInfo extends AbstractInfoEndpoint
                         break;
                     case "linkedResponses":
                         $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'linked_responses');
+                        break;
+                    case "date":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'receive_date');
                         break;
                 }
             }

@@ -21,8 +21,11 @@ try:
         cursor.execute(f"DROP TABLE IF EXISTS {tableName}")
         print(f"Dropped cached table {tableName}")
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_home_page AS
+    cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index_frdoc_comments ON frdoc_comments (comment_id)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index ON comment_responses (comment_id)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_response_id_index_comment_responses ON comment_responses (frdoc_number, response_id)""")
 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_home_page AS
                       SELECT DISTINCT
                       org_name,
                       SUM(y_prob>0.5) AS y_count,
@@ -33,6 +36,8 @@ try:
                       AND (responses.response_id==org_responses.response_id)
                       GROUP BY org_name
                       ORDER BY -y_count""")
+
+    connection.commit()
 
     print("Created home page table")
 
@@ -47,6 +52,8 @@ try:
                         FROM comment_orgs
                         GROUP BY org_name) ON comment_orgs.org_name=count_org_name
                     GROUP BY org_name""")
+
+    connection.commit()
 
     print("Created org page table")
 
@@ -74,11 +81,12 @@ try:
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")
 
+    connection.commit()
+
     print("Created cache_frdocs_page")
 
-    # TODO look into the disparity between frdoc_comments and comment_responses frdoc_numbers
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-                      SELECT cr.frdoc_number, fc.comment_id, fr.title,
+                      SELECT cr.frdoc_number, fc.comment_id, fr.title, fc.receive_date,
                              COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
                              SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
                              JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
@@ -91,27 +99,29 @@ try:
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS receive_date_index ON cache_comment_page (receive_date)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index_cache_comment_page ON cache_comment_page (comment_id)""")
+
+    connection.commit()
 
     print("Created comments table")
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS temp_table AS
-                      SELECT cr.frdoc_number, cr.response_id, cr.comment_id, cr.score > 0.5 AS outcome, tr.number_of_comments
-                      FROM (SELECT cr.frdoc_number, cr.response_id, COUNT(cr.comment_id) AS number_of_comments
-                            FROM comment_responses AS cr
-                            WHERE (cr.frdoc_number, cr.response_id) IN (
-                                SELECT frdoc_number, response_id FROM comment_responses GROUP BY frdoc_number, response_id
-                            )
-                            GROUP BY cr.frdoc_number, cr.response_id) tr
-                               JOIN comment_responses cr ON tr.frdoc_number=cr.frdoc_number AND tr.response_id=cr.response_id""")
-
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_responses_page AS
-                        SELECT tr.*, fr.title
-                        FROM temp_table tr
-                        JOIN frdocs fr ON fr.frdoc_number=tr.frdoc_number""")
+                      SELECT r.frdoc_number,
+                             r.response_id,
+                             r.any_change,
+                             COUNT(cr.comment_id) as number_of_comments,
+                             fr.title,
+                             JSON_GROUP_ARRAY(rp.text) as text
+                      FROM responses r
+                      JOIN comment_responses cr ON r.response_id=cr.response_id AND r.frdoc_number=cr.frdoc_number
+                      JOIN response_paragraphs rp on r.response_id=rp.response_id AND r.frdoc_number=rp.frdoc_number
+                      JOIN frdocs fr ON r.frdoc_number=fr.frdoc_number
+                      GROUP BY r.frdoc_number, r.response_id""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_and_response_index ON cache_responses_page (frdoc_number, response_id)""")
 
-    cursor.execute("""DROP TABLE temp_table""")
+    connection.commit()
 
     print("Created responses table")
 
@@ -125,6 +135,8 @@ try:
                     LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
                     GROUP BY agency, org_name;""")
 
+    connection.commit()
+
     print("Created cache_org_agency")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_doc_changes AS
@@ -132,8 +144,9 @@ try:
                     FROM org_responses
                     GROUP BY org_name, frdoc_number;""")
 
-    print("Created cache_org_doc_changes")
+    connection.commit()
 
+    print("Created cache_org_doc_changes")
 
     connection.commit()
     cursor.close()
