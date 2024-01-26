@@ -34,6 +34,20 @@
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-text-field>
+      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly="true" class="mr-3">
+        <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
+          <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
+          </v-date-picker>
+          <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
+        </v-menu>
+      </v-text-field>
+      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" readonly="true" class="mr-3">
+        <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
+          <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
+          </v-date-picker>
+          <v-btn @click="filterEndDateMenuActive = false">Close</v-btn>
+        </v-menu>
+      </v-text-field>
       <v-text-field
           label="Comment Id Search"
           v-model="commentId"
@@ -53,23 +67,6 @@
               <v-row class="m-0 p-0">
                 <v-col class="p-0 m-0">
                   <v-card-title class="p-0 mx-0">Comment ID: {{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-title>
-                </v-col>
-              </v-row>
-              <v-row class="m-0 p-0">
-                <v-col class="p-0">
-                  <v-card-title class="p-0 mx-0">FR Document: {{ row["title"] ? row["title"] : 'No Title' }}</v-card-title>
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-col>
-              <v-row class="m-0 p-0">
-                <v-col class="m-0 p-0">
-                  <v-card-title class="p-0 mx-0">FR Document Number:</v-card-title>
-                </v-col>
-              </v-row>
-              <v-row class="m-0 p-0">
-                <v-col class="m-0 p-0">
-                  <v-card-title class="p-0 mx-0">{{row["frdoc_number"] ? row["frdoc_number"] : 'No frdoc number'}}</v-card-title>
                 </v-col>
               </v-row>
             </v-col>
@@ -101,22 +98,19 @@
             <v-col cols="3">
               <v-card-text>Statistics</v-card-text>
               <div class="stats-space pb-3">
-                <v-card-subtitle class="wrap-text">Date Published: {{ row["publication_date"] ? row["publication_date"] : 'No date' }}</v-card-subtitle>
+                <v-card-subtitle class="wrap-text">Date Published: {{ row["receive_date"] ? row["receive_date"].split('T')[0] : 'No date' }}</v-card-subtitle>
                 <v-card-subtitle class="wrap-text">Changes: {{row["number_of_changes"] ? row["number_of_changes"] : 'Unknown'}}</v-card-subtitle>
                 <v-card-subtitle class="wrap-text">Linked responses: {{row["linked_responses"] ? row["linked_responses"] : 'Unknown'}}</v-card-subtitle>
               </div>
             </v-col>
             <v-col cols="3">
               <div class="link-space">
-                <RouterLink :to="{ name: 'responses', params: { commentId: row['comment_id'], frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
                 </RouterLink>
-                <RouterLink :to="{ name: 'frdocs', params: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'frdocs', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="compact" class="w-100"></v-btn>
                 </RouterLink>
-                <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="compact" class="w-100"></v-btn>
-                </a>
               </div>
             </v-col>
           </v-row>
@@ -164,6 +158,10 @@ export default {
         params: { filters: {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
             agency: this.agency  ? this.agency : null, // can be a string of an agency
+            startDate: this.filterStartDateText ? this.filterStartDateText.toISOString().split('.')[0] + 'Z' : null,
+            endDate: this.filterEndDateText ? this.filterEndDateText.toISOString().split('.')[0] + 'Z' : null,
+            frdocNumber: this.frdocNumber ? this.frdocNumber : null,
+            responseId: this.responseId ? this.responseId : null,
             sortBy: this.sortBy, // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
             page: this.currentPage, // has to be an integer || NULL
@@ -217,11 +215,18 @@ export default {
       commentData: null,
       orgName: null,
       agency: null,
+      frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
+      responseId: this.$route.query.responseId ? this.$route.query.responseId : null,
+      filterStartDateMenuActive: false,
+      filterEndDateMenuActive: false,
+      filterStartDateText: null,//new Date("2000-01-01"),
+      filterEndDateText: null,
       sortBy: 'numberOfChanges',
       sortByItems: [
         { text: 'None', value: null },
         { text: 'Number of Changes', value: 'numberOfChanges' },
-        { text: 'Number of Linked Responses', value: 'linkedResponses' }
+        { text: 'Number of Linked Responses', value: 'linkedResponses' },
+        { text: 'Date', value: 'date' },
       ],
       sortOrder: 'DESC',
       sortOrderItems: [

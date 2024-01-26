@@ -38,12 +38,12 @@ class GetFrdocsPageInfo extends AbstractInfoEndpoint
             $whereClause = [];
             $boundValues = [];
             if (isset($queryParams['filters']['start_date'])) {
-                $whereClause[] = "publication_date > :filterStartDate";
+                $whereClause[] = "publication_date >= :filterStartDate";
                 $boundValues['filterStartDate'] = $queryParams['filters']['start_date'];
             }
 
             if (isset($queryParams['filters']['end_date'])) {
-                $whereClause[] = "publication_date < :filterEndDate";
+                $whereClause[] = "publication_date <= :filterEndDate";
                 $boundValues['filterEndDate'] = $queryParams['filters']['end_date'];
             }
 
@@ -60,6 +60,11 @@ class GetFrdocsPageInfo extends AbstractInfoEndpoint
             if (isset($queryParams['filters']['frdocNumber'])) {
                 $whereClause[] = "frdoc_number = :frdocNumber";
                 $boundValues['frdocNumber'] = $queryParams['filters']['frdocNumber'];
+            }
+
+            if (isset($queryParams['filters']['commentId'])) {
+                $whereClause[] = "frdoc_number IN (SELECT DISTINCT frdoc_number FROM frdoc_comments WHERE comment_id = :commentId)";
+                $boundValues['commentId'] = $queryParams['filters']['commentId'];
             }
 
             // Add where clause

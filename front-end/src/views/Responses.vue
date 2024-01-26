@@ -86,23 +86,14 @@
           <v-row class="mt-1">
             <v-col cols="3">
               <v-card-text class="wrap-text p-0">Number of Linked Comments: {{row["number_of_comments"] ? row["number_of_comments"] : 'Unknown'}}</v-card-text>
-              <v-card-text class="ml-0 pl-0">Comments Responded to:</v-card-text>
-              <div style="display: flex; height: 150px;">
-                <v-virtual-scroll class="ml-0 pl-0 mb-2 text-grey" :items="row['comment_data']">
-                  <template v-slot:default="{ item }">
-                    <RouterLink :to="{ name: 'comments', params: { commentId: item.comment_id } }" class="pb-2 w-100">
-                      {{ item.comment_id + ' : ' + (parseInt(item.outcome) ? 'Change' : 'No Change') }}
-                    </RouterLink>
-                  </template>
-                </v-virtual-scroll>
-              </div>
+              <v-card-text class="ml-0 pl-0">Resulted In Change: {{row["any_change"] ? row["any_change"] : 'Unknown'}}</v-card-text>
             </v-col>
             <v-col cols="6">
               <v-card-text class="p-0">Response Text:</v-card-text>
               <div v-if="row['text']" style="display: flex; height: 200px;">
-                <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1 text-grey" :items="[row['text']]">
+                <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1 text-grey" :items="row['text']">
                   <template v-slot:default="{ item }">
-                    {{ item }}
+                    {{ item }} <br><br>
                   </template>
                 </v-virtual-scroll>
               </div>
@@ -110,12 +101,12 @@
             </v-col>
             <v-col cols="3">
               <div class="link-space">
-                <RouterLink :to="{ name: 'frdocs', params: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'frdocs', query: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="default" class="w-100"></v-btn>
                 </RouterLink>
-                <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="FR Document on Federal Register" density="default" class="w-100"></v-btn>
-                </a>
+                <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'], responseId: row['response_id'] } }" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" text="Comments Page" density="default" class="w-100"></v-btn>
+                </RouterLink>
               </div>
             </v-col>
           </v-row>
@@ -164,7 +155,7 @@ export default {
             frdocNumber: this.frdocNumber ? this.frdocNumber : null, // can be a string of a frdoc number
             responseId: this.responseId ? this.responseId : null,
             commentId: this.commentId ? this.commentId : null,
-            outcome: this.resultedInChange,
+            resultedInChange: this.resultedInChange,
             sortBy: this.sortBy, // sort by a specific column: "numberOfComments" || "date" || NULL
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
             page: this.currentPage, // has to be an integer || NULL
@@ -216,13 +207,13 @@ export default {
       searchIsLoading: false,
       responsesData: null,
       orgName: null,
-      frdocNumber: null,
-      commentId: null,
+      frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
+      commentId: this.$route.query.commentId ? this.$route.query.commentId : null,
       responseId: null,
       sortBy: null,
       sortByItems: [
         { text: 'None', value: null },
-        { text: 'Number of Changes', value: 'numberOfComments' },
+        { text: 'Number of Linked Comments', value: 'numberOfComments' },
         { text: 'Date', value: 'date' }
       ],
       sortOrder: 'DESC',
@@ -246,10 +237,6 @@ export default {
     };
   },
   mounted() {
-    this.frdocNumber = this.$route.params.frdocNumber ? this.$route.params.frdocNumber : null;
-    this.responseId = this.$route.params.responseId ? this.$route.params.responseId : null;
-    this.commentId = this.$route.params.commentId ? this.$route.params.commentId : null;
-
     this.fetchData();
 
     // Listen for the Enter key press on the document

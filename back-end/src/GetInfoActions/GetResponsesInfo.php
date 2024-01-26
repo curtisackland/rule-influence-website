@@ -15,8 +15,9 @@ class GetResponsesInfo extends AbstractInfoEndpoint
 
             $queryParams = $request->getQueryParams();
 
-            // TODO add date field and orgs and agencies?
-            $selectQuery =  'SELECT DISTINCT frdoc_number, response_id, number_of_comments, title FROM cache_responses_page';
+            $selectQuery =  'SELECT frdoc_number, response_id, number_of_comments, title, any_change, text FROM cache_responses_page';
+
+            $countQuery = 'SELECT COUNT(*) as count FROM cache_responses_page';
 
             $query = '';
             $boundValues = [];
@@ -28,7 +29,7 @@ class GetResponsesInfo extends AbstractInfoEndpoint
             }
 
             if (isset($queryParams['filters']['commentId'])) {
-                $whereClauses[] = "comment_id=:commentId";
+                $whereClauses[] = "(frdoc_number, response_id) IN (SELECT DISTINCT frdoc_number, response_id FROM comment_responses WHERE comment_id=:commentId)";
                 $boundValues['commentId'] = $queryParams['filters']['commentId'];
             }
 
@@ -37,12 +38,20 @@ class GetResponsesInfo extends AbstractInfoEndpoint
                 $boundValues['responseId'] = $queryParams['filters']['responseId'];
             }
 
+            if (isset($queryParams['filters']['resultedInChange'])) {
+                if($queryParams['filters']['resultedInChange'] == 1) {
+                    $whereClauses[] = "any_change='Y'";
+                } elseif ($queryParams['filters']['resultedInChange'] == 0) {
+                    $whereClauses[] = "any_change='N'";
+                }
+            }
+
             if (count($whereClauses) > 0) {
                 $query .= ' WHERE ' . join(" AND ", $whereClauses);
             }
 
             // pagination
-            $countQuery = 'SELECT COUNT(*) AS count FROM (SELECT  DISTINCT frdoc_number, response_id FROM cache_responses_page ' . $query . ')';
+            $countQuery .= $query;
             $this->paginate($countQuery, $queryParams, $boundValues);
 
             // filtering chosen column in descending or ascending order
@@ -63,21 +72,7 @@ class GetResponsesInfo extends AbstractInfoEndpoint
             $records = $this->executeQuery($selectQuery, $boundValues);
 
             foreach ($records as $key => $value) {
-                $commentsQuery = "SELECT comment_id, outcome FROM cache_responses_page 
-                                    WHERE frdoc_number='" . $value['frdoc_number'] . "' AND response_id=" . $value['response_id'];
-
-                if (isset($queryParams['filters']['outcome']) && $queryParams['filters']['outcome']) {
-                    if ((int) $queryParams['filters']['outcome'] == 1) {
-                        $commentsQuery .= " AND outcome=1";
-                    } else {
-                        $commentsQuery .= " AND outcome=0";
-                    }
-
-                }
-
-                $commentsQuery .= ' LIMIT 10'; // Limiting the amount of linked comments on a response to 10
-                
-                $records[$key]['comment_data'] = $this->executeQuery($commentsQuery, []);
+                $records[$key]['text'] = json_decode($value['text']);
             }
 
             $results = $records;
