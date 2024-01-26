@@ -218,14 +218,14 @@ export default {
           });
 
       //Fetch Agencies Most Impacted Data
-      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_agency/" + encodeURIComponent(this.$route.params.orgName, {
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_agency/" + encodeURIComponent(this.$route.params.orgName), {
         params: {
           filters: {
             page: this.Org_Agency_currentPage, // has to be an integer || NULL
             itemsPerPage: this.Org_Agency_itemsPerPage // has to be an integer || NULL
           }
         }
-      }))
+      })
           .then(response => {
             this.Org_Agency_data = response.data.data;
             this.Org_Agency_totalPages = response.data.totalPages;
