@@ -4,7 +4,7 @@
     <a>Disclaimer: This website is not complete. This is an alpha version of this website.</a>
     <br>
     <p style="text-align: center;">
-      Rule-making Influence Explorer is designed to explore data obtained from the Federal Register to better understand the relationships in rule making.
+      Rulemaking Influence Explorer is designed to explore data obtained from the Federal Register to better understand the relationships in rule making.
       The Home page shows the most influential organizations and their statistics.
       The Organization page shows statistics and other data about specific organizations.
       The FR Docs page shows statistics on documents from the Federal Register.

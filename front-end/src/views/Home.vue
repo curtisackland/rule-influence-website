@@ -57,15 +57,6 @@
     searchIsLoading.value = false;
   };
 
-  const handleCellClick = (value) => { 
-      if (router) {
-        const encodedOrganizationName = encodeURIComponent(value);  
-        const apiUrl = `organization/${encodedOrganizationName}`;
-        
-        router.push(apiUrl);
-      }
-  }
-
   const updateCurrentPage = (newPage) => {
       currentPage.value = newPage;
       fetchData();
@@ -80,7 +71,7 @@
 </script>
 
 <template>
-  <h1 class="welcome-banner mt-4">Welcome to the Rule-Making Influence Explorer!</h1>
+  <h1 class="welcome-banner mt-4">Welcome to the Rulemaking Influence Explorer!</h1>
   <v-container class="d-flex justify-center mt-5">
     <v-row class="my-b mx-1">
       <v-select bg-color="rie-primary-color" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
@@ -106,7 +97,9 @@
         <template v-slot:bottom>
         </template>
         <template v-slot:item.org_name="{ item }">
-          <td class="clickable-cell" @click="handleCellClick(item.org_name)">{{ item.org_name }}</td>
+          <router-link :to="{ name: 'organization', params: { orgName: item.org_name } }" tag="td" class="clickable-cell">
+            {{ item.org_name }}
+          </router-link>
         </template>
       </v-data-table>
       <PaginationBar class="pagination"
