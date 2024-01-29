@@ -56,9 +56,9 @@ export default {
   data() {
     return {
       sidebar: false,
-      title: 'Rule-Making Influence Explorer',
+      title: 'Rulemaking Influence Explorer',
       menuItems: [
-        { title: 'Home', path: '/' },
+        { title: 'Organizations', path: '/' },
         { title: 'About', path: '/about'},
         { title: 'FR Docs', path: '/frdocs'},
         { title: 'Comments', path: '/comments'},
