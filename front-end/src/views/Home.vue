@@ -1,7 +1,6 @@
 <script setup>
   import {ref, onMounted, computed, watchEffect } from 'vue';
   import axios from "axios";
-  import router from '../router/index.js';
   import bubbleChart from "../components/charts/BubbleChart.vue";
   import PaginationBar from "@/components/PaginationBar.vue";
 
@@ -74,10 +73,10 @@
   <h1 class="welcome-banner mt-4">Welcome to the Rulemaking Influence Explorer!</h1>
   <v-container class="d-flex justify-center mt-5">
     <v-row class="my-b mx-1">
-      <v-select bg-color="rie-primary-color" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
-      <v-text-field label="Organization Search" v-model="orgName" bg-color="rie-primary-color" class="mr-3"></v-text-field>
-      <v-switch v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
-      <v-btn color="rie-primary-color" @click="fetchData()">Search</v-btn>
+      <v-select id="sort-drop-down" bg-color="rie-primary-color" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
+      <v-text-field id="organization-search" label="Organization Search" v-model="orgName" bg-color="rie-primary-color" class="mr-3"></v-text-field>
+      <v-switch id="sort-toggle" v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
+      <v-btn id="search-button" color="rie-primary-color" @click="fetchData()">Search</v-btn>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
   </v-container>
@@ -88,7 +87,7 @@
           <v-toolbar-title>Top Influential Organizations</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
       </v-toolbar>
-      <v-data-table v-if="tableData"
+      <v-data-table id="organization-table" v-if="tableData"
         v-model:items-per-page="itemsPerPage"
         :items="tableData" 
         :headers="tableHeaders"
