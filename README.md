@@ -64,6 +64,20 @@ npm run dev
 ```
 This should start serving the site locally, the output of the command should show the port of the site.
 
+## Testing FE
 
+When testing the front-end, the website must be up on http://localhost:5173/. 
+```bash
+cd ./front-end
+npm test
+```
+It may be the case that you will need to run the following command to get test-specific dependencies.
+```bash
+npm install
+```
+If this does not work, run (in admin mode)
+```bash
+npm install selenium-webdriver mocha chai esm
+```
 
 
