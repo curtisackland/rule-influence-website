@@ -44,24 +44,24 @@ try:
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_page AS
                     SELECT A.org_name, number_of_comments, y_prob_avg, total_response_count, total_rules_changed
                     FROM ( -- Counts per org
-                        SELECT comment_orgs.org_name, SUM(comments_and_responses.response_count) AS total_response_count, coalesce(SUM(CASE WHEN comments_and_responses.number_of_changes > 0 THEN 1 ELSE 0 END), 0) AS total_rules_changed
-                        FROM comment_orgs
-                        LEFT JOIN (
-                            SELECT comment_id, coalesce(COUNT(DISTINCT(comment_responses.response_id)), 0) AS response_count, SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END) AS number_of_changes
-                            FROM comment_responses
-                            LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
-                            GROUP BY comment_id
-                        ) comments_and_responses ON comment_orgs.comment_id=comments_and_responses.comment_id
-                        GROUP BY org_name
+                         SELECT comment_orgs.org_name, SUM(comments_and_responses.response_count) AS total_response_count, coalesce(SUM(CASE WHEN comments_and_responses.number_of_changes > 0 THEN 1 ELSE 0 END), 0) AS total_rules_changed
+                         FROM comment_orgs
+                                  LEFT JOIN (
+                             SELECT comment_id, responses.frdoc_number, coalesce(COUNT(DISTINCT(comment_responses.response_id)), 0) AS response_count, SUM(CASE WHEN y_prob > 0.5 THEN 1 ELSE 0 END) AS number_of_changes
+                             FROM comment_responses
+                                      LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
+                             GROUP BY comment_id, responses.frdoc_number
+                         ) comments_and_responses ON comment_orgs.comment_id=comments_and_responses.comment_id
+                         GROUP BY org_name
                     ) A
                     LEFT JOIN ( -- Averages per org
                         SELECT comment_orgs.org_name, AVG(responses.y_prob) AS y_prob_avg, COUNT(DISTINCT(comment_orgs.comment_id)) AS number_of_comments
                         FROM comment_orgs
-                        LEFT JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
-                        LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
+                                 LEFT JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
+                                 LEFT JOIN responses ON comment_responses.frdoc_number=responses.frdoc_number AND comment_responses.response_id=responses.response_id
                         GROUP BY org_name
                     ) B ON A.org_name=B.org_name
-                    LEFT JOIN (
+                             LEFT JOIN (
                         SELECT org_name AS count_org_name, COUNT(DISTINCT(comment_id))
                         FROM comment_orgs
                         GROUP BY org_name
