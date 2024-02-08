@@ -57,9 +57,19 @@ class GetFrdocsPageInfo extends AbstractInfoEndpoint
                 $boundValues['filterType'] = $queryParams['filters']['type'];
             }
 
-            if (isset($queryParams['filters']['frdocNumber'])) {
-                $whereClause[] = "frdoc_number = :frdocNumber";
-                $boundValues['frdocNumber'] = $queryParams['filters']['frdocNumber'];
+            if (isset($queryParams['filters']['titleOrId'])) {
+                $whereClause[] = '(frdoc_number LIKE :titleOrId OR title LIKE :titleOrId)';
+                $boundValues['titleOrId'] = '%' . $queryParams['filters']['titleOrId'] . '%';
+            }
+
+            if (isset($queryParams['filters']['idArray']) and !empty($queryParams['filters']['idArray'])) {
+                $inArray = [];
+                foreach ($queryParams['filters']['idArray'] as $index => $id) {
+                    $queryVar = 'idArray_' . $index;
+                    $inArray[] = ':' . $queryVar;
+                    $boundValues[$queryVar] = $queryParams['filters']['idArray'][$index];
+                }
+                $whereClause[] = 'frdoc_number IN (' . join(",", $inArray) . ')';
             }
 
             if (isset($queryParams['filters']['commentId'])) {
@@ -101,9 +111,15 @@ class GetFrdocsPageInfo extends AbstractInfoEndpoint
             $records = $this->executeQuery($selectQuery, $boundValues);
 
             $results = [];
+            // Decode JSON arrays
             foreach ($records as $row) {
                 $row["agencies"] = json_decode($row["agencies"]);
-                $results[] = $row; 
+
+                // Filter removes null entries from array
+                $row["prevFRDoc"] = array_filter(json_decode($row["prevFRDoc"]));
+                $row["nextFRDoc"] = array_filter(json_decode($row["nextFRDoc"]));
+
+                $results[] = $row;
             }
 
         } catch (Exception $e) {
