@@ -3,7 +3,7 @@
 declare(strict_types = 1);
 
 use App\GetInfoActions\GetCommentsInfo;
-use App\GetInfoActions\GetFrdocsPageInfo;
+use App\GetInfoActions\GetRulesPageInfo;
 use App\GetInfoActions\GetHomePageInfo;
 use App\GetInfoActions\GetOrgPageInfo;
 use App\GetInfoActions\GetResponsesInfo;
@@ -29,7 +29,7 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     $group->get('/organization/{orgName}', GetOrgPageInfo::class);
     $group->get('/organization_agency/{orgName}', GetOrgAgencies::class);
     $group->get('/organization_doc_changes/{orgName}', GetOrgDocChanges::class);
-    $group->get('/frdocs', GetFrdocsPageInfo::class);
+    $group->get('/rules', GetRulesPageInfo::class);
     $group->get('/comments', GetCommentsInfo::class);
     $group->get('/responses', GetResponsesInfo::class);
     $group->get('/test', TestRoute::class); // TODO REMOVE LATER
