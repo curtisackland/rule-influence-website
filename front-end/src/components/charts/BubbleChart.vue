@@ -13,6 +13,14 @@
       },
       selectedCriteria: String
     },
+    data() {
+      return {
+        criteriaOptions : [
+        { title: 'number of linked docs', value: 'n_frdocs' }, 
+        { title: 'number of changes', value: 'y_count' }
+        ]
+      }
+    },
     mounted() {
       this.createChart();
     },
@@ -67,11 +75,12 @@
   
         const mousemove  = (selectedCriteria) => (event, d) => {
           const data = d3.select(event.currentTarget).data()[0];
+          const selectedTitle = this.criteriaOptions.find(option => option.value === this.selectedCriteria).title;
           console.log(data)
   
           if (data) {
             Tooltip
-              .html(`<u>${data.org_name}</u><br>${selectedCriteria} value is ${data[selectedCriteria]}`)
+              .html(`<u>${data.org_name}</u><br>The ${selectedTitle} is ${data[selectedCriteria]}`)
               .style("left", `${chartContainer.offsetLeft + width}px`)
               .style("top", `${0}px`);
           }
