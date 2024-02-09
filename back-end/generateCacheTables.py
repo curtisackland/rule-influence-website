@@ -12,7 +12,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-tablesToDrop = ["cache_org_page"]
+tablesToDrop = ["cache_frdocs_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -90,7 +90,7 @@ try:
                            LEFT JOIN frdoc_sequences prevSeq ON frdocs.frdoc_number = prevSeq.frdoc_j
                            LEFT JOIN frdoc_sequences nextSeq ON frdocs.frdoc_number = nextSeq.frdoc_i
                            LEFT JOIN (SELECT frdoc_number, COUNT(*) as responseCount, SUM(CASE WHEN y_prob>0.5 THEN 1 ELSE 0 END) as change_count FROM responses GROUP BY frdoc_number) responses ON frdocs.frdoc_number = responses.frdoc_number
-                           LEFT JOIN (SELECT frdoc_number, COUNT(*) as commentCount FROM responses GROUP BY frdoc_number) comments ON frdocs.frdoc_number = comments.frdoc_number
+                           LEFT JOIN (SELECT frdoc_number, COUNT(DISTINCT comment_id) as commentCount FROM comment_responses GROUP BY frdoc_number) comments ON frdocs.frdoc_number = comments.frdoc_number
                   GROUP BY frdocs.frdoc_number;""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")

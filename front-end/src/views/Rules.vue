@@ -54,7 +54,7 @@
               </template>
             </v-virtual-scroll>
             <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="px-3 w-100">
-              <v-btn color="rie-primary-color" stacked="" text="Rule on Federal Registery" density="compact" class="w-75"></v-btn>
+              <v-btn color="rie-primary-color" stacked="" text="Rule on Federal Register" density="compact" class="w-75"></v-btn>
             </a>
 
           </v-col>
@@ -81,15 +81,24 @@
             <v-row class="my-2 w-100 h-25">
               <v-card-title class="w-100" stacked="" density="compact">Change Count: {{row["change_count"]}}</v-card-title>
             </v-row>
-            <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
-              <v-btn color="rie-primary-color" stacked="" :text="'Comments Page (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100" :disabled="parseInt(row['comment_count'], 10) === 0"></v-btn>
+            <RouterLink v-if="parseInt(row['comment_count'], 10) !== 0" :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
+              <v-btn color="rie-primary-color" stacked="" :text="'Comments Page (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100"></v-btn>
             </RouterLink>
-            <RouterLink :to="{ name: 'responses', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
-              <v-btn color="rie-primary-color" stacked="" :text="'Responses Page (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" :disabled="parseInt(row['response_count'], 10) === 0"></v-btn>
+            <div v-else>
+              <v-btn disabled color="rie-primary-color" stacked="" :text="'Comments Page (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </div>
+            <RouterLink v-if="parseInt(row['response_count'], 10) !== 0" :to="{ name: 'responses', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
+              <v-btn color="rie-primary-color" stacked="" :text="'Responses Page (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
             </RouterLink>
-            <a :href="getRulePageSearchPath({'sourceDoc':row['frdoc_number'], 'filterIdArray':[...row['prevFRDoc'], ...row['nextFRDoc']]})" class="w-100" >
-              <v-btn color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2" :disabled="!(row['prevFRDoc'].length > 0 || row['nextFRDoc'].length > 0)"></v-btn>
+            <div v-else>
+              <v-btn disabled color="rie-primary-color" stacked="" :text="'Responses Page (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </div>
+            <a v-if="row['prevFRDoc'].length > 0 || row['nextFRDoc'].length > 0" :href="getRulePageSearchPath({'sourceDoc':row['frdoc_number'], 'filterIdArray':[...row['prevFRDoc'], ...row['nextFRDoc']]})" class="w-100" >
+              <v-btn color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2"></v-btn>
             </a>
+            <div v-else>
+              <v-btn disabled color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2"></v-btn>
+            </div>
           </v-col>
         </v-row>
       </v-card-text>
