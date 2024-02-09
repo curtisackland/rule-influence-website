@@ -101,7 +101,7 @@
             </v-col>
             <v-col cols="3">
               <div class="link-space">
-                <RouterLink :to="{ name: 'frdocs', query: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'rules', query: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="default" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'], responseId: row['response_id'] } }" class="pb-2 w-100">

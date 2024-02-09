@@ -7,7 +7,7 @@
       Rulemaking Influence Explorer is designed to explore data obtained from the Federal Register to better understand the relationships in rule making.
       The Home page shows the most influential organizations and their statistics.
       The Organization page shows statistics and other data about specific organizations.
-      The FR Docs page shows statistics on documents from the Federal Register.
+      The Rules page shows statistics on documents from the Federal Register.
       The Comments page shows statistics on comments on specific Federal Register documents and responses.
       The Responses page shows statistics on responses to comments.
     </p>

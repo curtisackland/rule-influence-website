@@ -108,7 +108,7 @@
                 <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" :text="row['linked_responses'] ? 'Responses (' + row['linked_responses'] + ')' : 'Responses'" density="default" class="w-100"></v-btn>
                 </RouterLink>
-                <RouterLink :to="{ name: 'frdocs', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
+                <RouterLink :to="{ name: 'rules', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="default" class="w-100"></v-btn>
                 </RouterLink>
               </div>
