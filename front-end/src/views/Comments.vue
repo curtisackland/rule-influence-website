@@ -109,7 +109,7 @@
                   <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink :to="{ name: 'frdocs', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="compact" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="compact" class="w-100"></v-btn>
                 </RouterLink>
               </div>
             </v-col>
