@@ -17,7 +17,7 @@ class GetCommentsInfo extends AbstractInfoEndpoint
             $queryParams = $request->getQueryParams();
 
             // TODO add date field when received_date is no longer null in frdoc_comments
-            $selectQuery = 'SELECT frdoc_number, comment_id, number_of_changes, linked_responses, orgs, agencies, title, receive_date
+            $selectQuery = 'SELECT comment_id, number_of_changes, linked_responses, orgs, agencies, title, receive_date
                 FROM cache_comment_page';
 
             $countQuery = 'SELECT count(*) AS count FROM cache_comment_page';

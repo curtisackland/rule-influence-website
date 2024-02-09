@@ -6,6 +6,7 @@
     <v-row class="my-4 mx-1">
       <v-select
           label="Sort by"
+          id="sort-drop-down"
           v-model="sortBy"
           :items="sortByItems"
           item-title="text"
@@ -33,7 +34,7 @@
       ></v-select>
       <v-text-field
           label="Rule Search"
-          v-model="frdocNumber"
+          v-model="frdocNumberOrTitle"
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-text-field>
@@ -50,7 +51,7 @@
           class="mr-3"
       ></v-text-field>
       <div class="d-flex justify-center">
-        <v-btn color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
+        <v-btn id="submit-button" color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
       </div>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
@@ -61,7 +62,7 @@
             <v-col cols="9">
               <v-row class="m-0 p-0">
                 <v-col class="p-0 m-0">
-                  <v-card-title class="p-0 mx-0">Response ID: {{row["response_id"] ? row["response_id"] : 'No response id'}}</v-card-title>
+                  <v-card-title class="p-0 mx-0" id="response-id">Response ID: {{row["response_id"] ? row["response_id"] : 'No response id'}}</v-card-title>
                 </v-col>
               </v-row>
               <v-row class="m-0 p-0">
@@ -85,7 +86,7 @@
           </v-row>
           <v-row class="mt-1">
             <v-col cols="3">
-              <v-card-text class="ml-0 pl-0">Influenced a change: {{row["any_change"] ? row["any_change"] : 'Unknown'}}</v-card-text>
+              <v-card-text class="ml-0 pl-0">Resulted in a change: {{row["any_change"] ? row["any_change"] : 'Unknown'}}</v-card-text>
             </v-col>
             <v-col cols="6">
               <v-card-text class="p-0">Response Text:</v-card-text>
@@ -151,7 +152,7 @@ export default {
       this.scrollToTop();
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/responses", {
         params: { filters: {
-            frdocNumber: this.frdocNumber ? this.frdocNumber : null, // can be a string of a frdoc number
+            frdocNumberOrTitle: this.frdocNumberOrTitle ? this.frdocNumberOrTitle : null, // can be a string of a frdoc number
             responseId: this.responseId ? this.responseId : null,
             commentId: this.commentId ? this.commentId : null,
             resultedInChange: this.resultedInChange,
@@ -206,7 +207,7 @@ export default {
       searchIsLoading: false,
       responsesData: null,
       orgName: null,
-      frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
+      frdocNumberOrTitle: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
       commentId: this.$route.query.commentId ? this.$route.query.commentId : null,
       responseId: null,
       sortBy: null,
