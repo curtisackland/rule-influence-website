@@ -32,7 +32,7 @@
           class="mr-3"
       ></v-select>
       <v-text-field
-          label="FR Doc Search"
+          label="Rule Search"
           v-model="frdocNumber"
           bg-color="rie-primary-color"
           class="mr-3"
@@ -66,14 +66,14 @@
               </v-row>
               <v-row class="m-0 p-0">
                 <v-col class="p-0">
-                  <v-card-title class="p-0 mx-0">FR Document: {{ row["title"] ? row["title"] : 'No Title' }}</v-card-title>
+                  <v-card-title class="p-0 mx-0">Rule: {{ row["title"] ? row["title"] : 'No Title' }}</v-card-title>
                 </v-col>
               </v-row>
             </v-col>
             <v-col>
               <v-row class="m-0 p-0">
                 <v-col class="m-0 p-0">
-                  <v-card-title class="p-0 mx-0">FR Document Number:</v-card-title>
+                  <v-card-title class="p-0 mx-0">Rule Number:</v-card-title>
                 </v-col>
               </v-row>
               <v-row class="m-0 p-0">
@@ -85,8 +85,7 @@
           </v-row>
           <v-row class="mt-1">
             <v-col cols="3">
-              <v-card-text class="wrap-text p-0">Number of Linked Comments: {{row["number_of_comments"] ? row["number_of_comments"] : 'Unknown'}}</v-card-text>
-              <v-card-text class="ml-0 pl-0">Resulted In Change: {{row["any_change"] ? row["any_change"] : 'Unknown'}}</v-card-text>
+              <v-card-text class="ml-0 pl-0">Influenced a change: {{row["any_change"] ? row["any_change"] : 'Unknown'}}</v-card-text>
             </v-col>
             <v-col cols="6">
               <v-card-text class="p-0">Response Text:</v-card-text>
@@ -102,10 +101,10 @@
             <v-col cols="3">
               <div class="link-space">
                 <RouterLink :to="{ name: 'frdocs', query: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="FR Document Page" density="default" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="default" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'], responseId: row['response_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Comments Page" density="default" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" :text="row['number_of_comments'] ? 'Comments (' + row['number_of_comments'] + ')' : 'Comments'" density="default" class="w-100"></v-btn>
                 </RouterLink>
               </div>
             </v-col>
