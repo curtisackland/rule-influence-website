@@ -8,7 +8,8 @@
     <div class="d-flex flex-row my-10 justify-space-evenly">
       <div class="d-flex flex-column">
 
-        <v-sheet 
+        <v-sheet
+        v-if="Org_Info_data"
         class="d-flex flex-column my-3 pa-10 justify-space-between bg-rie-primary-color"
         rounded="xl"
         max-width="1200"
@@ -16,24 +17,12 @@
 
           <h2><v-icon icon="mdi-file-chart"></v-icon> Statistics</h2>
 
-          <div v-if="Org_Info_data" class="d-flex flex-row justify-space-between">
-            <div class="d-flex flex-column justify-space-evenly">
-              <h4>Comments Made: {{Org_Info_data["number_of_comments"]}}</h4>
-              <h4>Responses Received: {{Org_Info_data["total_response_count"]}}</h4>
-            </div>
-            <v-sheet 
-            class="d-flex flex-row bg-rie-secondary-color pa-4"
-            rounded="xl"
-            >
-              <div class="text-h1 font-weight-black">
-                {{Org_Info_data["total_rules_changed"]}}
-              </div>
-              <div class="text-h3 ml-5">
-                <div>Rules</div>
-                <div>Influenced</div>
-              </div>
-            </v-sheet>
-          </div>
+          <h4>
+            {{$route.params.orgName}} has submitted <span class="bigger-text">{{Org_Info_data["number_of_comments"]}}</span> comments
+            on <span class="bigger-text">###</span> different rules.
+            From its comments, {{$route.params.orgName}} has receieved <span class="bigger-text">{{Org_Info_data["total_response_count"]}}</span> responses
+            and has made <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}}</span> policy changes.
+          </h4>
         </v-sheet>
 
         <v-divider class="d-flex container justify-center" :style="{width: '50%', opacity: '0.5'}"></v-divider>
@@ -81,7 +70,7 @@
           <div class="d-flex flex-column mt-5">
             <v-sheet 
             class="pa-4 my-2 bg-rie-secondary-color"
-            rounded="xl"
+            rounded="lg"
             v-for="row in Org_Rule_data"
             >
               <div class="d-flex flex-row justify-space-between">
@@ -93,7 +82,7 @@
                     By {{agencyString(row["agencies"])}}
                   </div>
                   <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="mt-4">
-                    <v-btn text="FR Document on Federal Register" rounded="xl" density="compact"></v-btn>
+                    <v-btn text="FR Document on Federal Register" rounded="lg" density="compact"></v-btn>
                   </a>
                 </div>
                 <div class="d-flex flex-column justify-center">
@@ -121,10 +110,29 @@
         >
           <div class="text-h5 mb-3">
             <v-icon icon="mdi-chart-pie"></v-icon> Avg. Predicted Prob. of Influential Comment
+            <v-tooltip
+              location="top"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  density="compact"
+                  icon
+                  v-bind="props"
+                >
+                  <v-icon>
+                    mdi-information-slab-symbol
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>
+                  Each comment from {{$route.params.orgName}} has an assigned probability of the likelihood it has induced a rule change. 
+                  The average predicted probability takes the mean of all those probabilities. This displays how infuential the comments from {{$route.params.orgName}} are.
+              </span>
+            </v-tooltip>
           </div>
             <svg :width="300" :height="300" ref="chart"></svg>
           <div class="text-h3 mt-4 font-weight-black">
-            {{(rounded_y_prob * 100).toFixed(4)}}%
+            ≈{{(rounded_y_prob * 100).toFixed(0)}}%
           </div>
         </v-sheet>
 
@@ -135,20 +143,24 @@
         rounded="xl"
         width="600px"
         >
-          <h2 class="text-center mb-3"><v-icon icon="mdi-message-reply-text"></v-icon> Recent Comments</h2>
+          <h2 class="text-center mb-3"><v-icon icon="mdi-message-reply-text"></v-icon> Influential Comments</h2>
           <v-sheet 
           class="pa-4 my-4 bg-rie-secondary-color"
-          rounded="xl"
+          rounded="lg"
           v-for="row in Data1"
           >
-            <div class="font-weight-bold">
-              {{row["Title"]}}
-            </div>
-            <div class="font-italic">
-              Posted on {{row["date"]}}
-            </div>
-            <div>
-              {{row["Comment"]}}
+            <div class="d-flex flex-row justify-space-between">
+              <div>
+                <div class="font-weight-bold">
+                  {{row["Title"]}}
+                </div>
+                <div class="font-italic">
+                  Changes: {{row["date"]}}
+                </div>
+              </div>
+              <div class="d-flex flex-column justify-center">
+                <v-btn density="compact" rounded="lg" size="x-large">{{row["CommentLink"]}}</v-btn>
+              </div>
             </div>
           </v-sheet>
         </v-sheet>
@@ -180,11 +192,11 @@ export default {
       Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
       Data1: [
-        {Title: "title 1", Comment: "Great job on this function! Really helpful and easy to understand.", date: "date 1"},
-        {Title: "title 2", Comment: "Thanks for sharing this snippet! It saved me a lot of time.", date: "date 2"},
-        {Title: "title 3", Comment: "Can you explain how this part works? I'm having trouble understanding it.", date: "date 3"},
-        {Title: "title 4", Comment: "Awesome explanation! Your comments make the code so much clearer.", date: "date 4"},
-        {Title: "title 5", Comment: "Hey, could you update this for the latest version? It seems to be deprecated now.", date: "date 5"}
+        {Title: "title 1", CommentLink: "Comment Link", date: "1"},
+        {Title: "title 2", CommentLink: "Comment Link", date: "2"},
+        {Title: "title 3", CommentLink: "Comment Link", date: "3"},
+        {Title: "title 4", CommentLink: "Comment Link", date: "4"},
+        {Title: "title 5", CommentLink: "Comment Link", date: "5"}
       ],
       headers: [
         {title: 'Agency', key : 'agency'},
@@ -272,7 +284,7 @@ export default {
       }
       else{
         this.rounded_y_prob = this.Org_Info_data["y_prob_avg"];
-        this.avg_y_prob = [100 - (100 * this.Org_Info_data["y_prob_avg"]), (100 * this.Org_Info_data["y_prob_avg"])];
+        this.avg_y_prob = [100 - (100 * this.rounded_y_prob), (100 * this.rounded_y_prob)];
       }
       const svg = d3.select(this.$refs.chart);
       const radius = Math.min(this.width, this.height) / 2;
@@ -311,3 +323,10 @@ export default {
   }
 };
 </script>
+
+<style>
+  .bigger-text{
+    font-size: 1.8em; 
+    font-weight: bold;
+  }
+</style>
