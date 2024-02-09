@@ -12,7 +12,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-# tablesToDrop = ["cache_org_page"]
+tablesToDrop = ["cache_org_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -101,16 +101,17 @@ try:
     print("Created cache_frdocs_page")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-                      SELECT cr.frdoc_number, fc.comment_id, fr.title, fc.receive_date,
-                             COALESCE(COUNT(cr.response_id), 0) AS linked_responses,
-                             SUM(COALESCE(cr.score, 0) > 0.5) AS number_of_changes,
-                             JSON_GROUP_ARRAY(DISTINCT org_name) AS orgs, JSON_GROUP_ARRAY(DISTINCT agency) AS agencies
-                      FROM frdoc_comments fc
-                               LEFT JOIN comment_responses cr ON fc.comment_id = cr.comment_id
-                               LEFT JOIN comment_orgs co ON fc.comment_id = co.comment_id
-                               LEFT JOIN frdoc_agencies fa ON fc.frdoc_number = fa.frdoc_number
-                               LEFT JOIN frdocs fr ON fc.frdoc_number = fr.frdoc_number
-                      GROUP BY fc.frdoc_number, fc.comment_id""")
+                      SELECT cr.comment_id, fr.title, fc.receive_date,
+                             COALESCE(COUNT(re.any_change), 0) AS linked_responses,
+                             SUM(COALESCE(CASE WHEN re.any_change='Y' THEN 1 ELSE 0 END, 0)) AS number_of_changes,
+                             co.orgs, fa.agencies
+                      FROM comment_responses cr
+                               LEFT JOIN responses re ON cr.frdoc_number = re.frdoc_number AND cr.response_id = re.response_id
+                               LEFT JOIN frdoc_comments fc ON cr.comment_id = fc.comment_id
+                               LEFT JOIN (SELECT comment_id, JSON_GROUP_ARRAY(DISTINCT org_name) as orgs FROM comment_orgs GROUP BY comment_id) co ON cr.comment_id = co.comment_id
+                               LEFT JOIN (SELECT frdoc_number, JSON_GROUP_ARRAY(DISTINCT agency) as agencies FROM frdoc_agencies GROUP BY frdoc_number) fa ON cr.frdoc_number = fa.frdoc_number
+                               LEFT JOIN frdocs fr ON cr.frdoc_number = fr.frdoc_number
+                      GROUP BY cr.comment_id""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
@@ -127,14 +128,15 @@ try:
                              r.any_change,
                              COUNT(cr.comment_id) as number_of_comments,
                              fr.title,
-                             JSON_GROUP_ARRAY(rp.text) as text
+                             rp.text
                       FROM responses r
-                      JOIN comment_responses cr ON r.response_id=cr.response_id AND r.frdoc_number=cr.frdoc_number
-                      JOIN response_paragraphs rp on r.response_id=rp.response_id AND r.frdoc_number=rp.frdoc_number
-                      JOIN frdocs fr ON r.frdoc_number=fr.frdoc_number
+                               LEFT JOIN comment_responses cr ON r.response_id=cr.response_id AND r.frdoc_number=cr.frdoc_number
+                               LEFT JOIN (SELECT frdoc_number, response_id, JSON_GROUP_ARRAY(text) as text FROM response_paragraphs GROUP BY frdoc_number, response_id ORDER BY response_id DESC, text_id ASC) rp on r.response_id=rp.response_id AND r.frdoc_number=rp.frdoc_number
+                               LEFT JOIN frdocs fr ON r.frdoc_number=fr.frdoc_number
                       GROUP BY r.frdoc_number, r.response_id""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_and_response_index ON cache_responses_page (frdoc_number, response_id)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS responses_number_linked_comments_index ON cache_responses_page (number_of_comments)""")
 
     connection.commit()
 
