@@ -6,6 +6,7 @@
     <v-row class="my-4 mx-1">
       <v-select
           label="Sort by"
+          id="sort-drop-down"
           v-model="sortBy"
           :items="sortByItems"
           item-title="text"
@@ -55,18 +56,18 @@
           class="mr-3"
       ></v-text-field>
       <div class="d-flex justify-center">
-        <v-btn color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
+        <v-btn id="submit-button" color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
       </div>
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
     <div v-if="commentData">
       <v-card class="my-3" v-for="row in commentData">
-        <v-card-text class="p-4 test">
+        <v-card-text class="p-4">
           <v-row>
             <v-col cols="9">
               <v-row class="m-0 p-0">
                 <v-col class="p-0 m-0">
-                  <v-card-title class="p-0 mx-0">Comment ID: {{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-title>
+                  <v-card-title class="p-0 mx-0" id="comment-id">Comment ID: {{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-title>
                 </v-col>
               </v-row>
             </v-col>
@@ -84,7 +85,7 @@
             </v-col>
             <v-col cols="3">
               <v-card-text class="ml-0 pl-0">Organizations:</v-card-text>
-              <div v-if="row['orgs']['0'] != null" style="display: flex; height: 150px;">
+              <div v-if="row['orgs']" style="display: flex; height: 150px;">
                 <v-virtual-scroll v-if="row['orgs']" class="ml-0 pl-0 mb-2 text-grey" :items="row['orgs']">
                   <template v-slot:default="{ item }">
                     {{ item }}
@@ -92,7 +93,7 @@
                 </v-virtual-scroll>
               </div>
               <div v-else>
-                <v-card-subtitle>No organizations</v-card-subtitle>
+                <v-card-subtitle class="p-0">No organizations</v-card-subtitle>
               </div>
             </v-col>
             <v-col cols="3">
@@ -100,16 +101,15 @@
               <div class="stats-space pb-3">
                 <v-card-subtitle class="wrap-text">Date Published: {{ row["receive_date"] ? row["receive_date"].split('T')[0] : 'No date' }}</v-card-subtitle>
                 <v-card-subtitle class="wrap-text">Changes: {{row["number_of_changes"] ? row["number_of_changes"] : 'Unknown'}}</v-card-subtitle>
-                <v-card-subtitle class="wrap-text">Linked responses: {{row["linked_responses"] ? row["linked_responses"] : 'Unknown'}}</v-card-subtitle>
               </div>
             </v-col>
             <v-col cols="3">
               <div class="link-space">
                 <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Responses" density="compact" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" :text="row['linked_responses'] ? 'Responses (' + row['linked_responses'] + ')' : 'Responses'" density="default" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink :to="{ name: 'rules', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="compact" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="default" class="w-100"></v-btn>
                 </RouterLink>
               </div>
             </v-col>
