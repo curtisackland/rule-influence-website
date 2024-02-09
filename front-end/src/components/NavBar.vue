@@ -60,7 +60,7 @@ export default {
       menuItems: [
         { title: 'Organizations', path: '/' },
         { title: 'About', path: '/about'},
-        { title: 'FR Docs', path: '/frdocs'},
+        { title: 'Rules', path: '/rules'},
         { title: 'Comments', path: '/comments'},
         { title: 'Responses', path: '/responses'},
       ],

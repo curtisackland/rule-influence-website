@@ -19,9 +19,9 @@ const router = createRouter({
       component: () => import('../views/About.vue')
     },
     {
-      path: '/frdocs',
-      name: 'frdocs',
-      component: () => import('../views/FRDocs.vue')
+      path: '/rules',
+      name: 'rules',
+      component: () => import('../views/Rules.vue')
     },
     {
       path: '/responses',

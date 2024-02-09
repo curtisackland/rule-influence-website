@@ -82,7 +82,7 @@
                     By {{agencyString(row["agencies"])}}
                   </div>
                   <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="mt-4">
-                    <v-btn text="FR Document on Federal Register" rounded="lg" density="compact"></v-btn>
+                    <v-btn text="Rule Document on Federal Register" rounded="lg" density="compact"></v-btn>
                   </a>
                 </div>
                 <div class="d-flex flex-column justify-center">
