@@ -124,7 +124,10 @@
                   </v-icon>
                 </v-btn>
               </template>
-              <span>Info about the predicted prob.</span>
+              <span>
+                  Each comment from {{$route.params.orgName}} has an assigned probability of the likelihood it has induced a rule change. 
+                  The average predicted probability takes the mean of all those probabilities. This displays how infuential the comments from {{$route.params.orgName}} are.
+              </span>
             </v-tooltip>
           </div>
             <svg :width="300" :height="300" ref="chart"></svg>
