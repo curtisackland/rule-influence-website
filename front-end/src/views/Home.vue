@@ -15,18 +15,22 @@
   const sortBy = ref('yCount');
   const sortOrder = ref('DESC');
   const selectedCriteria = ref('n_frdocs');
-  const criteriaOptions = ['n_frdocs', 'y_count'];
+
+  const criteriaOptions = [
+    { title: 'Number of Linked Docs', value: 'n_frdocs' }, 
+    { title: 'Number of Changes', value: 'y_count' }
+  ];
 
   const tableHeaders = [
       { title: 'Organization Name', key: 'org_name' },
-      { title: 'Y Count', key: 'y_count' },
-      { title: 'FR Docs', key: 'n_frdocs' },
+      { title: 'Number of Changes', key: 'y_count' },
+      { title: 'Number of Linked Docs', key: 'n_frdocs' },
   ];
 
   const sortByOptions = ref([
-    { title: 'y count', value: 'yCount' },
-    { title: 'organization name', value: 'orgName' },
-    { title: 'fr docs', value: 'frdocs' },
+    { title: 'Number of Changes', value: 'yCount' },
+    { title: 'Organization Name', value: 'orgName' },
+    { title: 'Number of Linked Docs', value: 'frdocs' },
     { title: 'None', value: null }
   ]);
 
@@ -115,7 +119,7 @@
     <v-divider vertical></v-divider>
  
     <v-container class="rightside" v-if="tableData" style="width: 30%;">
-      <v-row> <v-select v-model="selectedCriteria" :items="criteriaOptions" label="Select Criteria" outlined></v-select> </v-row>
+      <v-row> <v-select v-model="selectedCriteria" :items="criteriaOptions" label="Select Criteria" item-title="title" item-value="value" outlined></v-select> </v-row>
       <v-row> <bubbleChart :data="tableData" :selectedCriteria = "selectedCriteria"/> </v-row>
     </v-container>
   </v-container>
@@ -144,5 +148,10 @@
 
   .rightside {
     margin-top: 12px;
+  }
+
+  .clickable-cell {
+    color: black;
+    text-decoration: none;
   }
 </style>
