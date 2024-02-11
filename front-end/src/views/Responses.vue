@@ -3,7 +3,7 @@
     <v-row justify="center" align="center" class="my-1">
       <h1>Responses</h1>
     </v-row>
-    <v-row class="my-4 mx-1">
+    <v-row class="d-flex justify-center my-3 mx-1">
       <v-select
           label="Sort by"
           id="sort-drop-down"
@@ -12,7 +12,7 @@
           item-title="text"
           item-value="value"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="sort-by-field px-1"
       ></v-select>
       <v-select
           label="Sort Order"
@@ -21,38 +21,46 @@
           item-title="text"
           item-value="value"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="sort-order-field px-1"
       ></v-select>
       <v-select
-          label="Resulted in a change"
+          label="Change Detected"
           v-model="resultedInChange"
           :items="resultedInChangeItems"
           item-title="text"
           item-value="value"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="change-detected-field px-1"
       ></v-select>
       <v-text-field
           label="Rule Search"
           v-model="frdocNumberOrTitle"
+          :clearable="true"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="text-field px-1"
       ></v-text-field>
       <v-text-field
           label="Response Id Search"
           v-model="responseId"
+          :clearable="true"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="text-field px-1"
       ></v-text-field>
       <v-text-field
           label="Comment Id Search"
           v-model="commentId"
+          :clearable="true"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="text-field px-1"
       ></v-text-field>
-      <div class="d-flex justify-center">
+      <div class="d-flex justify-center px-1">
+        <v-btn id="clear-filter-button" style="background-color: lightgrey" class="button-height" @click="clearFilters">Clear Filters</v-btn>
+      </div>
+      <div class="d-flex justify-center px-1">
         <v-btn id="submit-button" color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
       </div>
+    </v-row>
+    <v-row class="mx-1 mb-4">
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
     <div v-if="responsesData">
@@ -200,6 +208,14 @@ export default {
       this.itemsPerPage = newItemsPerPage;
       this.searchData();
     },
+    clearFilters() {
+      this.sortBy = null;
+      this.sortOrder = null;
+      this.frdocNumberOrTitle = null;
+      this.commentId = null;
+      this.responseId = null;
+      this.resultedInChange = null;
+    },
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
       if (event.key === 'Enter') {
@@ -217,7 +233,6 @@ export default {
     return {
       searchIsLoading: false,
       responsesData: null,
-      orgName: null,
       frdocNumberOrTitle: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
       commentId: this.$route.query.commentId ? this.$route.query.commentId : null,
       responseId: null,
@@ -235,10 +250,10 @@ export default {
       ],
       resultedInChangeItems: [
         { text: 'None', value: null },
-        { text: 'Response resulted in a change', value: 1 },
-        { text: 'Response resulted in no change', value: 0 }
+        { text: 'Change Detected in Response', value: 1 },
+        { text: 'No Change Detected in Response', value: 0 }
       ],
-      resultedInChange: this.$route.query.detectedChange ? (this.$route.query.detectedChange === '1' ? 1 : null) : null,
+      resultedInChange: this.$route.query.detectedChange === '1' ? 1 : null,
       errorMessage: null,
       currentPage: 1,
       totalPages: null,
@@ -274,6 +289,22 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   height: 150px;
+}
+
+.sort-by-field {
+  width: 250px;
+}
+
+.sort-order-field {
+  width: 125px;
+}
+
+.change-detected-field {
+  width: 275px;
+}
+
+.text-field {
+  min-width: 250px;
 }
 
 .link-space {

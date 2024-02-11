@@ -3,7 +3,7 @@
     <v-row justify="center" align="center" class="my-1">
       <h1>Comments</h1>
     </v-row>
-    <v-row class="my-4 mx-1">
+    <v-row class="d-flex justify-center my-3 mx-1">
       <v-select
           label="Sort by"
           id="sort-drop-down"
@@ -12,7 +12,7 @@
           item-title="text"
           item-value="value"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="px-1 sort-by-field"
       ></v-select>
       <v-select
           label="Sort Order"
@@ -21,22 +21,23 @@
           item-title="text"
           item-value="value"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="px-1 sort-order-field"
       ></v-select>
       <v-text-field
           label="Organization Search"
           v-model="orgName"
+          :clearable="true"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="px-1 text-field"
       ></v-text-field>
-      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" :readonly="true" class="mr-3">
+      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" :readonly="true" class="px-1 date-field" :clearable="true" @click:clear="filterStartDateText = null">
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
           </v-date-picker>
           <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
-      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" :readonly="true" class="mr-3">
+      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" :readonly="true" class="px-1 date-field" :clearable="true" @click:clear="filterEndDateText = null">
         <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
           <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
           </v-date-picker>
@@ -46,12 +47,18 @@
       <v-text-field
           label="Comment Id Search"
           v-model="commentId"
+          :clearable="true"
           bg-color="rie-primary-color"
-          class="mr-3"
+          class="px-1 text-field"
       ></v-text-field>
-      <div class="d-flex justify-center">
+      <div class="d-flex justify-center px-1">
+        <v-btn id="clear-filter-button" style="background-color: lightgrey" class="button-height" @click="clearFilters">Clear Filters</v-btn>
+      </div>
+      <div class="d-flex justify-center px-1">
         <v-btn id="submit-button" color="rie-primary-color" class="button-height" @click="searchData">Submit</v-btn>
       </div>
+    </v-row>
+    <v-row class="mx-1 mb-4">
       <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
     </v-row>
     <div v-if="commentData">
@@ -73,7 +80,9 @@
               <div v-if="row['orgs']" style="display: flex; height: 150px;">
                 <v-virtual-scroll v-if="row['orgs']" class="ml-0 pl-0 mb-2 text-grey" :items="row['orgs']">
                   <template v-slot:default="{ item }">
-                    {{ item }}
+                    <router-link :to="{ name: 'organization', params: { orgName: item } }" class="custom-link">
+                      {{ item }}
+                    </router-link>
                   </template>
                 </v-virtual-scroll>
               </div>
@@ -183,6 +192,16 @@ export default {
       this.itemsPerPage = newItemsPerPage;
       this.searchData();
     },
+    clearFilters() {
+      this.orgName = null;
+      this.frdocNumber = null;
+      this.responseId = null;
+      this.filterStartDateText = null;
+      this.filterEndDateText = null;
+      this.sortBy = null;
+      this.sortOrder = null;
+      this.commentId = null;
+    },
     handleEnterKey(event) {
       // Check if the pressed key is Enter (key code 13)
       if (event.key === 'Enter') {
@@ -205,7 +224,7 @@ export default {
       responseId: this.$route.query.responseId ? this.$route.query.responseId : null,
       filterStartDateMenuActive: false,
       filterEndDateMenuActive: false,
-      filterStartDateText: null,//new Date("2000-01-01"),
+      filterStartDateText: null,
       filterEndDateText: null,
       sortBy: 'numberOfChanges',
       sortByItems: [
@@ -254,11 +273,20 @@ export default {
   white-space: normal;
 }
 
-.stats-space {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 150px;
+.sort-by-field {
+  width: 250px;
+}
+
+.sort-order-field {
+  width: 125px;
+}
+
+.text-field {
+  min-width: 250px;
+}
+
+.date-field {
+  min-width: 180px;
 }
 
 .link-space {
@@ -271,6 +299,16 @@ export default {
 
 .wrap-text {
   white-space: normal !important;
+}
+
+.custom-link {
+  color: #9E9E9E;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.custom-link:hover {
+  text-decoration: underline;
 }
 
 /* Custom scrollbar styles */
