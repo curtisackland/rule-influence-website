@@ -12,7 +12,7 @@ tableNames = [
 ]
 
 tablesToDrop = tableNames
-tablesToDrop = ["cache_frdocs_page"]
+#tablesToDrop = ["cache_comment_page"]
 try:
     connection = sqlite3.connect(db_file)
 
@@ -104,17 +104,18 @@ try:
                       SELECT cr.comment_id, fr.title, fc.receive_date,
                              COALESCE(COUNT(re.any_change), 0) AS linked_responses,
                              SUM(COALESCE(CASE WHEN re.any_change='Y' THEN 1 ELSE 0 END, 0)) AS number_of_changes,
-                             co.orgs, fa.agencies
+                             COUNT(DISTINCT cr.frdoc_number) as number_of_frdocs,
+                             co.orgs
                       FROM comment_responses cr
                                LEFT JOIN responses re ON cr.frdoc_number = re.frdoc_number AND cr.response_id = re.response_id
                                LEFT JOIN frdoc_comments fc ON cr.comment_id = fc.comment_id
                                LEFT JOIN (SELECT comment_id, JSON_GROUP_ARRAY(DISTINCT org_name) as orgs FROM comment_orgs GROUP BY comment_id) co ON cr.comment_id = co.comment_id
-                               LEFT JOIN (SELECT frdoc_number, JSON_GROUP_ARRAY(DISTINCT agency) as agencies FROM frdoc_agencies GROUP BY frdoc_number) fa ON cr.frdoc_number = fa.frdoc_number
                                LEFT JOIN frdocs fr ON cr.frdoc_number = fr.frdoc_number
                       GROUP BY cr.comment_id""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_frdocs_index_cp ON cache_comment_page (number_of_frdocs)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS receive_date_index ON cache_comment_page (receive_date)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index_cache_comment_page ON cache_comment_page (comment_id)""")
 

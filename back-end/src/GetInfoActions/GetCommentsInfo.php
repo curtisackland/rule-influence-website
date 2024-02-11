@@ -17,7 +17,7 @@ class GetCommentsInfo extends AbstractInfoEndpoint
             $queryParams = $request->getQueryParams();
 
             // TODO add date field when received_date is no longer null in frdoc_comments
-            $selectQuery = 'SELECT comment_id, number_of_changes, linked_responses, orgs, agencies, title, receive_date
+            $selectQuery = 'SELECT comment_id, number_of_changes, linked_responses, number_of_frdocs, orgs, title, receive_date
                 FROM cache_comment_page';
 
             $countQuery = 'SELECT count(*) AS count FROM cache_comment_page';
@@ -47,11 +47,6 @@ class GetCommentsInfo extends AbstractInfoEndpoint
                 $boundValues['orgName'] = '%' . $queryParams['filters']['orgName'] . '%';
             }
 
-            if (isset($queryParams['filters']['agency']) && $queryParams['filters']['agency']) {
-                $whereClauses[] .= "agencies LIKE :agency";
-                $boundValues['agency'] = '%' . $queryParams['filters']['agency'] . '%';
-            }
-
             if (isset($queryParams['filters']['startDate']) && $queryParams['filters']['startDate']) {
                 $whereClauses[] .= "receive_date >= :startDate";
                 $boundValues['startDate'] = $queryParams['filters']['startDate'];
@@ -76,6 +71,9 @@ class GetCommentsInfo extends AbstractInfoEndpoint
                     case "numberOfChanges":
                         $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'number_of_changes');
                         break;
+                    case "numberOfRules":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'number_of_frdocs');
+                        break;
                     case "linkedResponses":
                         $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'linked_responses');
                         break;
@@ -95,7 +93,6 @@ class GetCommentsInfo extends AbstractInfoEndpoint
 
             $results = [];
             foreach ($records as $row) {
-                $row["agencies"] = json_decode($row["agencies"]);
                 $row["orgs"] = json_decode($row["orgs"]);
                 $results[] = $row;
             }
