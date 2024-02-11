@@ -85,10 +85,21 @@
             </v-col>
           </v-row>
           <v-row class="mt-1">
-            <v-col cols="3">
-              <v-card-text class="ml-0 pl-0">Resulted in a change: {{row["any_change"] ? row["any_change"] : 'Unknown'}}</v-card-text>
+            <v-col cols="2">
+              <div class="d-flex align-center justify-center h-75">
+                <v-tooltip text="Change Detected" location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <v-icon v-if="row['any_change'] === 'Y'" icon="mdi-check-circle" size="96px" v-bind="props"></v-icon>
+                  </template>
+                </v-tooltip>
+                <v-tooltip text="No Change Detected" location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <v-icon v-if="row['any_change'] === 'N'" icon="mdi-alpha-x-box" size="96px" v-bind="props"></v-icon>
+                  </template>
+                </v-tooltip>
+              </div>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="7">
               <v-card-text class="p-0">Response Text:</v-card-text>
               <div v-if="row['text']" style="display: flex; height: 200px;">
                 <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1 text-grey" :items="row['text']">
@@ -102,7 +113,7 @@
             <v-col cols="3">
               <div class="link-space">
                 <RouterLink :to="{ name: 'rules', query: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="default" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" text="View Rule" density="default" class="w-100"></v-btn>
                 </RouterLink>
                 <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'], responseId: row['response_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" :text="row['number_of_comments'] ? 'Comments (' + row['number_of_comments'] + ')' : 'Comments'" density="default" class="w-100"></v-btn>
@@ -222,12 +233,12 @@ export default {
         { text: 'Asc', value: 'ASC' },
         { text: 'Desc', value: 'DESC' }
       ],
-      resultedInChange: null,
       resultedInChangeItems: [
         { text: 'None', value: null },
         { text: 'Response resulted in a change', value: 1 },
         { text: 'Response resulted in no change', value: 0 }
       ],
+      resultedInChange: this.$route.query.detectedChange ? (this.$route.query.detectedChange === '1' ? 1 : null) : null,
       errorMessage: null,
       currentPage: 1,
       totalPages: null,

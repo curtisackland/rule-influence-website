@@ -29,20 +29,14 @@
           bg-color="rie-primary-color"
           class="mr-3"
       ></v-text-field>
-      <v-text-field
-          label="Agency Search"
-          v-model="agency"
-          bg-color="rie-primary-color"
-          class="mr-3"
-      ></v-text-field>
-      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly="true" class="mr-3">
+      <v-text-field :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" :readonly="true" class="mr-3">
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
           </v-date-picker>
           <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
-      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" readonly="true" class="mr-3">
+      <v-text-field :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" :readonly="true" class="mr-3">
         <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
           <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
           </v-date-picker>
@@ -73,17 +67,8 @@
             </v-col>
           </v-row>
           <v-row class="mt-1">
-            <v-col cols="3">
-              <v-card-text class="ml-0 pl-0">Agencies:</v-card-text>
-              <div style="display: flex; height: 150px;">
-                <v-virtual-scroll class="ml-0 pl-0 mb-2 text-grey" :items="row['agencies']">
-                  <template v-slot:default="{ item }">
-                    {{ item }}
-                  </template>
-                </v-virtual-scroll>
-              </div>
-            </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
+              <v-card-text class="ml-0 pl-0 wrap-text">Date Published: {{ row["receive_date"] ? row["receive_date"].split('T')[0] : 'No date' }}</v-card-text>
               <v-card-text class="ml-0 pl-0">Organizations:</v-card-text>
               <div v-if="row['orgs']" style="display: flex; height: 150px;">
                 <v-virtual-scroll v-if="row['orgs']" class="ml-0 pl-0 mb-2 text-grey" :items="row['orgs']">
@@ -96,21 +81,24 @@
                 <v-card-subtitle class="p-0">No organizations</v-card-subtitle>
               </div>
             </v-col>
-            <v-col cols="3">
-              <v-card-text>Statistics</v-card-text>
-              <div class="stats-space pb-3">
-                <v-card-subtitle class="wrap-text">Date Published: {{ row["receive_date"] ? row["receive_date"].split('T')[0] : 'No date' }}</v-card-subtitle>
-                <v-card-subtitle class="wrap-text">Changes: {{row["number_of_changes"] ? row["number_of_changes"] : 'Unknown'}}</v-card-subtitle>
-              </div>
-            </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <div class="link-space">
+                <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'], detectedChange: 1 } }" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" :text="row['number_of_changes'] ? 'Responses with Detected Changes (' + row['number_of_changes'] + ')' : 'Detected Changes'" density="default" class="w-100"></v-btn>
+                </RouterLink>
                 <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" :text="row['linked_responses'] ? 'Responses (' + row['linked_responses'] + ')' : 'Responses'" density="default" class="w-100"></v-btn>
                 </RouterLink>
+              </div>
+            </v-col>
+            <v-col cols="4">
+              <div class="link-space">
                 <RouterLink :to="{ name: 'rules', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="Rules Page" density="default" class="w-100"></v-btn>
+                  <v-btn color="rie-primary-color" stacked="" :text="row['number_of_frdocs'] ? 'View Rules (' + row['number_of_frdocs'] + ')' : 'View Rules'" density="default" class="w-100"></v-btn>
                 </RouterLink>
+                <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="pb-2 w-100">
+                  <v-btn color="rie-primary-color" stacked="" text="View Comment on Regulations.gov" density="default" class="w-100"></v-btn>
+                </a>
               </div>
             </v-col>
           </v-row>
@@ -157,7 +145,6 @@ export default {
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
         params: { filters: {
             orgName: this.orgName ? this.orgName : null, // can be a string of an org name
-            agency: this.agency  ? this.agency : null, // can be a string of an agency
             startDate: this.filterStartDateText ? this.filterStartDateText.toISOString().split('.')[0] + 'Z' : null,
             endDate: this.filterEndDateText ? this.filterEndDateText.toISOString().split('.')[0] + 'Z' : null,
             frdocNumber: this.frdocNumber ? this.frdocNumber : null,
@@ -214,7 +201,6 @@ export default {
       searchIsLoading: false,
       commentData: null,
       orgName: null,
-      agency: null,
       frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
       responseId: this.$route.query.responseId ? this.$route.query.responseId : null,
       filterStartDateMenuActive: false,
@@ -224,8 +210,9 @@ export default {
       sortBy: 'numberOfChanges',
       sortByItems: [
         { text: 'None', value: null },
-        { text: 'Number of Changes', value: 'numberOfChanges' },
-        { text: 'Number of Linked Responses', value: 'linkedResponses' },
+        { text: 'Number of Detected Changes', value: 'numberOfChanges' },
+        { text: 'Number of Responses', value: 'linkedResponses' },
+        { text: 'Number of Rules', value: 'numberOfRules' },
         { text: 'Date', value: 'date' },
       ],
       sortOrder: 'DESC',
