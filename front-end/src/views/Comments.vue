@@ -274,7 +274,7 @@ export default {
 }
 
 .sort-by-field {
-  width: 250px;
+  width: 275px;
 }
 
 .sort-order-field {

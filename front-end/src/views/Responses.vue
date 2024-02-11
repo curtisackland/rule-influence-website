@@ -33,13 +33,6 @@
           class="change-detected-field px-1"
       ></v-select>
       <v-text-field
-          label="Rule Search"
-          v-model="frdocNumberOrTitle"
-          :clearable="true"
-          bg-color="rie-primary-color"
-          class="text-field px-1"
-      ></v-text-field>
-      <v-text-field
           label="Response Id Search"
           v-model="responseId"
           :clearable="true"
@@ -49,6 +42,13 @@
       <v-text-field
           label="Comment Id Search"
           v-model="commentId"
+          :clearable="true"
+          bg-color="rie-primary-color"
+          class="text-field px-1"
+      ></v-text-field>
+      <v-text-field
+          label="Rule Search"
+          v-model="frdocNumberOrTitle"
           :clearable="true"
           bg-color="rie-primary-color"
           class="text-field px-1"
