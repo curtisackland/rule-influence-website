@@ -73,7 +73,7 @@ class GetRulesPageInfo extends AbstractInfoEndpoint
             }
 
             if (isset($queryParams['filters']['commentId'])) {
-                $whereClause[] = "frdoc_number IN (SELECT DISTINCT frdoc_number FROM frdoc_comments WHERE comment_id = :commentId)";
+                $whereClause[] = "frdoc_number IN (SELECT DISTINCT frdoc_number FROM comment_responses WHERE comment_id = :commentId)";
                 $boundValues['commentId'] = $queryParams['filters']['commentId'];
             }
 
