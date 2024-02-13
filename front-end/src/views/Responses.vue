@@ -175,7 +175,7 @@ export default {
             responseId: this.responseId ? this.responseId : null,
             commentId: this.commentId ? this.commentId : null,
             resultedInChange: this.resultedInChange,
-            sortBy: this.sortBy, // sort by a specific column: "numberOfComments" || "date" || NULL
+            sortBy: this.sortBy, // sort by a specific column: "numberOfComments" || NULL
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
             page: this.currentPage, // has to be an integer || NULL
             itemsPerPage: this.itemsPerPage // has to be an integer || NULL
@@ -240,7 +240,6 @@ export default {
       sortByItems: [
         { text: 'None', value: null },
         { text: 'Number of Linked Comments', value: 'numberOfComments' },
-        { text: 'Date', value: 'date' }
       ],
       sortOrder: 'DESC',
       sortOrderItems: [
