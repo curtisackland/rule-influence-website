@@ -65,50 +65,47 @@
     </v-row>
     <div v-if="responsesData">
       <v-card class="my-3" v-for="row in responsesData">
-        <v-card-text class="p-4 test">
+        <v-card-title class="px-2 w-100">
+          <v-row class="card-header-title">
+            <v-card-title class="px-4">Response</v-card-title>
+            <v-card-title class="px-4">{{row["frdoc_number"] ? row["frdoc_number"] : 'No Rule Number'}} #{{row["response_id"] ? row["response_id"] : 'No Response ID'}}</v-card-title>
+          </v-row>
+        </v-card-title>
+        <div class="p-4">
           <v-row>
-            <v-col cols="9">
-              <v-row class="m-0 p-0">
-                <v-col class="p-0 m-0">
-                  <v-card-title class="p-0 mx-0" id="response-id">Response ID: {{row["response_id"] ? row["response_id"] : 'No response id'}}</v-card-title>
-                </v-col>
-              </v-row>
-              <v-row class="m-0 p-0">
-                <v-col class="p-0">
-                  <v-card-title class="p-0 mx-0">Rule: {{ row["title"] ? row["title"] : 'No Title' }}</v-card-title>
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-col>
-              <v-row class="m-0 p-0">
-                <v-col class="m-0 p-0">
-                  <v-card-title class="p-0 mx-0">Rule Number:</v-card-title>
-                </v-col>
-              </v-row>
-              <v-row class="m-0 p-0">
-                <v-col class="m-0 p-0">
-                  <v-card-title class="p-0 mx-0">{{row["frdoc_number"] ? row["frdoc_number"] : 'No frdoc number'}}</v-card-title>
-                </v-col>
-              </v-row>
-            </v-col>
+            <v-card-title class="wrap-text w-100">
+              <p><strong>Response #{{row["response_id"] ? row["response_id"] : 'No Response ID'}}</strong> <em>from</em> <strong>{{ row["title"] ? row["title"] : 'No Title' }}</strong></p>
+            </v-card-title>
           </v-row>
           <v-row class="mt-1">
-            <v-col cols="2">
-              <div class="d-flex align-center justify-center h-75">
-                <v-tooltip text="Change Detected" location="bottom">
+            <v-col cols="2" class="d-flex flex-column align-center justify-center">
+              <v-icon v-if="row['any_change'] === 'Y'" icon="mdi-checkbox-outline" color="#2F4F4F" class="icon-size"></v-icon>
+              <v-card-text v-if="row['any_change'] === 'Y'" class="d-flex align-center justify-center p-0">
+                Change Detected&nbsp;
+                <v-tooltip text="Our algorithm has detected that the regulator is making a policy change in response to the related comments. The algorithm is correct approximately 80% of the time."
+                           location="bottom"
+                           width="25%"
+                >
                   <template v-slot:activator="{ props }">
-                    <v-icon v-if="row['any_change'] === 'Y'" icon="mdi-check-circle" size="96px" v-bind="props"></v-icon>
+                    <v-icon icon="mdi-information" v-bind="props"></v-icon>
                   </template>
                 </v-tooltip>
-                <v-tooltip text="No Change Detected" location="bottom">
+              </v-card-text>
+              <v-icon v-if="row['any_change'] === 'N'" icon="mdi-close-box-outline" color="#2F4F4F" class="icon-size"></v-icon>
+              <v-card-text v-if="row['any_change'] === 'N'" class="d-flex align-center justify-center p-0">
+                No Change Detected&nbsp;
+                <v-tooltip text="Our algorithm has not detected the regulator making any policy changes in this response. The algorithm is correct approximately 80% of the time."
+                           location="bottom"
+                           width="25%"
+                >
                   <template v-slot:activator="{ props }">
-                    <v-icon v-if="row['any_change'] === 'N'" icon="mdi-alpha-x-box" size="96px" v-bind="props"></v-icon>
+                    <v-icon icon="mdi-information" v-bind="props"></v-icon>
                   </template>
                 </v-tooltip>
-              </div>
+              </v-card-text>
             </v-col>
-            <v-col cols="7">
-              <v-card-text class="p-0">Response Text:</v-card-text>
+            <v-col cols="7" class="pt-1">
+              <h6>Response Text:</h6>
               <div v-if="row['text']" style="display: flex; height: 200px;">
                 <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1 text-grey" :items="row['text']">
                   <template v-slot:default="{ item }">
@@ -123,13 +120,14 @@
                 <RouterLink :to="{ name: 'rules', query: { frdocNumber: row['frdoc_number'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" text="View Rule" density="default" class="w-100"></v-btn>
                 </RouterLink>
-                <RouterLink :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'], responseId: row['response_id'] } }" class="pb-2 w-100">
+                <RouterLink v-if="row['number_of_comments'] !== '0'" :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'], responseId: row['response_id'] } }" class="pb-2 w-100">
                   <v-btn color="rie-primary-color" stacked="" :text="row['number_of_comments'] ? 'Comments (' + row['number_of_comments'] + ')' : 'Comments'" density="default" class="w-100"></v-btn>
                 </RouterLink>
+                <v-btn v-else :disabled="true" color="rie-primary-color" stacked="" :text="row['number_of_comments'] ? 'Comments (' + row['number_of_comments'] + ')' : 'Comments'" density="default" class="w-100"></v-btn>
               </div>
             </v-col>
           </v-row>
-        </v-card-text>
+        </div>
       </v-card>
       <PaginationBar
           :current-page.sync="currentPage"
@@ -314,8 +312,8 @@ export default {
   height: 225px;
 }
 
-.wrap-text {
-  white-space: normal !important;
+.icon-size {
+  font-size: 8vw;
 }
 
 /* Custom scrollbar styles */

@@ -48,7 +48,7 @@
             <v-card-title class="rule-id" v-else>No frdoc number</v-card-title>
             <v-card-subtitle v-if="row['fr_type']">{{row["fr_type"]}}</v-card-subtitle>
             <v-card-subtitle v-else>No rule type</v-card-subtitle>
-            <v-virtual-scroll class="mx-3 mb-2 h-25" :items="row['agencies']">
+            <v-virtual-scroll class="mx-3 mb-2" style="display: flex; height: 185px;" :items="row['agencies']">
               <template v-slot:default="{ item }">
                 {{ item }}
               </template>

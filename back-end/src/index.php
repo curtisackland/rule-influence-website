@@ -32,7 +32,6 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     $group->get('/rules', GetRulesPageInfo::class);
     $group->get('/comments', GetCommentsInfo::class);
     $group->get('/responses', GetResponsesInfo::class);
-    $group->get('/test', TestRoute::class); // TODO REMOVE LATER
 });
 
 $app->run();
