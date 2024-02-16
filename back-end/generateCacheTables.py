@@ -24,6 +24,8 @@ try:
     cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index_frdoc_comments ON frdoc_comments (comment_id)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index ON comment_responses (comment_id)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_response_id_index_comment_responses ON comment_responses (frdoc_number, response_id)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index_frdoc_comments ON frdoc_comments (comment_id)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS comment_id_index_frdoc_input_comments ON frdoc_input_comments (comment_id)""")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_home_page AS
                       SELECT DISTINCT
@@ -94,6 +96,7 @@ try:
                   GROUP BY frdocs.frdoc_number;""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")
+    cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_title_index ON cache_frdocs_page (title)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS date_index ON cache_frdocs_page (publication_date)""")
 
     connection.commit()
@@ -101,17 +104,19 @@ try:
     print("Created cache_frdocs_page")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_comment_page AS
-                      SELECT cr.comment_id, fr.title, fc.receive_date,
-                             COALESCE(COUNT(re.any_change), 0) AS linked_responses,
+                      SELECT fc.comment_id, fc.receive_date, number_of_frdocs,
+                             COALESCE(COUNT(re.any_change), 0)                               AS linked_responses,
                              SUM(COALESCE(CASE WHEN re.any_change='Y' THEN 1 ELSE 0 END, 0)) AS number_of_changes,
-                             COUNT(DISTINCT cr.frdoc_number) as number_of_frdocs,
                              co.orgs
-                      FROM comment_responses cr
-                               LEFT JOIN responses re ON cr.frdoc_number = re.frdoc_number AND cr.response_id = re.response_id
-                               LEFT JOIN frdoc_comments fc ON cr.comment_id = fc.comment_id
-                               LEFT JOIN (SELECT comment_id, JSON_GROUP_ARRAY(DISTINCT org_name) as orgs FROM comment_orgs GROUP BY comment_id) co ON cr.comment_id = co.comment_id
-                               LEFT JOIN frdocs fr ON cr.frdoc_number = fr.frdoc_number
-                      GROUP BY cr.comment_id""")
+                      FROM
+                      (SELECT comment_id, receive_date,
+                             COUNT(DISTINCT frdoc_number) AS number_of_frdocs
+                      FROM (SELECT comment_id, frdoc_number, receive_date FROM frdoc_comments UNION SELECT frdoc_number, comment_id, receive_date FROM frdoc_input_comments)
+                      GROUP BY comment_id) fc
+                          LEFT JOIN comment_responses cr ON fc.comment_id=cr.comment_id
+                          LEFT JOIN responses re ON cr.frdoc_number=re.frdoc_number AND cr.response_id=re.response_id
+                          LEFT JOIN (SELECT comment_id, JSON_GROUP_ARRAY(DISTINCT org_name) as orgs FROM comment_orgs GROUP BY comment_id) co ON fc.comment_id = co.comment_id
+                      GROUP BY fc.comment_id""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS linked_responses ON cache_comment_page (linked_responses)""")
     cursor.execute("""CREATE INDEX IF NOT EXISTS number_of_changes ON cache_comment_page (number_of_changes)""")

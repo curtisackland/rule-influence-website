@@ -63,21 +63,28 @@
     </v-row>
     <div v-if="commentData">
       <v-card class="my-3" v-for="row in commentData">
-        <v-card-text class="p-4">
-          <v-row>
-            <v-col cols="9">
-              <v-row class="m-0 p-0">
-                <v-col class="p-0 m-0">
-                  <v-card-title class="p-0 mx-0" id="comment-id">Comment ID: {{row["comment_id"] ? row["comment_id"] : 'No comment id'}}</v-card-title>
-                </v-col>
-              </v-row>
-            </v-col>
+        <v-card-title class="px-2 w-100">
+          <v-row class="card-header-title">
+            <v-card-title class="px-4">Public Comment</v-card-title>
+            <v-card-title class="px-4">{{row["comment_id"] ? row["comment_id"] : 'No Comment ID'}}</v-card-title>
           </v-row>
-          <v-row class="mt-1">
+        </v-card-title>
+        <div class="px-4 pb-4 pt-3">
+          <v-row class="mt-1 d-flex justify-space-between">
+            <v-col cols="3" class="d-flex flex-column justify-space-between">
+              <h5 class="wrap-text">Received: <strong>{{ row["receive_date"] ? row["receive_date"].split('T')[0] : 'No date' }}</strong></h5>
+              <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="w-100">
+                <v-btn color="rie-primary-color" stacked="" density="compact" class="w-100">
+                  <v-row>
+                    <v-col cols="10">View on Regulations.gov</v-col>
+                    <v-col cols="2" class="d-flex justify-center align-center"><v-icon>mdi-open-in-new</v-icon></v-col>
+                  </v-row>
+                </v-btn>
+              </a>
+            </v-col>
             <v-col cols="4">
-              <v-card-text class="ml-0 pl-0 wrap-text">Date Published: {{ row["receive_date"] ? row["receive_date"].split('T')[0] : 'No date' }}</v-card-text>
-              <v-card-text class="ml-0 pl-0">Organizations:</v-card-text>
-              <div v-if="row['orgs']" style="display: flex; height: 150px;">
+              <h5>Organizations:</h5>
+              <div v-if="row['orgs']" style="display: flex; height: 125px;" class="mt-3">
                 <v-virtual-scroll v-if="row['orgs']" class="ml-0 pl-0 mb-2 text-grey" :items="row['orgs']">
                   <template v-slot:default="{ item }">
                     <router-link :to="{ name: 'organization', params: { orgName: item } }" class="custom-link">
@@ -90,28 +97,24 @@
                 <v-card-subtitle class="p-0">No organizations</v-card-subtitle>
               </div>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="3">
               <div class="link-space">
-                <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'], detectedChange: 1 } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" :text="row['number_of_changes'] ? 'Responses with Detected Changes (' + row['number_of_changes'] + ')' : 'Detected Changes'" density="default" class="w-100"></v-btn>
+                <RouterLink v-if="row['number_of_frdocs'] !== '0'" :to="{ name: 'rules', query: { commentId: row['comment_id'] } }" class="mb-2 w-100">
+                  <v-btn color="rie-primary-color" :stacked="true" :text="row['number_of_frdocs'] ? 'Related Rules (' + row['number_of_frdocs'] + ')' : 'Related Rules'" density="compact" class="w-100"></v-btn>
                 </RouterLink>
-                <RouterLink :to="{ name: 'responses', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" :text="row['linked_responses'] ? 'Responses (' + row['linked_responses'] + ')' : 'Responses'" density="default" class="w-100"></v-btn>
+                <v-btn v-else :disabled="true" color="rie-primary-color" :stacked="true" :text="row['number_of_frdocs'] ? 'Related Rules (' + row['number_of_frdocs'] + ')' : 'Related Rules'" density="compact" class="w-100"></v-btn>
+                <RouterLink v-if="row['linked_responses'] !== '0'" :to="{ name: 'responses', query: { commentId: row['comment_id'] } }" class="mb-2 w-100">
+                  <v-btn color="rie-primary-color" :stacked="true" :text="row['linked_responses'] ? 'Responses (' + row['linked_responses'] + ')' : 'Responses'" density="compact" class="w-100"></v-btn>
                 </RouterLink>
-              </div>
-            </v-col>
-            <v-col cols="4">
-              <div class="link-space">
-                <RouterLink :to="{ name: 'rules', query: { commentId: row['comment_id'] } }" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" :text="row['number_of_frdocs'] ? 'View Rules (' + row['number_of_frdocs'] + ')' : 'View Rules'" density="default" class="w-100"></v-btn>
+                <v-btn v-else :disabled="true" color="rie-primary-color" :stacked="true" :text="row['linked_responses'] ? 'Responses (' + row['linked_responses'] + ')' : 'Responses'" density="compact" class="mb-2 w-100"></v-btn>
+                <RouterLink v-if="row['number_of_changes'] !== '0'" :to="{ name: 'responses', query: { commentId: row['comment_id'], detectedChange: 1 } }" class="w-100">
+                  <v-btn color="rie-primary-color" :stacked="true" :text="row['number_of_changes'] ? 'Changes (' + row['number_of_changes'] + ')' : 'Changes'" density="compact" class="w-100"></v-btn>
                 </RouterLink>
-                <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="pb-2 w-100">
-                  <v-btn color="rie-primary-color" stacked="" text="View Comment on Regulations.gov" density="default" class="w-100"></v-btn>
-                </a>
+                <v-btn v-else :disabled="true" color="rie-primary-color" :stacked="true" :text="row['number_of_changes'] ? 'Responses with Detected Changes (' + row['number_of_changes'] + ')' : 'Detected Changes'" density="compact" class="w-100"></v-btn>
               </div>
             </v-col>
           </v-row>
-        </v-card-text>
+        </div>
       </v-card>
       <PaginationBar
           :current-page.sync="currentPage"
@@ -294,11 +297,6 @@ export default {
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  height: 225px;
-}
-
-.wrap-text {
-  white-space: normal !important;
 }
 
 .custom-link {
