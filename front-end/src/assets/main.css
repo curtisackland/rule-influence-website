@@ -2,3 +2,14 @@ html {
     background-color: #F4EFEC;
     height: 100%;
   }
+
+.card-header-title {
+    background-color: #2F4F4F;
+    color: white;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.wrap-text {
+    white-space: normal !important;
+}
