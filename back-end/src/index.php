@@ -9,6 +9,7 @@ use App\GetInfoActions\GetOrgPageInfo;
 use App\GetInfoActions\GetResponsesInfo;
 use App\GetInfoActions\GetOrgAgencies;
 use App\GetInfoActions\GetOrgDocChanges;
+use App\GetInfoActions\GetLeaderboard;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
 use App\Test\TestRoute;
@@ -25,7 +26,7 @@ $app = AppFactory::create(null, $container);
 $app->get('/', GetHomePageInfo::class);
 
 $app->group('/api', function (RouteCollectorProxy $group) {
-    $group->get('/home', GetHomePageInfo::class);
+    $group->get('/home', GetLeaderboard::class);
     $group->get('/organization/{orgName}', GetOrgPageInfo::class);
     $group->get('/organization_agency/{orgName}', GetOrgAgencies::class);
     $group->get('/organization_doc_changes/{orgName}', GetOrgDocChanges::class);
