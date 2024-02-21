@@ -16,9 +16,9 @@
     data() {
       return {
         criteriaOptions : [
-        { title: 'number of linked docs', value: 'n_frdocs' }, 
-        { title: 'number of changes', value: 'y_count' }
-        ]
+      { title: 'number of changes', value: 'org_changes' },
+      { title: 'number of responses', value: 'org_responses' },
+      { title: 'number of rules', value: 'org_rules' }, ]
       }
     },
     mounted() {
