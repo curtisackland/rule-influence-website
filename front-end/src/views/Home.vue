@@ -12,25 +12,28 @@
   const searchIsLoading = ref(false);
 
   const orgName = ref(null);
-  const sortBy = ref('yCount');
+  const sortBy = ref('org_changes');
   const sortOrder = ref('DESC');
-  const selectedCriteria = ref('n_frdocs');
+  const selectedCriteria = ref('org_changes');
 
   const criteriaOptions = [
-    { title: 'Number of Linked Docs', value: 'n_frdocs' }, 
-    { title: 'Number of Changes', value: 'y_count' }
+    { title: 'Number of Changes', value: 'org_changes' },
+    { title: 'Number of Responses', value: 'org_responses' },
+    { title: 'Number of Rules', value: 'org_rules' },  
   ];
 
   const tableHeaders = [
       { title: 'Organization Name', key: 'org_name' },
-      { title: 'Number of Changes', key: 'y_count' },
-      { title: 'Number of Linked Docs', key: 'n_frdocs' },
+      { title: 'Changes', key: 'org_changes' },
+      { title: 'Responses', key: 'org_responses' },
+      { title: 'Rules', key: 'org_rules' },
   ];
 
   const sortByOptions = ref([
-    { title: 'Number of Changes', value: 'yCount' },
-    { title: 'Organization Name', value: 'orgName' },
-    { title: 'Number of Linked Docs', value: 'frdocs' },
+    { title: 'Organization Name', value: 'org_name' },
+    { title: 'Changes', value: 'org_changes' },
+    { title: 'Responses', value: 'org_responses' },
+    { title: 'Rules', value: 'org_rules' },
     { title: 'None', value: null }
   ]);
 
@@ -42,7 +45,7 @@
         params: { 
           filters: {
             orgName: orgName.value, // can be a string of the Organization name
-            sortBy: sortBy.value, // sort by a specific column: "orgName" || "yCount" || "frdocs" || NULL
+            sortBy: sortBy.value, // sort by a specific column: "org_name" || "org_changes" || "org_responses" || "org_rules" ||NULL
             sortOrder: sortOrder.value, // can be "DESC" || "ASC" || NULL
             page: currentPage.value, // has to be an integer || NULL
             itemsPerPage: itemsPerPage.value // has to be an integer || NULL
