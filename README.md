@@ -15,6 +15,7 @@ Node Version Manager (nvm) is recommended for managing node installation.
 ```bash
 nvm install 18.18.0
 nvm use 18.18.0
+pip install pandas
 ```
 3. Verify that everything worked correctly
 ```bash
@@ -35,6 +36,7 @@ You will also need to create our cache tables with the following command:
 ```bash
 cd ./back-end
 python3 generateCacheTables.py
+python3 generateLeaderboardCache.py
 ```
 
 You will also need to make a .env file for the front-end like so:
