@@ -19,7 +19,7 @@
 
           <h4>
             {{$route.params.orgName}} has submitted <span class="bigger-text">{{Org_Info_data["number_of_comments"]}}</span> comments
-            on <span class="bigger-text">###</span> rules.
+            on <span class="bigger-text">{{Org_Info_data["total_rules"]}}</span> rules.
             From their comments, {{$route.params.orgName}} has received <span class="bigger-text">{{Org_Info_data["total_response_count"]}}</span> responses,
             resulting in <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}}</span> policy changes.
           </h4>
@@ -202,19 +202,6 @@ export default {
       Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
       Org_Comment_data: null,
-      Data1: [
-        {Title: "title 1", CommentLink: "Comment Link", date: "1"},
-        {Title: "title 2", CommentLink: "Comment Link", date: "2"},
-        {Title: "title 3", CommentLink: "Comment Link", date: "3"},
-        {Title: "title 4", CommentLink: "Comment Link", date: "4"},
-        {Title: "title 5", CommentLink: "Comment Link", date: "5"}
-      ],
-      headers: [
-        {title: 'Agency', key : 'agency'},
-        {title: 'Total Docs by Agency', key : 'number_of_docs'},
-        {title: 'Docs Changed by Organization', key : 'docs_changed'},
-        {title: 'Influence Percentage', key : 'influence_percentage'}
-      ]
     };
   },
   async mounted() {
