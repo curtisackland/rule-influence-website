@@ -24,6 +24,7 @@ class GetOrgPageInfo
             $query = "SELECT
                 number_of_comments,
                 y_prob_avg,
+                total_rules,
                 total_response_count,
                 total_rules_changed
                 FROM cache_org_page
