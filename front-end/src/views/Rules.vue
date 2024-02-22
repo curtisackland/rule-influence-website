@@ -7,18 +7,19 @@
       <v-text-field id="filter-id-title"
           label="Title/Rule Number"
           v-model="filterTitleAndFRDocNumber"
+          :clearable="true"
           class="mr-3"
       ></v-text-field>
       <v-select id="filter-type" v-model="filterType" label="Document Type" :items="filterOptionsType" item-title="title" item-value="value" class="mr-3"></v-select>
-      <v-combobox id="filter-topic" label="Topic" class="mr-3"></v-combobox>
-      <v-text-field id="filter-date-start" :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" readonly clearable class="mr-3" >
+      <v-combobox id="filter-topic" label="Topic" class="mr-3" :clearable="true"></v-combobox>
+      <v-text-field id="filter-date-start" :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" :readonly="true" :clearable="true" @click:clear="filterStartDateText = null" class="mr-3" >
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
           </v-date-picker>
           <v-btn @click="filterStartDateMenuActive = false">Close</v-btn>
         </v-menu>
       </v-text-field>
-      <v-text-field id="filter-date-end" :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" readonly clearable>
+      <v-text-field id="filter-date-end" :model-value="filterEndDateText?.toISOString().split('T')[0]" label="End Date" append-inner-icon="mdi-calendar" :readonly="true" :clearable="true" @click:clear="filterEndDateText = null">
         <v-menu activator="parent" v-model="filterEndDateMenuActive" :close-on-content-click="false">
           <v-date-picker v-model="filterEndDateText" color="rie-primary-color" show-adjacent-months range border>
           </v-date-picker>
@@ -29,7 +30,8 @@
     <v-row class="mx-1">
       <v-select id="sort-options" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
       <v-switch id="sort-order" v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
-      <v-btn id="search-button" color="rie-primary-color" @click="startSearch()">Search</v-btn>
+      <v-btn id="clear-button" class="mx-2" style="background-color: lightgrey; height: 56px;" @click="clearFilters()">Clear Filters</v-btn>
+      <v-btn id="search-button" class="ml-2" color="rie-primary-color" style="height: 56px;" @click="startSearch()">Search</v-btn>
     </v-row>
     <v-row v-if="filterIdArray.length > 0">
       <v-col cols="12">
@@ -41,67 +43,93 @@
     </v-row>
 
     <v-card class="my-3" v-for="row in tableData">
-      <v-card-text>
-        <v-row class="d-flex">
-          <v-col cols="3">
-            <v-card-title class="rule-id" v-if="row['frdoc_number']">{{row["frdoc_number"]}}</v-card-title>
-            <v-card-title class="rule-id" v-else>No frdoc number</v-card-title>
-            <v-card-subtitle v-if="row['fr_type']">{{row["fr_type"]}}</v-card-subtitle>
-            <v-card-subtitle v-else>No rule type</v-card-subtitle>
-            <v-virtual-scroll class="mx-3 mb-2" style="display: flex; height: 185px;" :items="row['agencies']">
+      <v-card-title class="px-2 w-100">
+        <v-row class="card-header-title">
+          <v-card-title>{{row["type"] ?? "Unknown Type"}}</v-card-title>
+          <v-card-title class="rule-id px-4" v-if="row['frdoc_number']">{{row["frdoc_number"] ?? "No Document ID"}}</v-card-title>
+        </v-row>
+      </v-card-title>
+      <v-card-title class="px-4 rule-title wrap-text">{{ row["title"] ?? "No Title" }}</v-card-title>
+      <v-divider class="mt-0"></v-divider>
+      <v-row class="rule-card-body">
+        <v-col cols="3">
+          <h5 class="px-4 pb-0">
+            Published:
+          </h5>
+          <div class="px-4 pt-0">
+            {{row['publication_date'] ?? "No Date"}}
+          </div>
+          <h5 class="px-4 pt-4 pb-0">
+            By:
+          </h5>
+          <div class="px-4 pt-0" style="height: 100px; display: flex;">
+            <v-virtual-scroll :items="row['agencies']">
               <template v-slot:default="{ item }">
+                <p class="mb-2">
                 {{ item }}
+                </p>
               </template>
             </v-virtual-scroll>
-            <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="px-3 w-100">
-              <v-btn color="rie-primary-color" stacked="" text="Rule on Federal Register" density="compact" class="w-75"></v-btn>
-            </a>
-
-          </v-col>
-          <v-col cols="6">
-            <v-card-title class="rule-title" v-if="row['title']">{{ row["title"] }}</v-card-title>
-            <v-card-title class="rule-title" v-else>No Title</v-card-title>
-            <v-card-subtitle v-if="row['publication_date'] && row['action']">{{ row["publication_date"] }} &bull; {{ row["action"] }}</v-card-subtitle>
-            <v-card-subtitle v-else>No publication date or action</v-card-subtitle>
-            <v-card-text >
-              <div v-if="row['abstract']" style="display: flex; height: 250px;">
-                <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1 text-grey"  :items="[row['abstract']]">
-                  <template v-slot:default="{ item }">
-                    {{ item }}
-                  </template>
-                </v-virtual-scroll>
-              </div>
-              <div v-else>
-                No abstract
-              </div>
-            </v-card-text>
-          </v-col>
-          <v-col cols="3">
-
-            <v-row class="my-2 w-100 h-25">
-              <v-card-title class="w-100" stacked="" density="compact">Change Count: {{row["change_count"]}}</v-card-title>
-            </v-row>
-            <RouterLink v-if="parseInt(row['comment_count'], 10) !== 0" :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
-              <v-btn color="rie-primary-color" stacked="" :text="'Comments Page (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100"></v-btn>
-            </RouterLink>
-            <div v-else>
-              <v-btn disabled color="rie-primary-color" stacked="" :text="'Comments Page (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+          </div>
+          <div class="p-4">
+            <v-btn color="rie-primary-color" :stacked="true" density="compact" :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank">
+              <v-row>
+                <v-col cols="10" class="text-center">
+                  View on FederalRegister.gov
+                </v-col>
+                <v-col cols="2" class="d-flex justify-center align-center">
+                  <v-icon>mdi-open-in-new</v-icon>
+                </v-col>
+              </v-row>
+            </v-btn>
+          </div>
+        </v-col>
+        <v-col cols="6">
+          <h5 class="pb-0">
+            Summary:
+          </h5>
+          <div class="pt-0">
+            <div v-if="row['abstract']" style="display: flex; height: 250px;">
+              <v-virtual-scroll class="ml-0 pl-0 mb-2 mt-1"  :items="[row['abstract']]">
+                <template v-slot:default="{ item }">
+                  {{ item }}
+                </template>
+              </v-virtual-scroll>
             </div>
-            <RouterLink v-if="parseInt(row['response_count'], 10) !== 0" :to="{ name: 'responses', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
-              <v-btn color="rie-primary-color" stacked="" :text="'Responses Page (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
-            </RouterLink>
             <div v-else>
-              <v-btn disabled color="rie-primary-color" stacked="" :text="'Responses Page (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+              No abstract
             </div>
+          </div>
+        </v-col>
+        <v-col cols="3">
+          <div class="px-4 pt-0 link-space">
             <a v-if="row['prevFRDoc'].length > 0 || row['nextFRDoc'].length > 0" :href="getRulePageSearchPath({'sourceDoc':row['frdoc_number'], 'filterIdArray':[...row['prevFRDoc'], ...row['nextFRDoc']]})" class="w-100" >
               <v-btn color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2"></v-btn>
             </a>
             <div v-else>
-              <v-btn disabled color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2"></v-btn>
+              <v-btn :disabled="true" color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2"></v-btn>
             </div>
-          </v-col>
-        </v-row>
-      </v-card-text>
+            <RouterLink v-if="parseInt(row['comment_count'], 10) !== 0" :to="{ name: 'comments', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
+              <v-btn color="rie-primary-color" stacked="" :text="'Comments (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100"></v-btn>
+            </RouterLink>
+            <div v-else>
+              <v-btn :disabled="true" color="rie-primary-color" stacked="" :text="'Comments (' + row['comment_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </div>
+            <RouterLink v-if="parseInt(row['response_count'], 10) !== 0" :to="{ name: 'responses', query: { frdocNumber: row['frdoc_number'] } }" class="w-100">
+              <v-btn color="rie-primary-color" stacked="" :text="'Responses (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </RouterLink>
+            <div v-else>
+              <v-btn :disabled="true" color="rie-primary-color" stacked="" :text="'Responses (' + row['response_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </div>
+            <RouterLink v-if="parseInt(row['response_count'], 10) !== 0" :to="{ name: 'responses', query: { frdocNumber: row['frdoc_number'], detectedChange:'1' } }" class="w-100">
+              <v-btn color="rie-primary-color" stacked="" :text="'Changes (' + row['change_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </RouterLink>
+            <div v-else>
+              <v-btn :disabled="true" color="rie-primary-color" stacked="" :text="'Changes (' + row['change_count'] + ')'" density="compact" class="my-2 w-100" ></v-btn>
+            </div>
+          </div>
+        </v-col>
+      </v-row>
     </v-card>
     <PaginationBar
         :current-page.sync="currentPage"
@@ -213,7 +241,20 @@ export default {
     filterClearRelatedDocs() {
       this.filterIdArray=[];
       this.sourceDoc=null;
-    }
+    },
+    clearFilters() {
+      this.filterFRType = null;
+      this.filterType = null;
+      this.filterNumChanges = null;
+      this.filterStartDateMenuActive = false;
+      this.filterEndDateMenuActive = false;
+      this.filterStartDateText = null;
+      this.filterEndDateText = null;
+      this.filterCommentId = null;
+      this.frdocNumber = null;
+      this.filterTitleAndFRDocNumber = null;
+      this.filterClearRelatedDocs();
+    },
   },
   data() {
     return {
@@ -232,10 +273,10 @@ export default {
       filterNumChanges: null,
       filterStartDateMenuActive: false,
       filterEndDateMenuActive: false,
-      filterStartDateText: new Date("2000-01-01"),
+      filterStartDateText: null,
       filterEndDateText: null,
-      filterCommentId: this.$route.query.commentId ? this.$route.query.commentId : null,
-      frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
+      filterCommentId: this.$route.query.commentId ?? null,
+      frdocNumber: this.$route.query.frdocNumber ?? null,
       filterTitleAndFRDocNumber: null,
       filterIdArray: [],
       sourceDoc: null,
@@ -288,6 +329,18 @@ export default {
 
 .v-virtual-scroll::-webkit-scrollbar-track {
   background-color: #f1f1f1;
+}
+
+.rule-card-body {
+  height: 350px;
+}
+
+.link-space {
+  height: 100%;
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
 </style>
