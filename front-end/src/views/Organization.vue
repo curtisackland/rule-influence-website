@@ -152,19 +152,24 @@
           <v-sheet 
           class="pa-4 my-4 bg-rie-secondary-color"
           rounded="lg"
-          v-for="row in Data1"
+          v-for="row in Org_Comment_data"
           >
             <div class="d-flex flex-row justify-space-between">
               <div>
-                <div class="font-weight-bold">
-                  {{row["Title"]}}
-                </div>
                 <div class="font-italic">
-                  Changes: {{row["date"]}}
+                  Responses: {{row['linked_responses']}}
+                </div>
+                <div class="font-italic font-weight-bold">
+                  Changes: {{row['number_of_changes']}}
                 </div>
               </div>
-              <div class="d-flex flex-column justify-center">
-                <v-btn density="compact" rounded="lg" size="x-large">{{row["CommentLink"]}}</v-btn>
+              <div class="d-flex flex-column align-center">
+                <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="">
+                  <v-btn density="compact" rounded="lg">Federal Register Document</v-btn>
+                </a>
+                <a :href="'../comments/' + row['comment_id']" target="_blank" class="">
+                  <v-btn density="compact" rounded="lg" class="mt-2">Comment Page</v-btn>
+                </a>
               </div>
             </div>
           </v-sheet>
@@ -196,6 +201,7 @@ export default {
       Org_Agency_itemsPerPage: 10,
       Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
+      Org_Comment_data: null,
       Data1: [
         {Title: "title 1", CommentLink: "Comment Link", date: "1"},
         {Title: "title 2", CommentLink: "Comment Link", date: "2"},
@@ -269,7 +275,26 @@ export default {
               }
             }
           });
-          
+      
+      //Fetch Top Influential Comments Data
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
+        params: { filters: {
+            orgName: this.$route.params.orgName, //string of org name
+            sortBy: "numberOfChanges", // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
+            sortOrder: "DESC", // can be "DESC" || "ASC" || NULL
+          }},
+      }).then(response => {
+            this.Org_Comment_data = response.data.data.slice(0,5);
+      }).catch(error => {
+        if (!axios.isCancel(error)) {
+          if (error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = "Unable to load data."
+          }
+        }
+      });
+      
       this.searchIsLoading = false;
 
     },
