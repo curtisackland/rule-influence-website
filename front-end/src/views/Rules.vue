@@ -30,8 +30,8 @@
     <v-row class="mx-1">
       <v-select id="sort-options" v-model="sortBy" :items="sortByOptions" item-title="title" item-value="value" label="Sort Options" class="mr-3"/>
       <v-switch id="sort-order" v-model="sortOrder" true-value="ASC" false-value="DESC" :label="'Sort Order: ' + sortOrder" color="rie-primary-color"/>
-      <v-btn id="clear-button" class="mx-2" style="background-color: lightgrey;" @click="clearFilters()">Clear Filters</v-btn>
-      <v-btn id="search-button" class="ml-2" color="rie-primary-color" @click="startSearch()">Search</v-btn>
+      <v-btn id="clear-button" class="mx-2" style="background-color: lightgrey; height: 56px;" @click="clearFilters()">Clear Filters</v-btn>
+      <v-btn id="search-button" class="ml-2" color="rie-primary-color" style="height: 56px;" @click="startSearch()">Search</v-btn>
     </v-row>
     <v-row v-if="filterIdArray.length > 0">
       <v-col cols="12">
@@ -45,24 +45,24 @@
     <v-card class="my-3" v-for="row in tableData">
       <v-card-title class="px-2 w-100">
         <v-row class="card-header-title">
-          <v-card-title v-if="row['fr_type']">{{row["fr_type"] ?? "Unknown Type"}}</v-card-title>
+          <v-card-title>{{row["type"] ?? "Unknown Type"}}</v-card-title>
           <v-card-title class="rule-id px-4" v-if="row['frdoc_number']">{{row["frdoc_number"] ?? "No Document ID"}}</v-card-title>
         </v-row>
       </v-card-title>
-      <v-card-title class="rule-title wrap-text">{{ row["title"] ?? "No Title" }}</v-card-title>
+      <v-card-title class="px-4 rule-title wrap-text">{{ row["title"] ?? "No Title" }}</v-card-title>
       <v-divider class="mt-0"></v-divider>
       <v-row class="rule-card-body">
         <v-col cols="3">
           <h5 class="px-4 pb-0">
-            Published on
+            Published:
           </h5>
           <div class="px-4 pt-0">
             {{row['publication_date'] ?? "No Date"}}
           </div>
           <h5 class="px-4 pt-4 pb-0">
-            By
+            By:
           </h5>
-          <div class="px-4 pt-0" style="height: 100px">
+          <div class="px-4 pt-0" style="height: 100px; display: flex;">
             <v-virtual-scroll :items="row['agencies']">
               <template v-slot:default="{ item }">
                 <p class="mb-2">
@@ -75,7 +75,7 @@
             <v-btn color="rie-primary-color" :stacked="true" density="compact" :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank">
               <v-row>
                 <v-col cols="10" class="text-center">
-                  Rule on Federal Register
+                  View on FederalRegister.gov
                 </v-col>
                 <v-col cols="2" class="d-flex justify-center align-center">
                   <v-icon>mdi-open-in-new</v-icon>
@@ -86,7 +86,7 @@
         </v-col>
         <v-col cols="6">
           <h5 class="pb-0">
-            Summary
+            Summary:
           </h5>
           <div class="pt-0">
             <div v-if="row['abstract']" style="display: flex; height: 250px;">
@@ -102,7 +102,7 @@
           </div>
         </v-col>
         <v-col cols="3">
-          <div class="px-4 pt-0">
+          <div class="px-4 pt-0 link-space">
             <a v-if="row['prevFRDoc'].length > 0 || row['nextFRDoc'].length > 0" :href="getRulePageSearchPath({'sourceDoc':row['frdoc_number'], 'filterIdArray':[...row['prevFRDoc'], ...row['nextFRDoc']]})" class="w-100" >
               <v-btn color="rie-primary-color" stacked="" :text="'Related Rules (' + (row['prevFRDoc'].length + row['nextFRDoc'].length) + ')'" density="compact" class="w-100 my-2"></v-btn>
             </a>
@@ -248,7 +248,7 @@ export default {
       this.filterNumChanges = null;
       this.filterStartDateMenuActive = false;
       this.filterEndDateMenuActive = false;
-      this.filterStartDateText = new Date("2000-01-01");
+      this.filterStartDateText = null;
       this.filterEndDateText = null;
       this.filterCommentId = null;
       this.frdocNumber = null;
@@ -273,7 +273,7 @@ export default {
       filterNumChanges: null,
       filterStartDateMenuActive: false,
       filterEndDateMenuActive: false,
-      filterStartDateText: new Date("2000-01-01"),
+      filterStartDateText: null,
       filterEndDateText: null,
       filterCommentId: this.$route.query.commentId ?? null,
       frdocNumber: this.$route.query.frdocNumber ?? null,
@@ -333,6 +333,14 @@ export default {
 
 .rule-card-body {
   height: 350px;
+}
+
+.link-space {
+  height: 100%;
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
 </style>
