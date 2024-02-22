@@ -165,7 +165,7 @@
               </div>
               <div class="d-flex flex-column align-center">
                 <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="">
-                  <v-btn density="compact" rounded="lg">Federal Register Document</v-btn>
+                  <v-btn density="compact" rounded="lg">View on Regulations.gov</v-btn>
                 </a>
                 <a :href="'../comments/' + row['comment_id']" target="_blank" class="">
                   <v-btn density="compact" rounded="lg" class="mt-2">Comment Page</v-btn>
