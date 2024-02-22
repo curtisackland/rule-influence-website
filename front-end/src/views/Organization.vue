@@ -19,9 +19,9 @@
 
           <h4>
             {{$route.params.orgName}} has submitted <span class="bigger-text">{{Org_Info_data["number_of_comments"]}}</span> comments
-            on <span class="bigger-text">###</span> different rules.
-            From its comments, {{$route.params.orgName}} has receieved <span class="bigger-text">{{Org_Info_data["total_response_count"]}}</span> responses
-            and has made <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}}</span> policy changes.
+            on <span class="bigger-text">###</span> rules.
+            From their comments, {{$route.params.orgName}} has received <span class="bigger-text">{{Org_Info_data["total_response_count"]}}</span> responses,
+            resulting in <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}}</span> policy changes.
           </h4>
         </v-sheet>
 
@@ -81,9 +81,14 @@
                   <div class="font-italic">
                     By {{agencyString(row["agencies"])}}
                   </div>
-                  <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="mt-4">
-                    <v-btn text="Rule Document on Federal Register" rounded="lg" density="compact"></v-btn>
-                  </a>
+                  <div class="d-flex flex-row justify-start mt-4">
+                    <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="">
+                      <v-btn text="Federal Register Document" rounded="lg" density="compact"></v-btn>
+                    </a>
+                    <RouterLink :to="{ name: 'rules', query: { frdocNumber: row['frdoc_number'] } }">
+                      <v-btn text="Rule Page" rounded="lg" density="compact" class="ml-10"></v-btn>
+                    </RouterLink>
+                  </div>
                 </div>
                 <div class="d-flex flex-column justify-center">
                   <div class="ml-15 text-h3 font-weight-black">
@@ -125,8 +130,8 @@
                 </v-btn>
               </template>
               <span>
-                  Each comment from {{$route.params.orgName}} has an assigned probability of the likelihood it has induced a rule change. 
-                  The average predicted probability takes the mean of all those probabilities. This displays how infuential the comments from {{$route.params.orgName}} are.
+                  Each comment from {{$route.params.orgName}} has an<br> assigned probability of the likelihood it has induced a rule change.<br> 
+                  The average predicted probability takes the mean of all those probabilities.<br> This displays how infuential the comments from {{$route.params.orgName}} are.
               </span>
             </v-tooltip>
           </div>
@@ -143,23 +148,28 @@
         rounded="xl"
         width="600px"
         >
-          <h2 class="text-center mb-3"><v-icon icon="mdi-message-reply-text"></v-icon> Influential Comments</h2>
+          <h2 class="text-center mb-3"><v-icon icon="mdi-message-reply-text"></v-icon> Most Influential Comments</h2>
           <v-sheet 
           class="pa-4 my-4 bg-rie-secondary-color"
           rounded="lg"
-          v-for="row in Data1"
+          v-for="row in Org_Comment_data"
           >
             <div class="d-flex flex-row justify-space-between">
               <div>
-                <div class="font-weight-bold">
-                  {{row["Title"]}}
-                </div>
                 <div class="font-italic">
-                  Changes: {{row["date"]}}
+                  Responses: {{row['linked_responses']}}
+                </div>
+                <div class="font-italic font-weight-bold">
+                  Changes: {{row['number_of_changes']}}
                 </div>
               </div>
-              <div class="d-flex flex-column justify-center">
-                <v-btn density="compact" rounded="lg" size="x-large">{{row["CommentLink"]}}</v-btn>
+              <div class="d-flex flex-column align-center">
+                <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="">
+                  <v-btn density="compact" rounded="lg">View on Regulations.gov</v-btn>
+                </a>
+                <a :href="'../comments/' + row['comment_id']" target="_blank" class="">
+                  <v-btn density="compact" rounded="lg" class="mt-2">Comment Page</v-btn>
+                </a>
               </div>
             </div>
           </v-sheet>
@@ -191,6 +201,7 @@ export default {
       Org_Agency_itemsPerPage: 10,
       Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
+      Org_Comment_data: null,
       Data1: [
         {Title: "title 1", CommentLink: "Comment Link", date: "1"},
         {Title: "title 2", CommentLink: "Comment Link", date: "2"},
@@ -264,7 +275,26 @@ export default {
               }
             }
           });
-          
+      
+      //Fetch Top Influential Comments Data
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
+        params: { filters: {
+            orgName: this.$route.params.orgName, //string of org name
+            sortBy: "numberOfChanges", // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
+            sortOrder: "DESC", // can be "DESC" || "ASC" || NULL
+          }},
+      }).then(response => {
+            this.Org_Comment_data = response.data.data.slice(0,5);
+      }).catch(error => {
+        if (!axios.isCancel(error)) {
+          if (error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = "Unable to load data."
+          }
+        }
+      });
+      
       this.searchIsLoading = false;
 
     },
