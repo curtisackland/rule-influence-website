@@ -4,10 +4,16 @@ html {
   }
 
 .card-header-title {
-    background-color: #2F4F4F;
+    background-color: rgba(230, 230, 230);
     color: white;
     justify-content: space-between;
     align-content: center;
+    height: 30px;
+}
+
+.card-header-text {
+    color: black;
+    font-size: 0.7em;
 }
 
 .wrap-text {
