@@ -67,8 +67,8 @@
       <v-card class="my-3" v-for="row in responsesData">
         <v-card-title class="px-2 w-100">
           <v-row class="card-header-title">
-            <v-card-title class="px-4">Response</v-card-title>
-            <v-card-title class="px-4">{{row["frdoc_number"] ? row["frdoc_number"] : 'No Rule Number'}} #{{row["response_id"] ? row["response_id"] : 'No Response ID'}}</v-card-title>
+            <v-card-title class="px-4 card-header-text">Response</v-card-title>
+            <v-card-title class="px-4 card-header-text">{{row["frdoc_number"] ? row["frdoc_number"] : 'No Rule Number'}} #{{row["response_id"] ? row["response_id"] : 'No Response ID'}}</v-card-title>
           </v-row>
         </v-card-title>
         <div class="p-4">
@@ -172,6 +172,7 @@ export default {
             frdocNumberOrTitle: this.frdocNumberOrTitle ? this.frdocNumberOrTitle : null, // can be a string of a frdoc number
             responseId: this.responseId ? this.responseId : null,
             commentId: this.commentId ? this.commentId : null,
+            orgName: this.orgName ? this.orgName : null,
             resultedInChange: this.resultedInChange,
             sortBy: this.sortBy, // sort by a specific column: "numberOfComments" || NULL
             sortOrder: this.sortOrder, // can be "DESC" || "ASC" || NULL
@@ -233,6 +234,7 @@ export default {
       responsesData: null,
       frdocNumberOrTitle: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
       commentId: this.$route.query.commentId ? this.$route.query.commentId : null,
+      orgName: this.$route.query.orgName ? this.$route.query.orgName : null,
       responseId: null,
       sortBy: null,
       sortByItems: [

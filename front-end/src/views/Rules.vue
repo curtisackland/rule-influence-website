@@ -45,8 +45,8 @@
     <v-card class="my-3" v-for="row in tableData">
       <v-card-title class="px-2 w-100">
         <v-row class="card-header-title">
-          <v-card-title>{{row["type"] ?? "Unknown Type"}}</v-card-title>
-          <v-card-title class="rule-id px-4" v-if="row['frdoc_number']">{{row["frdoc_number"] ?? "No Document ID"}}</v-card-title>
+          <v-card-title class="card-header-text">{{row["type"] ?? "Unknown Type"}}</v-card-title>
+          <v-card-title class="rule-id px-4 card-header-text" v-if="row['frdoc_number']">{{row["frdoc_number"] ?? "No Document ID"}}</v-card-title>
         </v-row>
       </v-card-title>
       <v-card-title class="px-4 rule-title wrap-text">{{ row["title"] ?? "No Title" }}</v-card-title>
