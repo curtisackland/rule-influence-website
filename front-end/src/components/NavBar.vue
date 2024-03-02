@@ -1,14 +1,14 @@
 <template>
   <v-app-bar
       color="teal-darken-4"
-      image="/ivey-banner.jpeg"
+      image="/us-capitol-building-banner.jpg"
       class="min-width"
   >
     <!--Gradient effect for the Ivey Banner -->
     <template v-slot:image>
         <v-img
-            gradient="to top right, rgba(40,60,60,.9), rgba(40,60,60,.5)"
-            class="custom-gradient"
+            gradient="to right, rgba(47,79,79,0.7), rgba(47,79,79,0.95) 50%, rgba(47,79,79,0.7)"
+            class=""
         ></v-img>
     </template>
 
@@ -27,13 +27,6 @@
         <v-btn class="nav-link" active-class="active">{{ item.title }}</v-btn>
       </RouterLink>
     </v-row>
-
-    <!-- Ivey Logo -->
-    <div class="d-flex logo-size align-content-center">
-      <v-img
-          src="/icon.png"
-      ></v-img>
-    </div>
   </v-app-bar>
 
   <!-- Left side menu navigation that pops out when clicking the hamburger menu (sidebar=true) when the screen is too small -->
@@ -59,10 +52,10 @@ export default {
       title: 'Rulemaking Influence Explorer',
       menuItems: [
         { title: 'Organizations', path: '/' },
-        { title: 'About', path: '/about'},
         { title: 'Rules', path: '/rules'},
         { title: 'Comments', path: '/comments'},
         { title: 'Responses', path: '/responses'},
+        { title: 'About', path: '/about'},
       ],
     }
   },
@@ -80,20 +73,6 @@ export default {
     .enable-side-menu {
       display: none !important;
     }
-  }
-
-  .custom-gradient {
-    position: relative;
-  }
-
-  .custom-gradient::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(to left, rgba(235, 220, 210,.3), rgba(235, 220, 210,0));
   }
 
   .min-width {

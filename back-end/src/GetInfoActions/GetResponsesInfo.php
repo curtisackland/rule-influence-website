@@ -46,6 +46,13 @@ class GetResponsesInfo extends AbstractInfoEndpoint
                 }
             }
 
+            if (isset($queryParams['filters']['orgName'])) {
+                $orgName = $queryParams['filters']['orgName'];
+
+                $whereClauses[] = "(frdoc_number, response_id) IN (SELECT DISTINCT frdoc_number, response_id FROM org_responses WHERE org_name = :orgName)";
+                $boundValues['orgName'] = $orgName;
+            }
+
             if (count($whereClauses) > 0) {
                 $query .= ' WHERE ' . join(" AND ", $whereClauses);
             }

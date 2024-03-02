@@ -65,8 +65,8 @@
       <v-card class="my-3" v-for="row in commentData">
         <v-card-title class="px-2 w-100">
           <v-row class="card-header-title">
-            <v-card-title class="px-4">Public Comment</v-card-title>
-            <v-card-title class="px-4">{{row["comment_id"] ? row["comment_id"] : 'No Comment ID'}}</v-card-title>
+            <v-card-title class="px-4 card-header-text">Public Comment</v-card-title>
+            <v-card-title class="px-4 card-header-text">{{row["comment_id"] ? row["comment_id"] : 'No Comment ID'}}</v-card-title>
           </v-row>
         </v-card-title>
         <div class="px-4 pb-4 pt-3">
