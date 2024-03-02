@@ -140,14 +140,26 @@ try:
     print("Created responses table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_agency AS
-                    SELECT org_name, agency, SUM(changedDoc) AS docs_changed, number_of_docs, (CAST(SUM(changedDoc) AS REAL)/number_of_docs) as influence_percentage FROM
-                    (SELECT org_name, agency, SUM(score>0.5) > 0 AS changedDoc
-                    FROM comment_orgs
-                    INNER JOIN comment_responses ON comment_orgs.comment_id=comment_responses.comment_id
-                    INNER JOIN frdoc_agencies ON comment_responses.frdoc_number=frdoc_agencies.frdoc_number
-                    GROUP BY agency, frdoc_agencies.frdoc_number, org_name)
-                    LEFT JOIN (SELECT frdoc_agencies.agency as count_agency, COUNT(*) AS number_of_docs FROM frdoc_agencies GROUP BY frdoc_agencies.agency) ON count_agency=agency
-                    GROUP BY agency, org_name;""")
+                    SELECT
+                        org_name,
+                        frdoc_agencies.agency,
+                        COUNT(DISTINCT(frdoc_agencies.frdoc_number)) AS agency_rules,
+                        COUNT(y_prob) AS agency_responses,
+                        SUM(y_prob>0.5) AS agency_changes,
+                        (CAST(SUM(y_prob>0.5) AS REAL)) / (CAST(COUNT(y_prob) AS REAL)) AS change_ratio,
+                        agency_comments
+                    FROM org_responses
+                    INNER JOIN responses
+                        ON responses.frdoc_number=org_responses.frdoc_number
+                        AND responses.response_id=org_responses.response_id
+                    INNER JOIN frdoc_agencies
+                        ON responses.frdoc_number=frdoc_agencies.frdoc_number
+                    INNER JOIN (SELECT frdoc_number, COUNT(DISTINCT(comment_id)) AS agency_comments FROM frdoc_comments GROUP BY frdoc_number
+                            UNION
+                                SELECT frdoc_number, COUNT(DISTINCT(comment_id)) AS agency_comments FROM frdoc_input_comments GROUP BY frdoc_number
+                            ) Comments
+                        ON Comments.frdoc_number=responses.frdoc_number
+                    GROUP BY org_name, frdoc_agencies.agency;""")
 
     connection.commit()
 
