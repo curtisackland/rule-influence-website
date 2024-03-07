@@ -9,6 +9,7 @@ tableNames = [
 "cache_org_page",
 "cache_org_agency",
 "cache_org_doc_changes",
+"cache_leaderboard"
 ]
 
 tablesToDrop = tableNames
@@ -43,7 +44,8 @@ try:
 
     print("Created home page table")
 
-    cursor.execute("""SELECT org_rule_counts_df.org_name,
+    cursor.execute("""CREATE TABLE IF NOT EXISTS cache_leaderboard AS
+                        SELECT org_rule_counts_df.org_name,
                              coalesce(org_rules, 0) AS org_rules,
                              coalesce(org_responses, 0) AS org_responses,
                              coalesce(org_changes, 0) AS org_changes
@@ -74,6 +76,7 @@ try:
 
     connection.commit()
 
+    print("Created cache leaderboard table")
 
     # This query depends on cache_leaderboard
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_page AS
