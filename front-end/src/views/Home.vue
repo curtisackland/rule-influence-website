@@ -66,6 +66,7 @@
   const calculateBarHeight = (value, criteria) => {
     const numericValue = parseFloat(value);
     if (isNaN(numericValue) || numericValue === 0) {
+      return '0%';
     } 
     else {
         const maxValue = Math.max(...tableData.value.map(item => parseFloat(item[criteria])));
@@ -124,19 +125,25 @@
             <td>
               <div class="cell-container">
                 <div class="number">{{ item.org_changes }}</div>
-                <div class="bar-graph changes" :style="{ width: calculateBarHeight(item.org_changes, 'org_changes') }"></div>
+                <div class="bar-graph-container">
+                  <div class="bar-graph changes" :style="{ width: calculateBarHeight(item.org_changes, 'org_changes') }"></div>
+                </div>
               </div>
             </td>
             <td>
               <div class="cell-container">
               <div class="number">{{ item.org_responses }}</div>
-              <div class="bar-graph responses" :style="{ width: calculateBarHeight(item.org_responses, 'org_responses') }"></div>
+              <div class="bar-graph-container">
+                <div class="bar-graph responses" :style="{ width: calculateBarHeight(item.org_responses, 'org_responses') }"></div>
+              </div>
             </div>
             </td>
             <td>
               <div class="cell-container">
               <div class="number">{{ item.org_rules }}</div>
-              <div class="bar-graph rules" :style="{ width: calculateBarHeight(item.org_rules, 'org_rules') }"></div>
+              <div class="bar-graph-container">
+                <div class="bar-graph rules" :style="{ width: calculateBarHeight(item.org_rules, 'org_rules') }"></div>
+              </div>
             </div>
             </td>
           </tr>
@@ -182,20 +189,24 @@
   }
 
   .cell-container {
-    position: relative;
     display: flex;
     align-items: flex-end;
     height: 100%;
   }
   .number {
     margin-bottom: 0;
-    width: 35px;
-    margin-left: 10px;
+    width: 55px;
+    text-align: left;
+  }
+  .bar-graph-container {
+    width: 100%;
+    height: 20px;
+    position: relative;
+    margin-bottom: 2px;
+    background-color: rgb(236, 236, 236);
   }
   .bar-graph {
     height: 20px;
-    margin-left: 5px;
-    margin-bottom: 5px;
   }
   .changes {
     background-color:  #575858;
