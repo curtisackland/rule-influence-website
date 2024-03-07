@@ -156,7 +156,7 @@ export default {
       this.scrollToTop();
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
         params: { filters: {
-            orgName: this.orgName ? this.orgName : null, // can be a string of an org name
+            orgName: this.$route.query.orgName ? this.$route.query.orgName : null, // can be a string of an org name
             startDate: this.filterStartDateText ? this.filterStartDateText.toISOString().split('.')[0] + 'Z' : null,
             endDate: this.filterEndDateText ? this.filterEndDateText.toISOString().split('.')[0] + 'Z' : null,
             frdocNumber: this.frdocNumber ? this.frdocNumber : null,
