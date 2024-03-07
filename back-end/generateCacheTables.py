@@ -43,6 +43,38 @@ try:
 
     print("Created home page table")
 
+    cursor.execute("""SELECT org_rule_counts_df.org_name,
+                             coalesce(org_rules, 0) AS org_rules,
+                             coalesce(org_responses, 0) AS org_responses,
+                             coalesce(org_changes, 0) AS org_changes
+                      FROM (SELECT DISTINCT
+                                  org_name,
+                                  COUNT(DISTINCT(frdoc_input_comments.frdoc_number)) as org_rules
+                              FROM frdoc_input_comments
+                              INNER JOIN comment_orgs
+                                  ON (comment_orgs.comment_id==frdoc_input_comments.comment_id)
+                              INNER JOIN response_sample_frdocs
+                                  ON (response_sample_frdocs.frdoc_number==frdoc_input_comments.frdoc_number)
+                            GROUP BY org_name
+                      ) org_rule_counts_df
+                      LEFT JOIN (
+                          SELECT DISTINCT
+                              org_name,
+                              COUNT(y_prob) as org_responses,
+                              SUM(y_prob>0.5) AS org_changes
+                          FROM org_responses
+                          INNER JOIN responses
+                              ON (responses.frdoc_number==org_responses.frdoc_number)
+                              AND (responses.response_id==org_responses.response_id)
+                          GROUP BY org_name
+                          ORDER BY -org_changes
+                      ) leaderboard_df
+                      ON org_rule_counts_df.org_name = leaderboard_df.org_name
+                      ORDER BY org_changes DESC, org_responses DESC, org_rules DESC;""")
+
+    connection.commit()
+
+
     # This query depends on cache_leaderboard
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_page AS
                     SELECT A.org_name, number_of_comments, y_prob_avg, org_rules AS total_rules, A.org_responses AS total_response_count, A.org_changes AS total_rules_changed
