@@ -23,10 +23,13 @@
             <h4 style="line-height: 2;">
               {{$route.params.orgName}} has submitted 
               <RouterLink :to="{ name: 'comments', query: { orgName: $route.params.orgName } }">
-              <span class="bigger-text text-white text-decoration-none">{{Org_Info_data["number_of_comments"]}} comments</span>
+              <span class="bigger-text text-white">{{Org_Info_data["number_of_comments"]}} comments</span>
               </RouterLink>
               on <span class="bigger-text">{{Org_Info_data["total_rules"] }} rules</span>.
-              From their comments, {{$route.params.orgName}} has received <span class="bigger-text">{{Org_Info_data["total_response_count"]}} responses</span>,
+              From their comments, {{$route.params.orgName}} has received 
+              <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }">
+              <span class="bigger-text text-white">{{Org_Info_data["total_response_count"]}} responses</span>
+              </RouterLink>, 
               resulting in <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}} policy changes</span>.
             </h4>
             <v-sheet
