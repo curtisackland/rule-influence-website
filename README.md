@@ -30,7 +30,7 @@ You will also need to make a .env file for the front-end like so:
 cd ./front-end
 cp .env.example .env
 ```
-The .env configuration file may need to change based on configuration
+The .env configuration file may need to change based on configuration:
 - VITE_BACKEND_URL: This should be set to the URL/IP of the server hosting the backend service. localhost will work for local testing, but an IP address or FQDN will be needed for other people to be able to access the site.
 ## 4) Starting the services
 All the services can be started in Docker by using the commands:
@@ -44,7 +44,8 @@ cd ./docker
 docker compose down
 ```
 
-
+## 5) Visit the site
+The site should be available at the URL/IP of the server hosting the front-end services http://your.ip.or.url/
 
 # Development
 ## Default Ports
