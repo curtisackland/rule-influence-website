@@ -166,9 +166,10 @@ try:
     print("Created cache_org_agency")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_doc_changes AS
-                    SELECT org_name, frdoc_number, SUM(CASE WHEN score>0.5 THEN 1 ELSE 0 END) AS sumScore
-                    FROM org_responses
-                    GROUP BY org_name, frdoc_number;""")
+                    SELECT org_name, responses.frdoc_number, SUM(y_prob > 0.5) AS sumScore FROM comment_orgs
+                    INNER JOIN comment_responses ON comment_orgs.comment_id = comment_responses.comment_id
+                    INNER JOIN responses ON comment_responses.frdoc_number = responses.frdoc_number AND  comment_responses.response_id = responses.response_id
+                    GROUP BY org_name, responses.frdoc_number;""")
 
     connection.commit()
 
