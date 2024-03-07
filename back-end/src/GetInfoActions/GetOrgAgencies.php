@@ -16,9 +16,11 @@ class GetOrgAgencies extends AbstractInfoEndpoint
 
             $query = "SELECT
                 agency,
-                docs_changed,
-                number_of_docs,
-                influence_percentage
+                agency_rules,
+                agency_responses,
+                agency_changes,
+                change_ratio,
+                agency_comments
                 FROM cache_org_agency";
 
             $countQuery = 'SELECT count(*) AS count FROM cache_org_agency';
@@ -38,7 +40,7 @@ class GetOrgAgencies extends AbstractInfoEndpoint
 
             $this->paginate($countQuery, $queryParams, $boundValues);
 
-            $query .= $this->sortOrder("DESC", "influence_percentage");
+            $query .= $this->sortOrder("DESC", "change_ratio");
 
             $query .= ' LIMIT :startingLimit, :limit';
             $boundValues['startingLimit'] = $this->startingLimit;
