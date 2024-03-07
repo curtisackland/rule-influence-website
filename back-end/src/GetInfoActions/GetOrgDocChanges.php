@@ -26,7 +26,7 @@ class GetOrgDocChanges
                 FROM cache_org_doc_changes
                 WHERE org_name=:orgName
                 ORDER BY sumScore DESC
-                LIMIT 3";
+                LIMIT 10";
 
             $stmt = $this->pdo->prepare($query);
 
