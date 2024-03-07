@@ -66,7 +66,8 @@
   const calculateBarHeight = (value, criteria) => {
     const numericValue = parseFloat(value);
     if (isNaN(numericValue) || numericValue === 0) {
-    } else {
+    } 
+    else {
         const maxValue = Math.max(...tableData.value.map(item => parseFloat(item[criteria])));
         return `${(numericValue / maxValue) * 100}%`;
     }
@@ -123,19 +124,19 @@
             <td>
               <div class="cell-container">
                 <div class="number">{{ item.org_changes }}</div>
-                <div class="bar-graph changes" :style="{ height: calculateBarHeight(item.org_changes, 'org_changes') }"></div>
+                <div class="bar-graph changes" :style="{ width: calculateBarHeight(item.org_changes, 'org_changes') }"></div>
               </div>
             </td>
             <td>
               <div class="cell-container">
               <div class="number">{{ item.org_responses }}</div>
-              <div class="bar-graph responses" :style="{ height: calculateBarHeight(item.org_responses, 'org_responses') }"></div>
+              <div class="bar-graph responses" :style="{ width: calculateBarHeight(item.org_responses, 'org_responses') }"></div>
             </div>
             </td>
             <td>
               <div class="cell-container">
               <div class="number">{{ item.org_rules }}</div>
-              <div class="bar-graph rules" :style="{ height: calculateBarHeight(item.org_rules, 'org_rules') }"></div>
+              <div class="bar-graph rules" :style="{ width: calculateBarHeight(item.org_rules, 'org_rules') }"></div>
             </div>
             </td>
           </tr>
@@ -185,16 +186,14 @@
     display: flex;
     align-items: flex-end;
     height: 100%;
-    margin-top: 10px;
-    margin-bottom: 0;
   }
   .number {
     margin-bottom: 0;
     width: 35px;
+    margin-left: 10px;
   }
   .bar-graph {
-    width: 35px;
-    background-repeat: repeat-y;
+    height: 20px;
     margin-left: 5px;
     margin-bottom: 5px;
   }
