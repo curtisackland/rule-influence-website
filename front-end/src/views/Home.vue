@@ -63,6 +63,15 @@
     searchIsLoading.value = false;
   };
 
+  const calculateBarHeight = (value, criteria) => {
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue) || numericValue === 0) {
+    } else {
+        const maxValue = Math.max(...tableData.value.map(item => parseFloat(item[criteria])));
+        return `${(numericValue / maxValue) * 100}%`;
+    }
+  };
+
   const updateCurrentPage = (newPage) => {
       currentPage.value = newPage;
       fetchData();
@@ -88,51 +97,69 @@
     </v-row>
   </v-container>
   
-  <v-container v-container class="d-flex justify-center mt-5"> 
-    <v-container class="table-container mr-2" style="width: 70%;">
+  <v-container class="d-flex justify-center mt-5"> 
+    <v-container class="mr-2" style="width: 100%;">
       <v-toolbar flat>
           <v-toolbar-title>Top Influential Organizations</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
       </v-toolbar>
-      <v-data-table id="organization-table" v-if="tableData"
+      <v-data-table
+        id="organization-table"
+        v-if="tableData"
         v-model:items-per-page="itemsPerPage"
         :items="tableData" 
         :headers="tableHeaders"
         :page.sync="currentPage"
-        class="elevation-1">
-        <template v-slot:bottom>
+        class="elevation-1"
+        hide-default-footer
+      >
+        <template v-slot:item="{ item }">
+          <tr>
+            <td class="org-name-cell">
+              <router-link :to="{ name: 'organization', params: { orgName: item.org_name } }" tag="span" class="clickable-cell">
+                {{ item.org_name }}
+              </router-link>
+            </td>
+            <td>
+              <div class="cell-container">
+                <div class="number">{{ item.org_changes }}</div>
+                <div class="bar-graph changes" :style="{ height: calculateBarHeight(item.org_changes, 'org_changes') }"></div>
+              </div>
+            </td>
+            <td>
+              <div class="cell-container">
+              <div class="number">{{ item.org_responses }}</div>
+              <div class="bar-graph responses" :style="{ height: calculateBarHeight(item.org_responses, 'org_responses') }"></div>
+            </div>
+            </td>
+            <td>
+              <div class="cell-container">
+              <div class="number">{{ item.org_rules }}</div>
+              <div class="bar-graph rules" :style="{ height: calculateBarHeight(item.org_rules, 'org_rules') }"></div>
+            </div>
+            </td>
+          </tr>
         </template>
-        <template v-slot:item.org_name="{ item }">
-          <router-link :to="{ name: 'organization', params: { orgName: item.org_name } }" tag="td" class="clickable-cell">
-            {{ item.org_name }}
-          </router-link>
+        <template v-slot:bottom>
+          <v-container>
+              <PaginationBar 
+                class="pagination"
+                :current-page.sync="currentPage"
+                :total-pages="totalPages"
+                :pages-to-show="pagesToShow"
+                :items-per-page="itemsPerPage"
+                :is-loading="searchIsLoading"
+                @update:current-page="updateCurrentPage"
+                @update:items-per-page="updateItemsPerPage"
+              />
+            </v-container>
         </template>
       </v-data-table>
-      <PaginationBar class="pagination"
-          :current-page.sync="currentPage"
-          :total-pages="totalPages"
-          :pages-to-show="pagesToShow"
-          :items-per-page="itemsPerPage"
-          :is-loading="searchIsLoading"
-          @update:current-page="updateCurrentPage"
-          @update:items-per-page="updateItemsPerPage"
-      />
-    </v-container>
-
-    <v-divider vertical></v-divider>
- 
-    <v-container class="rightside" v-if="tableData" style="width: 30%;">
-      <v-row> <v-select v-model="selectedCriteria" :items="criteriaOptions" label="Select Criteria" item-title="title" item-value="value" outlined></v-select> </v-row>
-      <v-row> <bubbleChart :data="tableData" :selectedCriteria = "selectedCriteria"/> </v-row>
     </v-container>
   </v-container>
 </template>
 
 <style scoped>
-  .table-container {
-    margin-left: -12px;
-    width: 70%;
-  }
   .clickable-cell {
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
@@ -148,13 +175,41 @@
   .pagination {
     margin-top: 20px;
   }
-
-  .rightside {
-    margin-top: 12px;
-  }
-
   .clickable-cell {
     color: black;
     text-decoration: none;
   }
+
+  .cell-container {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    height: 100%;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+  .number {
+    margin-bottom: 0;
+    width: 35px;
+  }
+  .bar-graph {
+    width: 35px;
+    background-repeat: repeat-y;
+    margin-left: 5px;
+    margin-bottom: 5px;
+  }
+  .changes {
+    background-color:  #575858;
+  }
+  .responses {
+    background-color:  #475349;
+  }
+  .rules {
+    background-color: #2d382f;
+  }
+  .org-name-cell {
+    margin-right: 10px;
+    max-width: 200px;
+  }
+
 </style>
