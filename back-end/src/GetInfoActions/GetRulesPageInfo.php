@@ -28,7 +28,8 @@ class GetRulesPageInfo extends AbstractInfoEndpoint
                     nextFRDoc,
                     response_count,
                     comment_count,
-                    change_count
+                    change_count,
+                    orgs
                     FROM cache_frdocs_page';
 
             $countQuery = 'SELECT count(*) AS count FROM cache_frdocs_page';
@@ -75,6 +76,16 @@ class GetRulesPageInfo extends AbstractInfoEndpoint
             if (isset($queryParams['filters']['commentId'])) {
                 $whereClause[] = "frdoc_number IN (SELECT DISTINCT frdoc_number FROM frdoc_comments WHERE comment_id = :commentId) OR frdoc_number IN (SELECT DISTINCT frdoc_number FROM frdoc_input_comments WHERE comment_id = :commentId)";
                 $boundValues['commentId'] = $queryParams['filters']['commentId'];
+            }
+
+            if (isset($queryParams['filters']['agency'])) {
+                $whereClause[] = "agencies LIKE :agency";
+                $boundValues['agency'] = '%' . $queryParams['filters']['agency'] . '%';
+            }
+
+            if (isset($queryParams['filters']['org'])) {
+                $whereClause[] = "orgs LIKE :org";
+                $boundValues['org'] = '%' . $queryParams['filters']['org'] . '%';
             }
 
             // Add where clause

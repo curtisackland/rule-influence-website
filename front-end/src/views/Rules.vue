@@ -11,7 +11,8 @@
           class="mr-3"
       ></v-text-field>
       <v-select id="filter-type" v-model="filterType" label="Document Type" :items="filterOptionsType" item-title="title" item-value="value" class="mr-3"></v-select>
-      <v-combobox id="filter-topic" label="Topic" class="mr-3" :clearable="true"></v-combobox>
+      <v-text-field id="filter-topic" v-model="filterAgency" label="Agency" class="mr-3" :clearable="true"></v-text-field>
+      <v-text-field id="filter-topic" v-model="filterOrg" label="Agency" class="mr-3" :clearable="true"></v-text-field>
       <v-text-field id="filter-date-start" :model-value="filterStartDateText?.toISOString().split('T')[0]" label="Start Date" append-inner-icon="mdi-calendar" :readonly="true" :clearable="true" @click:clear="filterStartDateText = null" class="mr-3" >
         <v-menu activator="parent" v-model="filterStartDateMenuActive" :close-on-content-click="false" >
           <v-date-picker v-model="filterStartDateText" color="rie-primary-color" format="yyyy-MM-dd" type="date" show-adjacent-months range border>
@@ -176,6 +177,8 @@ export default {
           frdocNumber: this.frdocNumber,
           commentId: this.filterCommentId,
           titleOrId: this.filterTitleAndFRDocNumber,
+          agency: this.filterAgency,
+          org: this.filterOrg,
           page: this.currentPage, // has to be an integer || NULL
           itemsPerPage: this.itemsPerPage, // has to be an integer || NULL
           idArray: this.filterIdArray,
@@ -252,6 +255,8 @@ export default {
       this.filterEndDateText = null;
       this.filterCommentId = null;
       this.frdocNumber = null;
+      this.filterAgency = null;
+      this.filterOrg = null;
       this.filterTitleAndFRDocNumber = null;
       this.filterClearRelatedDocs();
     },
@@ -275,6 +280,8 @@ export default {
       filterEndDateMenuActive: false,
       filterStartDateText: null,
       filterEndDateText: null,
+      filterAgency: null,
+      filterOrg: null,
       filterCommentId: this.$route.query.commentId ?? null,
       frdocNumber: this.$route.query.frdocNumber ?? null,
       filterTitleAndFRDocNumber: null,
@@ -300,8 +307,9 @@ export default {
   },
   mounted() {
     // Read search parameters from URL
-    this.filterTitleAndFRDocNumber = this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null;
-    this.sourceDoc = this.$route.query.sourceDoc ? this.$route.query.sourceDoc : null;
+    this.filterTitleAndFRDocNumber = this.$route.query.frdocNumber ?? null;
+    this.filterOrg = this.$route.query.org ?? null;
+    this.sourceDoc = this.$route.query.sourceDoc ?? null;
     this.filterIdArray = this.$route.query.filterIdArray ? JSON.parse(this.$route.query.filterIdArray) : [];
 
     this.startSearch();

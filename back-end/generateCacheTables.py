@@ -100,25 +100,28 @@ try:
     print("Created org page table")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_frdocs_page AS
-                  SELECT json_group_array(DISTINCT(agency)) as agencies,
-                         publication_date,
-                         fr_type,
-                         type,
-                         frdocs.frdoc_number,
-                         title,
-                         abstract,
-                         action,
-                         JSON_GROUP_ARRAY(DISTINCT prevSeq.frdoc_i) as prevFRDoc,
-                         JSON_GROUP_ARRAY(DISTINCT nextSeq.frdoc_j) as nextFRDoc,
-                         COALESCE(responseCount, 0) as response_count,
-                         COALESCE(commentCount, 0) as comment_count,
-                         COALESCE(change_count, 0) as change_count
+                  SELECT
+                      frdocs.frdoc_number,
+                      publication_date,
+                      fr_type,
+                      type,
+                      json_group_array(DISTINCT(agency)) as agencies,
+                      title,
+                      abstract,
+                      action,
+                      JSON_GROUP_ARRAY(DISTINCT prevSeq.frdoc_i) as prevFRDoc,
+                      JSON_GROUP_ARRAY(DISTINCT nextSeq.frdoc_j) as nextFRDoc,
+                      COALESCE(responseCount, 0) as response_count,
+                      COALESCE(commentCount, 0) as comment_count,
+                      COALESCE(change_count, 0) as change_count,
+                      orgs
                   FROM frdocs
-                           LEFT JOIN frdoc_agencies ON frdocs.frdoc_number=frdoc_agencies.frdoc_number
-                           LEFT JOIN frdoc_sequences prevSeq ON frdocs.frdoc_number = prevSeq.frdoc_j
-                           LEFT JOIN frdoc_sequences nextSeq ON frdocs.frdoc_number = nextSeq.frdoc_i
-                           LEFT JOIN (SELECT frdoc_number, COUNT(*) as responseCount, SUM(CASE WHEN y_prob>0.5 THEN 1 ELSE 0 END) as change_count FROM responses GROUP BY frdoc_number) responses ON frdocs.frdoc_number = responses.frdoc_number
-                           LEFT JOIN (SELECT frdoc_number, COUNT(DISTINCT comment_id) as commentCount FROM comment_responses GROUP BY frdoc_number) comments ON frdocs.frdoc_number = comments.frdoc_number
+                      LEFT JOIN frdoc_agencies ON frdocs.frdoc_number=frdoc_agencies.frdoc_number
+                      LEFT JOIN frdoc_sequences prevSeq ON frdocs.frdoc_number = prevSeq.frdoc_j
+                      LEFT JOIN frdoc_sequences nextSeq ON frdocs.frdoc_number = nextSeq.frdoc_i
+                      LEFT JOIN (SELECT frdoc_number, COUNT(*) as responseCount, SUM(CASE WHEN y_prob>0.5 THEN 1 ELSE 0 END) as change_count FROM responses GROUP BY frdoc_number) responses ON frdocs.frdoc_number = responses.frdoc_number
+                      LEFT JOIN (SELECT frdoc_number, COUNT(DISTINCT comment_id) as commentCount FROM comment_responses GROUP BY frdoc_number) comments ON frdocs.frdoc_number = comments.frdoc_number
+                      LEFT JOIN (SELECT frdoc_number, JSON_GROUP_ARRAY(DISTINCT org_name) as orgs FROM comment_responses LEFT JOIN comment_orgs ON comment_responses.comment_id=comment_orgs.comment_id GROUP BY frdoc_number) comments_orgs ON frdocs.frdoc_number = comments_orgs.frdoc_number
                   GROUP BY frdocs.frdoc_number;""")
 
     cursor.execute("""CREATE INDEX IF NOT EXISTS frdoc_number_index ON cache_frdocs_page (frdoc_number)""")
