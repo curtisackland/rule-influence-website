@@ -23,12 +23,12 @@
             <h4 style="line-height: 2;">
               {{$route.params.orgName}} has submitted 
               <RouterLink :to="{ name: 'comments', query: { orgName: $route.params.orgName } }">
-              <span class="bigger-text text-white">{{Org_Info_data["number_of_comments"]}} comments</span>
+              <span class="bigger-text">{{Org_Info_data["number_of_comments"]}} comments</span>
               </RouterLink>
               on <span class="bigger-text">{{Org_Info_data["total_rules"] }} rules</span>.
               From their comments, {{$route.params.orgName}} has received 
               <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }">
-              <span class="bigger-text text-white">{{Org_Info_data["total_response_count"]}} responses</span>
+              <span class="bigger-text">{{Org_Info_data["total_response_count"]}} responses</span>
               </RouterLink>, 
               resulting in <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}} policy changes</span>.
             </h4>
@@ -144,42 +144,6 @@
           </div>
         </v-sheet> 
       </div>
-
-      <!--<div class="d-flex flex-column align-center justify-space-evenly">
-
-        <v-sheet
-        class="pa-10 bg-rie-primary-color my-3 pa-10 align-center elevation-15"
-        rounded="xl"
-        width="600px"
-        >
-          <h2 class="text-center mb-3"><v-icon icon="mdi-message-reply-text"></v-icon> Most Influential Comments</h2>
-          <v-sheet 
-          class="pa-4 my-4 bg-rie-secondary-color"
-          rounded="lg"
-          v-for="row in Org_Comment_data"
-          >
-            <div class="d-flex flex-row justify-space-between">
-              <div>
-                <div class="font-italic">
-                  Responses: {{row['linked_responses']}}
-                </div>
-                <div class="font-italic font-weight-bold">
-                  Changes: {{row['number_of_changes']}}
-                </div>
-              </div>
-              <div class="d-flex flex-column align-center">
-                <a :href="'https://www.regulations.gov/comment/' + row['comment_id']" target="_blank" class="">
-                  <v-btn density="compact" rounded="lg">View on Regulations.gov</v-btn>
-                </a>
-                <a :href="'../comments/' + row['comment_id']" target="_blank" class="">
-                  <v-btn density="compact" rounded="lg" class="mt-2">Comment Page</v-btn>
-                </a>
-              </div>
-            </div>
-          </v-sheet>
-        </v-sheet>
-
-      </div>-->
     </div>
   </div>
 </template>
@@ -267,25 +231,6 @@ export default {
               }
             }
           });
-      
-      // //Fetch Top Influential Comments Data
-      // await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/comments", {
-      //   params: { filters: {
-      //       orgName: this.$route.params.orgName, //string of org name
-      //       sortBy: "numberOfChanges", // sort by a specific column: "numberOfChanges" || "linkedResponses" || NULL
-      //       sortOrder: "DESC", // can be "DESC" || "ASC" || NULL
-      //     }},
-      // }).then(response => {
-      //       this.Org_Comment_data = response.data.data.slice(0,5);
-      // }).catch(error => {
-      //   if (!axios.isCancel(error)) {
-      //     if (error.response.data.error) {
-      //       this.errorMessage = error.response.data.error;
-      //     } else {
-      //       this.errorMessage = "Unable to load data."
-      //     }
-      //   }
-      // });
       
       this.searchIsLoading = false;
 
