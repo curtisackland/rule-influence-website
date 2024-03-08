@@ -222,7 +222,7 @@ export default {
     return {
       searchIsLoading: false,
       commentData: null,
-      orgName: null,
+      orgName: this.$route.query.orgName ? this.$route.query.orgName : null,
       frdocNumber: this.$route.query.frdocNumber ? this.$route.query.frdocNumber : null,
       responseId: this.$route.query.responseId ? this.$route.query.responseId : null,
       filterStartDateMenuActive: false,
