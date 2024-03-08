@@ -25,7 +25,10 @@
               <RouterLink :to="{ name: 'comments', query: { orgName: $route.params.orgName } }">
               <span class="bigger-text">{{Org_Info_data["number_of_comments"]}} comments</span>
               </RouterLink>
-              on <span class="bigger-text">{{Org_Info_data["total_rules"] }} rules</span>.
+              on 
+              <RouterLink :to="{ name: 'rules', query: { org: $route.params.orgName } }">
+              <span class="bigger-text">{{Org_Info_data["total_rules"] }} rules</span>.
+              </RouterLink>
               From their comments, {{$route.params.orgName}} has received 
               <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }">
               <span class="bigger-text">{{Org_Info_data["total_response_count"]}} responses</span>
