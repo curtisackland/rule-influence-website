@@ -179,25 +179,55 @@ try:
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS cache_org_agency AS
                     SELECT
-                        org_name,
-                        frdoc_agencies.agency,
-                        COUNT(DISTINCT(frdoc_agencies.frdoc_number)) AS agency_rules,
-                        COUNT(y_prob) AS agency_responses,
-                        SUM(y_prob>0.5) AS agency_changes,
-                        (CAST(SUM(y_prob>0.5) AS REAL)) / (CAST(COUNT(y_prob) AS REAL)) AS change_ratio,
+                        AGENCY_RCR.org_name,
+                        AGENCY_RCR.agency,
+                        agency_rules,
+                        agency_responses,
+                        agency_changes,
+                        change_ratio,
                         agency_comments
-                    FROM org_responses
-                    INNER JOIN responses
-                        ON responses.frdoc_number=org_responses.frdoc_number
-                        AND responses.response_id=org_responses.response_id
-                    INNER JOIN frdoc_agencies
-                        ON responses.frdoc_number=frdoc_agencies.frdoc_number
-                    INNER JOIN (SELECT frdoc_number, COUNT(DISTINCT(comment_id)) AS agency_comments FROM frdoc_comments GROUP BY frdoc_number
+
+                    FROM (
+                        SELECT
+                            org_name,
+                            agency,
+                            COUNT(y_prob) AS agency_responses,
+                            SUM(y_prob>0.5) AS agency_changes,
+                            (CAST(SUM(y_prob>0.5) AS REAL)) / (CAST(COUNT(y_prob) AS REAL)) AS change_ratio
+                        FROM org_responses
+                        INNER JOIN responses ON responses.frdoc_number=org_responses.frdoc_number
+                            AND responses.response_id=org_responses.response_id
+                        INNER JOIN frdoc_agencies
+                                   ON responses.frdoc_number=frdoc_agencies.frdoc_number
+                        GROUP BY org_name, agency) AGENCY_RCR
+                    INNER JOIN (
+                        SELECT org_name, frdoc_agencies.agency, COUNT(DISTINCT(frdoc_agencies.frdoc_number)) AS agency_rules FROM org_responses
+                        INNER JOIN responses
+                            ON responses.frdoc_number=org_responses.frdoc_number
+                            AND responses.response_id=org_responses.response_id
+                        INNER JOIN frdoc_agencies
+                            ON responses.frdoc_number=frdoc_agencies.frdoc_number
+                        GROUP BY org_name, agency
+                    ) AGENCY_COUNT ON AGENCY_RCR.org_name=AGENCY_COUNT.org_name AND AGENCY_RCR.agency=AGENCY_COUNT.agency
+
+                    INNER JOIN (
+                        SELECT org_name, agency, COUNT(DISTINCT A.comment_id) AS agency_comments FROM
+                            (SELECT
+                                frdoc_number,
+                                comment_id,
+                                comment_id AS agency_comments
+                            FROM frdoc_comments
                             UNION
-                                SELECT frdoc_number, COUNT(DISTINCT(comment_id)) AS agency_comments FROM frdoc_input_comments GROUP BY frdoc_number
-                            ) Comments
-                        ON Comments.frdoc_number=responses.frdoc_number
-                    GROUP BY org_name, frdoc_agencies.agency;""")
+                            SELECT frdoc_number,
+                                   comment_id,
+                                comment_id AS agency_comments
+                            FROM frdoc_input_comments
+                        ) A
+                        INNER JOIN comment_orgs ON A.comment_id = comment_orgs.comment_id
+                        INNER JOIN frdoc_agencies ON A.frdoc_number=frdoc_agencies.frdoc_number
+                        GROUP BY org_name, agency
+                    ) Comments ON Comments.org_name=AGENCY_RCR.org_name AND Comments.agency=AGENCY_RCR.agency
+                    GROUP BY AGENCY_RCR.org_name, AGENCY_RCR.agency;""")
 
     connection.commit()
 
