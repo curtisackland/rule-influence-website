@@ -34,7 +34,7 @@
               <span class="text-white">{{Org_Info_data["total_response_count"]}} responses</span>
               </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>, 
               resulting in 
-              <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName, resultedInChange: '1' } }" class="custom-link">
+              <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName, detectedChange: '1' } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["total_rules_changed"]}} policy changes</span>
               </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>.
             </h5>
