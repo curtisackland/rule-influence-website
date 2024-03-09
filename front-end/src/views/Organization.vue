@@ -18,31 +18,34 @@
           <h2 class="mb-4"><v-icon icon="mdi-file-chart"></v-icon> Statistics</h2>
 
           <div
-          class="d-flex flex-row justify-space-between"
+          class="d-flex flex-row justify-space-between align-center"
           >
-            <h4 style="line-height: 2;">
+            <h5 style="line-height: 2;">
               {{$route.params.orgName}} has submitted 
-              <RouterLink :to="{ name: 'comments', query: { orgName: $route.params.orgName } }">
-              <span class="bigger-text">{{Org_Info_data["number_of_comments"]}} comments</span>
-              </RouterLink>
+              <router-link :to="{ name: 'comments', query: { orgName: $route.params.orgName } }" class="custom-link">
+              <span class="text-white">{{Org_Info_data["number_of_comments"]}} comments</span>
+              </router-link> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>
               on 
-              <RouterLink :to="{ name: 'rules', query: { org: $route.params.orgName } }">
-              <span class="bigger-text">{{Org_Info_data["total_rules"] }} rules</span>.
-              </RouterLink>
+              <RouterLink :to="{ name: 'rules', query: { org: $route.params.orgName } }" class="custom-link">
+              <span class="text-white">{{Org_Info_data["total_rules"] }} rules</span>.
+              </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>
               From their comments, {{$route.params.orgName}} has received 
-              <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }">
-              <span class="bigger-text">{{Org_Info_data["total_response_count"]}} responses</span>
-              </RouterLink>, 
-              resulting in <span class="bigger-text">{{Org_Info_data["total_rules_changed"]}} policy changes</span>.
-            </h4>
+              <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }" class="custom-link">
+              <span class="text-white">{{Org_Info_data["total_response_count"]}} responses</span>
+              </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>, 
+              resulting in 
+              <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName, resultedInChange: '1' } }" class="custom-link">
+              <span class="text-white">{{Org_Info_data["total_rules_changed"]}} policy changes</span>
+              </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>.
+            </h5>
             <v-sheet
-            class="d-flex flex-column pa-10 ml-10 bg-rie-secondary-color align-center elevation-15"
+            class="d-flex flex-column pa-1 ml-10 bg-rie-secondary-color align-center elevation-15"
             rounded="xl"
-            min-width="500"
+            min-width="400"
             v-if="Org_Info_data"
             >
-              <div class="text-h5 mb-3">
-                <v-icon icon="mdi-chart-pie"></v-icon> Comment Influency Percentage
+              <div class="text-h5 mb-1">
+                <v-icon icon="mdi-chart-pie"></v-icon> Success Rate
                 <v-tooltip
                   location="top"
                 >
@@ -64,7 +67,7 @@
                 </v-tooltip>
               </div>
                 <svg :width="150" :height="150" ref="chart"></svg>
-              <div class="text-h3 mt-4 font-weight-black">
+              <div class="text-h5 mt-1">
                 ≈{{(rounded_y_prob * 100).toFixed(0)}}%
               </div>
             </v-sheet>
@@ -295,8 +298,12 @@ export default {
 </script>
 
 <style>
-  .bigger-text{
-    font-size: 1.8em; 
-    font-weight: bold;
+  .custom-link {
+  color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+  }
+  .custom-link:hover {
+  text-decoration: underline;
   }
 </style>
