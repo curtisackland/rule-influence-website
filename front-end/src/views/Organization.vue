@@ -88,6 +88,7 @@
             v-if='Org_Agency_data'
             :headers='headers'
             :items='Org_Agency_data'
+            :items-per-page="Org_Agency_itemsPerPage"
             :page.sync="Org_Agency_currentPage"
           >
 
