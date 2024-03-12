@@ -27,8 +27,8 @@
               </router-link> <v-icon size="x-small">mdi-open-in-new</v-icon>
               on 
               <RouterLink :to="{ name: 'rules', query: { org: $route.params.orgName } }" class="custom-link">
-              <span class="text-white">{{Org_Info_data["total_rules"] }} rules</span>.
-              </RouterLink> <v-icon size="x-small">mdi-open-in-new</v-icon>
+              <span class="text-white">{{Org_Info_data["total_rules"] }} rules</span>
+              </RouterLink> <v-icon size="x-small">mdi-open-in-new</v-icon>.
               From their comments, {{$route.params.orgName}} has received 
               <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["total_response_count"]}} responses</span>
