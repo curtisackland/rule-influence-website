@@ -86,10 +86,14 @@
           <v-data-table
             class="mb-5"
             v-if='Org_Agency_data'
-              :items='Org_Agency_data'
-              :headers='headers'
-              :page.sync="Org_Agency_currentPage"
+            :headers='headers'
+            :items='Org_Agency_data'
+            :page.sync="Org_Agency_currentPage"
           >
+
+            <template v-slot:item.change_ratio="{ item }">
+              {{ Number(item.change_ratio).toFixed(2) }}
+            </template>
             <template v-slot:bottom>
             </template>
           </v-data-table>
@@ -177,6 +181,14 @@ export default {
       Org_Agency_pagesToShow: 9,
       Org_Rule_data: null,
       Org_Comment_data: null,
+      headers: [
+        { title: 'Agency', key: 'agency'},
+        { title: 'Changes', key: 'agency_changes'},
+        { title: 'Responses', key: 'agency_responses'},
+        { title: 'Comments', key: 'agency_comments'},
+        { title: 'Rules', key: 'agency_rules'},
+        { title: 'Change Ratio', key: 'change_ratio'}
+      ],
     };
   },
   async mounted() {
