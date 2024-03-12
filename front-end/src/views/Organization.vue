@@ -24,19 +24,19 @@
               {{$route.params.orgName}} has submitted 
               <router-link :to="{ name: 'comments', query: { orgName: $route.params.orgName } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["number_of_comments"]}} comments</span>
-              </router-link> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>
+              </router-link> <v-icon size="x-small">mdi-open-in-new</v-icon>
               on 
               <RouterLink :to="{ name: 'rules', query: { org: $route.params.orgName } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["total_rules"] }} rules</span>.
-              </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>
+              </RouterLink> <v-icon size="x-small">mdi-open-in-new</v-icon>
               From their comments, {{$route.params.orgName}} has received 
               <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["total_response_count"]}} responses</span>
-              </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>, 
+              </RouterLink> <v-icon size="x-small">mdi-open-in-new</v-icon>, 
               resulting in 
               <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName, detectedChange: '1' } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["total_rules_changed"]}} policy changes</span>
-              </RouterLink> <v-icon size="x-small" class="align-top">mdi-open-in-new</v-icon>.
+              </RouterLink> <v-icon size="x-small">mdi-open-in-new</v-icon>.
             </h5>
             <v-sheet
             class="d-flex flex-column pa-1 ml-10 bg-rie-secondary-color align-center elevation-15"
@@ -314,8 +314,6 @@ export default {
   color: #FFFFFF;
   text-decoration: none;
   cursor: pointer;
-  }
-  .custom-link:hover {
   text-decoration: underline;
   }
 </style>
