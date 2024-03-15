@@ -39,8 +39,28 @@ class GetOrgAgencies extends AbstractInfoEndpoint
             }
 
             $this->paginate($countQuery, $queryParams, $boundValues);
-
-            $query .= $this->sortOrder("DESC", "change_ratio");
+            if (isset($queryParams['filters']['sortBy']) && isset($queryParams['filters']['sortOrder'])) {
+                switch($queryParams['filters']['sortBy']) {
+                    case "agency":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'agency');
+                        break;
+                    case "agency_rules":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'agency_rules');
+                        break;
+                    case "agency_responses":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'agency_responses');
+                        break;
+                    case "agency_changes":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'agency_changes');
+                        break;
+                    case "change_ratio":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'change_ratio');
+                        break;
+                    case "agency_comments":
+                        $query .= $this->sortOrder($queryParams['filters']['sortOrder'], 'agency_comments');
+                        break;
+                }
+            }
 
             $query .= ' LIMIT :startingLimit, :limit';
             $boundValues['startingLimit'] = $this->startingLimit;
