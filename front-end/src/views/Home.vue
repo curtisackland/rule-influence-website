@@ -23,10 +23,10 @@
   ];
 
   const tableHeaders = [
-      { title: 'Organization Name', key: 'org_name' },
-      { title: 'Changes', key: 'org_changes' },
-      { title: 'Responses', key: 'org_responses' },
-      { title: 'Rules', key: 'org_rules' },
+      { title: 'Organization Name', key: 'org_name', sortable: false },
+      { title: 'Changes', key: 'org_changes', sortable: false  },
+      { title: 'Responses', key: 'org_responses', sortable: false  },
+      { title: 'Rules', key: 'org_rules', sortable: false  },
   ];
 
   const sortByOptions = ref([
