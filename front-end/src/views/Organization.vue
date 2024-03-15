@@ -90,6 +90,9 @@
             :items='Org_Agency_data'
             :items-per-page="Org_Agency_itemsPerPage"
             :page.sync="Org_Agency_currentPage"
+            :loading="searchIsLoading"
+            v-model:sort-by="sortBy"
+            @update:options="reloadItems"
           >
 
             <template v-slot:item.change_ratio="{ item }">
@@ -190,10 +193,11 @@ export default {
         { title: 'Rules', key: 'agency_rules'},
         { title: 'Change Ratio', key: 'change_ratio'}
       ],
+      sortBy: [{ key: 'agency_changes', order: 'desc' }],
     };
   },
   async mounted() {
-    await this.fetchData(); 
+    await this.fetchData();
     this.animateChart();
   },
   methods: {
@@ -216,9 +220,39 @@ export default {
           });
 
       //Fetch Agencies Most Impacted Data
+      await this.reloadItems();
+
+      //Fetch Rules Most Impacted Data
+      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_doc_changes/" + encodeURIComponent(this.$route.params.orgName))
+          .then(response => {
+            this.Org_Rule_data = response.data;
+          }).catch(error => {
+            if (!axios.isCancel(error)) {
+              if (error.response.data.error) {
+                this.errorMessage = error.response.data.error;
+              } else {
+                this.errorMessage = "Unable to load data."
+              }
+            }
+          });
+
+      this.searchIsLoading = false;
+
+    },
+    async reloadItems() {
+      this.searchIsLoading = true;
+
+      let sortKey = null;
+      let sortOrder = null;
+      if (this.sortBy !== null && this.sortBy.length) {
+        sortKey = this.sortBy[0].key;
+        sortOrder = this.sortBy[0].order.toUpperCase();
+      }
       await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_agency/" + encodeURIComponent(this.$route.params.orgName), {
         params: {
           filters: {
+            sortBy: sortKey,
+            sortOrder: sortOrder,
             page: this.Org_Agency_currentPage, // has to be an integer || NULL
             itemsPerPage: this.Org_Agency_itemsPerPage // has to be an integer || NULL
           }
@@ -236,31 +270,16 @@ export default {
               }
             }
           });
-
-      //Fetch Rules Most Impacted Data
-      await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/organization_doc_changes/" + encodeURIComponent(this.$route.params.orgName))
-          .then(response => {
-            this.Org_Rule_data = response.data;
-          }).catch(error => {
-            if (!axios.isCancel(error)) {
-              if (error.response.data.error) {
-                this.errorMessage = error.response.data.error;
-              } else {
-                this.errorMessage = "Unable to load data."
-              }
-            }
-          });
       
       this.searchIsLoading = false;
-
     },
     updateCurrentPage(newPage) {
       this.Org_Agency_currentPage = newPage;
-      this.fetchData();
+      this.reloadItems();
     },
     updateItemsPerPage(newItemsPerPage) {
       this.Org_Agency_itemsPerPage = newItemsPerPage;
-      this.fetchData();
+      this.reloadItems();
     },
     animateChart() {
 
@@ -313,7 +332,6 @@ export default {
 <style>
   .custom-link {
   color: #FFFFFF;
-  text-decoration: none;
   cursor: pointer;
   text-decoration: underline;
   }
