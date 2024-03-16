@@ -1,26 +1,23 @@
 
 <template>
   <div class="d-flex flex-column align-center justify-center">
-    <div class="d-flex justify-center text-h2 mt-16">
-      {{$route.params.orgName}}
-    </div>
 
     <div class="d-flex flex-row my-10 justify-space-evenly">
       <div class="d-flex flex-column">
 
         <v-sheet
         v-if="Org_Info_data"
-        class="d-flex flex-column my-3 pa-10 justify-space-between bg-rie-primary-color align-center"
-        rounded="xl"
+        class="d-flex flex-column pa-5 justify-space-between bg-rie-primary-color align-center"
+        rounded
         max-width="1200"
         >
           
-          <h2 class="mb-4"><v-icon icon="mdi-file-chart"></v-icon> Statistics</h2>
+          <h1 class="mb-4">{{$route.params.orgName}}</h1>
 
           <div
           class="d-flex flex-row justify-space-between align-center"
           >
-            <h5 style="line-height: 2;">
+            <p style="line-height: 2; font-size: 16px;">
               {{$route.params.orgName}} has submitted 
               <router-link :to="{ name: 'comments', query: { orgName: $route.params.orgName } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["number_of_comments"]}} comments</span>
@@ -37,10 +34,10 @@
               <RouterLink :to="{ name: 'responses', query: { orgName: $route.params.orgName, detectedChange: '1' } }" class="custom-link">
               <span class="text-white">{{Org_Info_data["total_rules_changed"]}} policy changes</span>
               </RouterLink> <v-icon size="x-small">mdi-open-in-new</v-icon>.
-            </h5>
+            </p>
             <v-sheet
             class="d-flex flex-column pa-1 ml-10 bg-rie-secondary-color align-center elevation-15"
-            rounded="xl"
+            rounded
             min-width="400"
             v-if="Org_Info_data"
             >
@@ -74,17 +71,19 @@
           </div>
         </v-sheet>
 
-        <v-divider class="d-flex container justify-center" :style="{width: '50%', opacity: '0.5'}"></v-divider>
-
         <v-sheet 
-        class="d-flex flex-column my-3 pa-10 bg-rie-primary-color align-center"
-        rounded="xl"
+        class="d-flex flex-column my-3 pb-3 px-3 bg-rie-primary-color align-center"
+        rounded
         max-width="1200"
         >  
-          <h2 class="mb-4"><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</h2>
+          <v-card-title class="px-2 w-100">
+            <v-row class="d-flex justify-center">
+              <v-card-title class="px-4"><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</v-card-title>
+            </v-row>
+          </v-card-title>
           <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
           <v-data-table
-            class="mb-5"
+            class="mb-4 mx-2"
             v-if='Org_Agency_data'
             :headers='headers'
             :items='Org_Agency_data'
@@ -112,20 +111,20 @@
           />
         </v-sheet>
 
-        <v-divider class="d-flex container justify-center" :style="{width: '50%', opacity: '0.5'}"></v-divider>
-
         <v-sheet 
-        class="d-flex flex-column my-3 pa-10 bg-rie-primary-color align-center"
-        rounded="xl"
+        class="d-flex flex-column my-3 pb-3 px-3 bg-rie-primary-color align-center"
+        rounded
         max-width="1200"
         >
-
-          <h2><v-icon icon="mdi-book-open-variant"></v-icon> Rules Most Impacted by {{$route.params.orgName}}</h2>
-
-          <div class="d-flex flex-column mt-5">
+          <v-card-title class="px-2 w-100">
+            <v-row class="d-flex justify-center">
+              <v-card-title class="px-4"><v-icon icon="mdi-book-open-variant"></v-icon> Rules Most Impacted by {{$route.params.orgName}}</v-card-title>
+            </v-row>
+          </v-card-title>
+          <div class="d-flex flex-column mt-1">
             <v-sheet 
             class="pa-4 my-2 bg-rie-secondary-color"
-            rounded="lg"
+            rounded
             v-for="row in Org_Rule_data"
             >
               <div class="d-flex flex-row justify-space-between">
@@ -138,15 +137,15 @@
                   </div>
                   <div class="d-flex flex-row justify-start mt-4">
                     <a :href="'https://www.federalregister.gov/d/' + row['frdoc_number']" target="_blank" class="">
-                      <v-btn text="Federal Register Document" rounded="lg" density="compact"></v-btn>
+                      <v-btn text="Federal Register Document" rounded="sm" density="compact"></v-btn>
                     </a>
                     <RouterLink :to="{ name: 'rules', query: { frdocNumber: row['frdoc_number'] } }">
-                      <v-btn text="Rule Page" rounded="lg" density="compact" class="ml-10"></v-btn>
+                      <v-btn text="Rule Page" rounded="sm" density="compact" class="ml-10"></v-btn>
                     </RouterLink>
                   </div>
                 </div>
                 <div class="d-flex flex-column justify-center">
-                  <div class="ml-15 text-h3 font-weight-black">
+                  <div class="ml-15 text-h4 font-weight-black">
                     {{row["sumScore"]}}
                   </div>
                   <div class="d-flex flex-row-reverse">
