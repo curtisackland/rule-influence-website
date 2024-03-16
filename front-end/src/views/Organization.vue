@@ -41,8 +41,9 @@
             min-width="400"
             v-if="Org_Info_data"
             >
-              <div class="text-h5 mb-1">
-                <v-icon icon="mdi-chart-pie"></v-icon> Success Rate
+              <div class="d-flex align-center justify-center text-h5 mb-1">
+                <v-icon icon="mdi-chart-pie" size="24"></v-icon>
+                &nbsp; Success Rate &nbsp;
                 <v-tooltip
                   location="top"
                 >
@@ -51,8 +52,9 @@
                       density="compact"
                       icon
                       v-bind="props"
+                      size="24"
                     >
-                      <v-icon>
+                      <v-icon size="24">
                         mdi-information-slab-symbol
                       </v-icon>
                     </v-btn>
@@ -63,9 +65,9 @@
                   </span>
                 </v-tooltip>
               </div>
-                <svg :width="150" :height="150" ref="chart"></svg>
               <div class="text-h5 mt-1">
-                ≈{{(rounded_y_prob * 100).toFixed(0)}}%
+                <svg :width="75" :height="75" ref="chart"></svg>
+                &nbsp; ≈{{(rounded_y_prob * 100).toFixed(0)}}%
               </div>
             </v-sheet>
           </div>
@@ -78,10 +80,9 @@
         >  
           <v-card-title class="px-2 w-100">
             <v-row class="d-flex justify-center">
-              <v-card-title class="px-4"><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</v-card-title>
+              <v-card-title class="px-4 my-2"><v-icon icon="mdi-domain"></v-icon> Agencies Most Impacted by {{$route.params.orgName}}</v-card-title>
             </v-row>
           </v-card-title>
-          <v-progress-linear color="rie-primary-color" height="6" rounded :indeterminate="searchIsLoading"></v-progress-linear>
           <v-data-table
             class="mb-4 mx-2"
             v-if='Org_Agency_data'
@@ -118,10 +119,10 @@
         >
           <v-card-title class="px-2 w-100">
             <v-row class="d-flex justify-center">
-              <v-card-title class="px-4"><v-icon icon="mdi-book-open-variant"></v-icon> Rules Most Impacted by {{$route.params.orgName}}</v-card-title>
+              <v-card-title class="px-4 my-2"><v-icon icon="mdi-book-open-variant"></v-icon> Rules Most Impacted by {{$route.params.orgName}}</v-card-title>
             </v-row>
           </v-card-title>
-          <div class="d-flex flex-column mt-1">
+          <div class="d-flex flex-column">
             <v-sheet 
             class="pa-4 my-2 bg-rie-secondary-color"
             rounded
@@ -170,8 +171,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      chartWidth: 150,
-      chartHeight: 150,
+      chartWidth: 75,
+      chartHeight: 75,
       avg_y_prob: [0, 0],
       rounded_y_prob: 0,
       Org_Info_data: null,
