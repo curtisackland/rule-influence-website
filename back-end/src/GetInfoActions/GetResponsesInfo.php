@@ -24,7 +24,7 @@ class GetResponsesInfo extends AbstractInfoEndpoint
             $whereClauses = [];
 
             if (isset($queryParams['filters']['frdocNumberOrTitle'])) {
-                $whereClauses[] = "frdoc_number LIKE :frdocNumberOrTitle OR title LIKE :frdocNumberOrTitle";
+                $whereClauses[] = "(frdoc_number LIKE :frdocNumberOrTitle OR title LIKE :frdocNumberOrTitle)";
                 $boundValues['frdocNumberOrTitle'] = "%" . $queryParams['filters']['frdocNumberOrTitle'] . "%";
             }
 
