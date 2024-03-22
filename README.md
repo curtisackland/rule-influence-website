@@ -81,7 +81,46 @@ When developing on the front-end, it is recommended to use vite's dev mode
 cd ./front-end
 npm run dev
 ```
-This should start serving the site locally, the output of the command should show the port of the site.
+This should start serving the site locally on ```localhost:5173```, the output of the command should show the port of the site.
+
+## Project Layout and Technologies with Resources
+
+The front-end is made using the [VueJS3](https://vuejs.org/guide/introduction) framework along with [Vuetify 3](https://vuetifyjs.com/en/getting-started/installation/#installation)
+and [Bootstrap](https://getbootstrap.com/docs/5.0/getting-started/introduction/). 
+
+The back-end is made using [PHP Slim](https://www.slimframework.com/docs/v4/) to create endpoints and [PHP's PDO](https://www.php.net/manual/en/book.pdo.php) to connect and interact with
+the database to query data.
+
+The app is containerized into [Docker](https://www.docker.com/) containers. They are built together using [Docker Compose](https://docs.docker.com/compose/).
+
+### Front-end
+
+To see the front-end pages go to ```front-end/src/views```. These are all the different pages through the website. Some are made up of custom components that you can see in ```front-end/src/components```.
+Note: you will be able to see changes in the front-end immediately when running ```npm run dev```, however you will have to rebuild the docker container with ```cd ./docker && docker compose up -d --build```
+to see changes when not running in dev mode. 
+
+#### Adding a Page
+
+To add a page, create a new Vue component/file in ```front-end/src/views``` (you can use the other views/pages for reference). Then in ```front-end/src/router/index.js```, add a new route
+similar to the other routes but changing the component it routes to that of the new component/page you just created. Also, update the path to something you want the page
+to be accessible with and update the name to something that makes sense for the route. If you'd like to be able to access this page from the navigation bar as well, go to 
+```front-end/src/components/NavBar.vue``` and update the variable array, ```menuItems```, with the new route (should be done similar to the other routes that exist in the array).
+And that's it, you should now have a new page when you go to ```localhost:5173/<path to new page>```, where ```localhost:5173``` can be replaced with whatever your website address is.
+
+### Back-end
+
+To see all the back-end routes for the endpoints where data is retrieved from, go to ```back-end/src/index.php```. There will be a list of routes that point to different PHP classes
+that handle retrieving data for that endpoint. To see these PHP classes, go to ```back-end/src/GetInfoActions```.
+
+#### Adding an endpoint
+
+To add an endpoint, add a new php class/file under ```back-end/src/GetInfoActions```. Copy the layout from another class (GetHomePageInfo for example) and update the queries and filters
+with your own queries and filters. Add a new route in ```back-end/src/index.php``` similar to the other routes listed there and make sure that it uses your new PHP class.
+And that's it, you should be able to access data from your new endpoint at ```localhost:8080/<new route name>```, where ```localhost:8080``` can be replaced with whatever your website address is.
+
+#### Database Cache Table Creation Script
+
+You can see all the cache tables we use for each endpoint in ```back-end/generateCacheTables.py```.
 
 ## Front End Testing
 
