@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 db_file = 'data/rulemaking_influence.db'
@@ -15,6 +16,10 @@ tableNames = [
 tablesToDrop = tableNames
 #tablesToDrop = ["cache_comment_page"]
 try:
+
+    if not os.path.exists(db_file):
+        raise Exception("Database file missing. Please place it in the rule-influence-website/back-end/data directory.")
+
     connection = sqlite3.connect(db_file)
 
     cursor = connection.cursor()
