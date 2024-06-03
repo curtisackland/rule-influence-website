@@ -12,7 +12,6 @@ use App\GetInfoActions\GetOrgDocChanges;
 use App\GetInfoActions\GetLeaderboard;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
-use App\Test\TestRoute;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
