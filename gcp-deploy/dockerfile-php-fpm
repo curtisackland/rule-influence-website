@@ -1,5 +1,7 @@
 FROM php:8.0.2-fpm
 
+# PORT 9000 is automatically exposed with the fpm image
+
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -11,14 +13,12 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www
 
-#COPY ./../ ./
+COPY ../back-end ./
 
-COPY ../config /var/www/config
-COPY ../src /var/www/src
-COPY ../composer.json /var/www/composer.json
-COPY ../composer.lock /var/www/composer.lock
-
-EXPOSE 9000
+#COPY ../config /var/www/config
+#COPY ../src /var/www/src
+#COPY ../composer.json /var/www/composer.json
+#COPY ../composer.lock /var/www/composer.lock
 
 # Set the COMPOSER_ALLOW_SUPERUSER environment variable to 1
 ENV COMPOSER_ALLOW_SUPERUSER=1

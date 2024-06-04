@@ -1,8 +1,8 @@
 services:
   app:
     build:
-      context: ..
-      dockerfile: dockerfile
+      context: ../back-end
+      dockerfile: ../back-end/dockerfile
     container_name: rule-making-influence-back-end
     working_dir: /var/www/
     volumes:

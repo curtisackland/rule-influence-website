@@ -1,0 +1,18 @@
+# Use the official Nginx image as the base image
+FROM nginx:1.19-alpine
+
+# Copy custom Nginx configuration file
+#COPY ../nginx /etc/nginx/conf.d
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy application files to the web root
+COPY ../back-end /var/www
+
+#COPY ../config /var/www/config
+#COPY ../src /var/www/src
+#COPY ../composer.json /var/www/composer.json
+#COPY ../composer.lock /var/www/composer.lock
+
+# Expose port 80 for the Nginx server
+EXPOSE 80
