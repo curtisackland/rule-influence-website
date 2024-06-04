@@ -13,7 +13,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www
 
-COPY ../back-end ./
+COPY . .
 
 #COPY ../config /var/www/config
 #COPY ../src /var/www/src
