@@ -4,14 +4,14 @@ WORKDIR /app
 
 RUN npm install -g serve
 
-COPY ../front-end/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-COPY ../front-end/vercel.json ./
-COPY ../front-end/vite.config.js ./
-COPY ../front-end/index.html ./
-COPY ../front-end/public/ ./public
-COPY ../front-end/src/ ./src
+COPY vercel.json ./
+COPY vite.config.js ./
+COPY index.html ./
+COPY public ./public
+COPY src ./src
 
 ENV VITE_BACKEND_URL=http://localhost:8080
 
