@@ -4,15 +4,15 @@ WORKDIR /app
 
 RUN npm install -g serve
 
-COPY package*.json .
+COPY package*.json ./
 RUN npm install
 
-COPY vercel.json .
-COPY vite.config.js .
-COPY index.html .
+COPY vercel.json ./
+COPY vite.config.js ./
+COPY index.html ./
 COPY public/ ./public
 COPY src/ ./src
-COPY .env .
+COPY .env ./
 
 ENV PORT 3000
 
