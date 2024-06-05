@@ -34,7 +34,7 @@ ENV PORT 80
 # Expose port 80 for Nginx
 EXPOSE 80 443
 
-ENTRYPOINT ["/etc/entrypoint.sh"]
+ENTRYPOINT ["sh", "/etc/entrypoint.sh"]
 
 # Start Nginx and PHP-FPM
 #CMD ["nginx", "-g", "daemon off;"]
