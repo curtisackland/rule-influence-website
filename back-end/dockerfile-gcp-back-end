@@ -29,6 +29,8 @@ WORKDIR /var/www/
 # Install PHP dependencies with Composer
 RUN composer install --no-dev
 
+ENV PORT 80
+
 # Expose port 80 for Nginx
 EXPOSE 80 443
 
